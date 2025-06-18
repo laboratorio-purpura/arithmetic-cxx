@@ -4,12 +4,13 @@ module;
 #include <tuple>
 #include <vector>
 
-export module purple;
+export module purple:poly.vector;
 
-export import :mono;
-export import :poly;
+import :poly;
 
-using namespace std;
+using std::span;
+using std::tuple;
+using std::vector;
 
 export namespace purple
 {

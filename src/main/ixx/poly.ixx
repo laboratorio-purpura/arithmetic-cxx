@@ -5,9 +5,11 @@ module;
 
 export module purple:poly;
 
-export import :mono;
+import :mono;
 
-using namespace std;
+using std::span;
+using std::tie;
+using std::tuple;
 
 export namespace purple
 {

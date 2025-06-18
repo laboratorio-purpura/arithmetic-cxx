@@ -29,7 +29,12 @@ export namespace purple::test
     const vector<unsigned> vL { L  };
     const vector<unsigned> vM { M  };
 
-    const vector<unsigned> v00 { 0U, 0U, };
+    const vector<unsigned> v00 { 0U, 0U };
+    const vector<unsigned> v10 { 1U, 0U };
+    const vector<unsigned> v20 { 2U, 0U };
+    const vector<unsigned> vL0 { L,  0U };
+    const vector<unsigned> vM0 { M,  0U };
+
     const vector<unsigned> v01 { 0U, 1U, };
     const vector<unsigned> v02 { 0U, 2U, };
     const vector<unsigned> v0L { 0U, L,  };

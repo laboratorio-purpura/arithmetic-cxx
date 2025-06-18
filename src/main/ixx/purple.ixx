@@ -13,9 +13,26 @@ using namespace std;
 
 export namespace purple
 {
-    //
-    // single digit arithmetic
-    //
+    /// mono integer properties
+
+    /// 1 if and only if x is zero, else 0.
+    constexpr
+    auto is_zero (unsigned int x) noexcept -> unsigned int
+    {
+        x |= -x;
+        x >>= 31U;
+        return 1 - x;
+    }
+
+    /// 1 if and only if x is *not* zero, else 0.
+    constexpr
+    auto not_zero (unsigned int x) noexcept -> unsigned int
+    {
+        x |= -x;
+        return x >> 31U;
+    }
+
+    /// mono integer arithmetic
 
     auto sum (unsigned int x, unsigned int y, unsigned int carry = 0) -> tuple<unsigned int,unsigned int>
     {
@@ -28,8 +45,6 @@ export namespace purple
         x = __builtin_addc(x,y,carry,&carry);
         return carry;
     }
-
-    // --
 
     auto twice (unsigned int x, unsigned int carry = 0) -> tuple<unsigned int, unsigned int>
     {
@@ -46,8 +61,6 @@ export namespace purple
         return r >> 32;
     }
 
-    // --
-
     auto product (unsigned int x, unsigned int y, unsigned int carry = 0) -> tuple<unsigned int,unsigned int>
     {
         static_assert( sizeof(unsigned long long) == 2 * sizeof(unsigned int), "oops");
@@ -62,8 +75,6 @@ export namespace purple
         x = r;
         return r >> 32;
     }
-
-    // --
 
     auto square (unsigned int x, unsigned int carry = 0) -> tuple<unsigned int,unsigned int>
     {
@@ -84,20 +95,63 @@ export namespace purple
     // multi digit arithmetic
     //
 
+    /// poly integer properties
+
+    /// 1 if and only if every term of x is significant, else 0.
     template <typename Integer>
-    void __attribute__((noinline)) accumulate (span<Integer> r, span<const Integer> x)
-    // requires r.size() >= x.size()
+    auto is_compact (span<const Integer> x) noexcept -> Integer;
+
+    /// 1 if and only if every term of x is significant, else 0.
+    template <typename Integer>
+    auto is_compact (vector<Integer> const & x) -> Integer
     {
-        auto xz = x.size();
-        for (auto i = 0u; i != xz; ++i) {
-            r[i] = x[i];
-        }
+        auto xs = span( x.begin(), x.end() );
+        return is_compact(xs);
     }
 
-    // --
+    /// 1 if and only if x is the additive identity, else 0.
+    template <typename Integer>
+    auto is_zero (span<const Integer> x) noexcept -> Integer
+    {
+        Integer r { 1 };
+        auto const xz = x.size();
+        for (auto i = 0u; i != xz; ++i)
+            r &= is_zero(x[i]);
+        return r;
+    }
+
+    /// 1 if and only if x is the additive identity, else 0.
+    template <typename Integer>
+    auto is_zero (vector<Integer> const & x) noexcept
+    {
+        auto xs = span( x.begin(), x.end() );
+        return is_zero(xs);
+    }
+
+    /// 1 if and only if x is *not* the additive identity, else 0.
+    template <typename Integer>
+    auto not_zero (span<const Integer> x) noexcept -> Integer
+    {
+        Integer r { 0 };
+        auto const xz = x.size();
+        for (auto i = 0u; i != xz; ++i)
+            r |= not_zero(x[i]);
+        return r;
+    }
+
+    /// 1 if and only if x is *not* the additive identity, else 0.
+    template <typename Integer>
+    auto not_zero (vector<Integer> const & x) noexcept
+    {
+        auto xs = span( x.begin(), x.end() );
+        return not_zero(xs);
+    }
+
+    /// poly integer arithmetic
 
     template <typename Integer>
     void __attribute__((noinline)) sum_accumulate (span<Integer> r, span<const Integer> x, Integer y)
+    // requires is_compact(x)
     // requires r.size() > x.size()
     {
         Integer carry = y;
@@ -110,6 +164,7 @@ export namespace purple
 
     template <typename Integer>
     void sum_accumulate (vector<Integer> & r, vector<Integer> const & x, Integer y)
+    // requires is_compact(x)
     // requires r.size() > x.size()
     {
         auto rs = span( r.begin(), r.end() );
@@ -119,6 +174,7 @@ export namespace purple
 
     template <typename Integer>
     auto sum (vector<Integer> const & x, Integer y) -> vector<Integer>
+    // requires is_compact(x)
     {
         auto r = vector<Integer>( x.size() + 1 );
         sum_accumulate(r,x,y);
@@ -129,6 +185,7 @@ export namespace purple
 
     template <typename Integer>
     void __attribute__((noinline)) sum_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y)
+    // requires is_compact(x) && is_compact(y)
     // requires x.size() == y.size()
     // requires r.size() > x.size()
     {
@@ -142,6 +199,7 @@ export namespace purple
 
     template <typename Integer>
     void sum_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y)
+    // requires is_compact(x) && is_compact(y)
     // requires x.size() == y.size()
     // requires r.size() > x.size()
     {
@@ -153,6 +211,7 @@ export namespace purple
 
     template <typename Integer>
     auto sum (vector<Integer> const & x, vector<Integer> const & y) -> vector<Integer>
+    // requires is_compact(x) && is_compact(y)
     // requires x.size() == y.size()
     {
         auto r = vector<Integer>( x.size() + 1 );
@@ -164,6 +223,7 @@ export namespace purple
 
     template <typename Integer>
     void __attribute__((noinline)) twice_accumulate (span<Integer> r, span<const Integer> x)
+    // requires is_compact(x)
     // requires r.size() > x.size()
     {
         Integer carry {};
@@ -176,6 +236,7 @@ export namespace purple
 
     template <typename Integer>
     void twice_accumulate (vector<Integer> & r, vector<Integer> const & x)
+    // requires is_compact(x)
     // requires r.size() > x.size()
     {
         auto rs = span( r.begin(), r.end() );
@@ -185,6 +246,7 @@ export namespace purple
 
     template <typename Integer>
     auto twice (vector<Integer> const & x) -> vector<Integer>
+    // requires is_compact(x)
     {
         auto r = vector<Integer>( x.size() + 1 );
         twice_accumulate(r,x);
@@ -195,6 +257,7 @@ export namespace purple
 
     template <typename Integer>
     void __attribute__((noinline)) product_accumulate (span<Integer> r, span<const Integer> x, Integer y)
+    // requires is_compact(x)
     // requires r.size() > x.size()
     {
         Integer carry {};
@@ -207,6 +270,7 @@ export namespace purple
 
     template <typename Integer>
     void product_accumulate (vector<Integer> & r, vector<Integer> const & x, Integer y)
+    // requires is_compact(x)
     // requires r.size() > x.size()
     {
         auto rs = span( r.begin(), r.end() );
@@ -216,6 +280,7 @@ export namespace purple
 
     template <typename Integer>
     auto product (vector<Integer> const & x, Integer y) -> vector<Integer>
+    // requires is_compact(x)
     {
         auto r = vector<Integer>( x.size() + 1 );
         product_accumulate(r,x,y);
@@ -226,6 +291,7 @@ export namespace purple
 
     template <typename Integer>
     void __attribute__((noinline)) product_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y)
+    // requires is_compact(x) && is_compact(y)
     // requires r.size() > x.size() + y.size()
     {
         Integer carry {};
@@ -246,6 +312,7 @@ export namespace purple
 
     template <typename Integer>
     void product_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y)
+    // requires is_compact(x) && is_compact(y)
     // requires r.size() > x.size() + y.size()
     {
         auto rs = span( r.begin(), r.end() );
@@ -256,6 +323,7 @@ export namespace purple
 
     template <typename Integer>
     auto product (vector<Integer> const & x, vector<Integer> const & y) -> vector<Integer>
+    // requires is_compact(x) && is_compact(y)
     {
         auto r = vector<Integer>( x.size() + y.size() + 1 );
         product_accumulate(r,x,y);
@@ -266,6 +334,7 @@ export namespace purple
 
     template <typename Integer>
     void __attribute__((noinline)) square_accumulate (span<Integer> r, span<const Integer> x)
+    // requires is_compact(x)
     // requires r.size() > 2 * x.size()
     {
         Integer carry {};
@@ -290,6 +359,7 @@ export namespace purple
 
     template <typename Integer>
     void square_accumulate (vector<Integer> & r, vector<Integer> const & x)
+    // requires is_compact(x)
     // requires r.size() > x.size() + y.size()
     {
         auto rs = span( r.begin(), r.end() );
@@ -299,9 +369,26 @@ export namespace purple
 
     template <typename Integer>
     auto square (vector<Integer> const & x) -> vector<Integer>
+    // requires is_compact(x)
     {
         auto r = vector<Integer>( (2 * x.size()) + 1 );
         square_accumulate(r,x);
         return std::move(r);
+    }
+}
+
+/// Deferred definitions.
+
+namespace purple
+{
+    template <typename Integer>
+    auto is_compact (span<const Integer> x) noexcept -> Integer
+    {
+        switch (x.size())
+        {
+            case 0: return 0;
+            case 1: return 1;
+            default: return not_zero( x[ x.size() - 1 ]);
+        }
     }
 }

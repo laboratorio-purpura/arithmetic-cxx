@@ -26,7 +26,7 @@ target_sources(purple-crypto-api
 
 add_executable(purple-crypto-test)
 
-FILE(GLOB test_cxx_sources src/test/cxx/*.cxx)
+FILE(GLOB_RECURSE test_cxx_sources src/test/cxx/*.cxx)
 FILE(GLOB test_ixx_sources src/test/ixx/*.ixx)
 
 target_sources(purple-crypto-test

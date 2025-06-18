@@ -1,0 +1,35 @@
+#include <vector>
+
+#include <gtest/gtest.h>
+
+import purple;
+import purple.test;
+
+using namespace purple;
+using namespace purple::test;
+using namespace std;
+
+TEST(mono,not_zero_0)
+{
+    ASSERT_EQ( not_zero(0U), 0 );
+}
+
+TEST(mono,not_zero_1)
+{
+    ASSERT_EQ( not_zero(1U), 1 );
+}
+
+TEST(mono,not_zero_2)
+{
+    ASSERT_EQ( not_zero(2U), 1 );
+}
+
+TEST(mono,not_zero_L)
+{
+    ASSERT_EQ( not_zero(L), 1 );
+}
+
+TEST(mono,not_zero_M)
+{
+    ASSERT_EQ( not_zero(M), 1 );
+}

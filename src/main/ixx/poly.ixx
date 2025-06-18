@@ -151,6 +151,45 @@ export namespace purple
         // propagate carry
         r[xz+xz] = carry; // TODO
     }
+
+    // --
+
+    template <typename Integer>
+    void ratio_accumulate (span<Integer> q, span<Integer> r, span<const Integer> x, Integer y)
+    // requires is_compact(x)
+    // requires not_zero(y)
+    // requires q.size() >= x.size()
+    // requires r.size() >= x.size()
+    {
+        auto const xz = x.size();
+        for (auto j = xz; j != 0; --j) {
+            tie( q[j-1], r[j-1] ) = ratio( x[j-1], y );
+        }
+    }
+
+    template <typename Integer>
+    void quotient_accumulate (span<Integer> q, span<const Integer> x, Integer y)
+    // requires is_compact(x)
+    // requires not_zero(y)
+    // requires q.size() >= x.size()
+    {
+        auto const xz = x.size();
+        for (auto j = xz; j != 0; --j) {
+            tie( q[j-1], std::ignore ) = ratio( x[j-1], y );
+        }
+    }
+
+    template <typename Integer>
+    void remainder_accumulate (span<Integer> r, span<const Integer> x, Integer y)
+    // requires is_compact(x)
+    // requires not_zero(y)
+    // requires r.size() >= x.size()
+    {
+        auto const xz = x.size();
+        for (auto j = xz; j != 0; --j) {
+            tie( std::ignore, r[j-1] ) = ratio( x[j-1], y );
+        }
+    }
 }
 
 /// Deferred definitions.

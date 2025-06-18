@@ -14,8 +14,15 @@
     },
     {
       "inherits": "default",
+      "name": "sanitize",
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "-fsanitize=address -fsanitize=undefined",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address -fsanitize=undefined"
+      }
+    },
+    {
+      "inherits": "default",
       "name": "debug",
-      "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }

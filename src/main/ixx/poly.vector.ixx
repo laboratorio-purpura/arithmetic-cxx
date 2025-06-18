@@ -169,4 +169,61 @@ export namespace purple
         square_accumulate(r,x);
         return std::move(r);
     }
+
+    // --
+
+    template <typename Integer>
+    void ratio_accumulate (vector<Integer> & q, vector<Integer> & r, vector<Integer> const & x, Integer y) noexcept
+    // requires is_compact(x)
+    // requires not_zero(y)
+    // requires q.size() >= x.size()
+    // requires r.size() >= x.size()
+    {
+        auto qs = span( q.begin(), q.end() );
+        auto rs = span( r.begin(), r.end() );
+        auto xs = span( x.begin(), x.end() );
+        ratio_accumulate(qs,rs,xs,y);
+    }
+
+    template <typename Integer>
+    void quotient_accumulate (vector<Integer> & q, vector<Integer> const & x, Integer y) noexcept
+    // requires is_compact(x)
+    // requires not_zero(y)
+    // requires q.size() >= x.size()
+    {
+        auto qs = span( q.begin(), q.end() );
+        auto xs = span( x.begin(), x.end() );
+        quotient_accumulate(qs,xs,y);
+    }
+
+    template <typename Integer>
+    auto quotient (vector<Integer> const & x, Integer y) -> vector<Integer>
+    // requires is_compact(x)
+    // requires not_zero(y)
+    {
+        auto q = vector<Integer>( x.size() );
+        quotient_accumulate(q,x,y);
+        return std::move(q);
+    }
+
+    template <typename Integer>
+    void remainder_accumulate (vector<Integer> & r, vector<Integer> const & x, Integer y) noexcept
+    // requires is_compact(x)
+    // requires not_zero(y)
+    // requires r.size() >= x.size()
+    {
+        auto rs = span( r.begin(), r.end() );
+        auto xs = span( x.begin(), x.end() );
+        remainder_accumulate(rs,xs,y);
+    }
+
+    template <typename Integer>
+    auto remainder (vector<Integer> const & x, Integer y) -> vector<Integer>
+    // requires is_compact(x)
+    // requires not_zero(y)
+    {
+        auto r = vector<Integer>( x.size() );
+        remainder_accumulate(r,x,y);
+        return std::move(r);
+    }
 }

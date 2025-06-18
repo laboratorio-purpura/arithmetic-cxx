@@ -90,4 +90,12 @@ export namespace purple
         x = r;
         return r >> 32;
     }
+
+    constexpr
+    auto ratio (unsigned int x, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
+    {
+        auto q = x / y;
+        auto r = x % y;
+        return { q, r };
+    }
 }

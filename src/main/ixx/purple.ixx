@@ -9,92 +9,12 @@ module;
 
 export module purple;
 
+export import :mono;
+
 using namespace std;
 
 export namespace purple
 {
-    /// mono integer properties
-
-    /// 1 if and only if x is zero, else 0.
-    constexpr
-    auto is_zero (unsigned int x) noexcept -> unsigned int
-    {
-        x |= -x;
-        x >>= 31U;
-        return 1 - x;
-    }
-
-    /// 1 if and only if x is *not* zero, else 0.
-    constexpr
-    auto not_zero (unsigned int x) noexcept -> unsigned int
-    {
-        x |= -x;
-        return x >> 31U;
-    }
-
-    /// mono integer arithmetic
-
-    auto sum (unsigned int x, unsigned int y, unsigned int carry = 0) -> tuple<unsigned int,unsigned int>
-    {
-        auto r = __builtin_addc(x,y,carry,&carry);
-        return { r, carry };
-    }
-
-    auto sum_accumulate (unsigned int & x, unsigned int y, unsigned int carry = 0) -> unsigned int
-    {
-        x = __builtin_addc(x,y,carry,&carry);
-        return carry;
-    }
-
-    auto twice (unsigned int x, unsigned int carry = 0) -> tuple<unsigned int, unsigned int>
-    {
-        static_assert( sizeof(unsigned long long) == 2 * sizeof(unsigned int), "oops");
-        auto r = ( static_cast<unsigned long long>(x) * 2 ) + carry;
-        return { r, r >> 32 };
-    }
-
-    auto twice_accumulate (unsigned int & x, unsigned int carry = 0) -> unsigned int
-    {
-        static_assert( sizeof(unsigned long long) == 2 * sizeof(unsigned int), "oops");
-        auto r = ( static_cast<unsigned long long>(x) * 2 ) + carry;
-        x = r;
-        return r >> 32;
-    }
-
-    auto product (unsigned int x, unsigned int y, unsigned int carry = 0) -> tuple<unsigned int,unsigned int>
-    {
-        static_assert( sizeof(unsigned long long) == 2 * sizeof(unsigned int), "oops");
-        auto r = ( static_cast<unsigned long long>(x) * y ) + carry;
-        return { r, r >> 32 };
-    }
-
-    auto product_accumulate (unsigned int & x, unsigned int y, unsigned int carry = 0) -> unsigned int
-    {
-        static_assert( sizeof(unsigned long long) == 2 * sizeof(unsigned int), "oops");
-        auto r = ( static_cast<unsigned long long>(x) * y ) + carry;
-        x = r;
-        return r >> 32;
-    }
-
-    auto square (unsigned int x, unsigned int carry = 0) -> tuple<unsigned int,unsigned int>
-    {
-        static_assert( sizeof(unsigned long long) == 2 * sizeof(unsigned int), "oops");
-        auto r = ( static_cast<unsigned long long>(x) * x ) + carry;
-        return { r, r >> 32 };
-    }
-
-    auto square_accumulate (unsigned int & x, unsigned int carry = 0) -> unsigned int
-    {
-        static_assert( sizeof(unsigned long long) == 2 * sizeof(unsigned int), "oops");
-        auto r = ( static_cast<unsigned long long>(x) * x ) + carry;
-        x = r;
-        return r >> 32;
-    }
-
-    //
-    // multi digit arithmetic
-    //
-
     /// poly integer properties
 
     /// 1 if and only if every term of x is significant, else 0.

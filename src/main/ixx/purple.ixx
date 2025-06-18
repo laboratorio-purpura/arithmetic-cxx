@@ -1,8 +1,5 @@
 module;
 
-#include <cstdint>
-#include <format>
-#include <iostream>
 #include <span>
 #include <tuple>
 #include <vector>
@@ -70,7 +67,7 @@ export namespace purple
     /// poly integer arithmetic
 
     template <typename Integer>
-    void __attribute__((noinline)) sum_accumulate (span<Integer> r, span<const Integer> x, Integer y)
+    void sum_accumulate (span<Integer> r, span<const Integer> x, Integer y) noexcept
     // requires is_compact(x)
     // requires r.size() > x.size()
     {
@@ -83,7 +80,7 @@ export namespace purple
     }
 
     template <typename Integer>
-    void sum_accumulate (vector<Integer> & r, vector<Integer> const & x, Integer y)
+    void sum_accumulate (vector<Integer> & r, vector<Integer> const & x, Integer y) noexcept
     // requires is_compact(x)
     // requires r.size() > x.size()
     {
@@ -104,7 +101,7 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void __attribute__((noinline)) sum_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y)
+    void sum_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y) noexcept
     // requires is_compact(x) && is_compact(y)
     // requires x.size() == y.size()
     // requires r.size() > x.size()
@@ -118,7 +115,7 @@ export namespace purple
     }
 
     template <typename Integer>
-    void sum_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y)
+    void sum_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y) noexcept
     // requires is_compact(x) && is_compact(y)
     // requires x.size() == y.size()
     // requires r.size() > x.size()
@@ -142,7 +139,7 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void __attribute__((noinline)) twice_accumulate (span<Integer> r, span<const Integer> x)
+    void twice_accumulate (span<Integer> r, span<const Integer> x) noexcept
     // requires is_compact(x)
     // requires r.size() > x.size()
     {
@@ -155,7 +152,7 @@ export namespace purple
     }
 
     template <typename Integer>
-    void twice_accumulate (vector<Integer> & r, vector<Integer> const & x)
+    void twice_accumulate (vector<Integer> & r, vector<Integer> const & x) noexcept
     // requires is_compact(x)
     // requires r.size() > x.size()
     {
@@ -176,7 +173,7 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void __attribute__((noinline)) product_accumulate (span<Integer> r, span<const Integer> x, Integer y)
+    void product_accumulate (span<Integer> r, span<const Integer> x, Integer y) noexcept
     // requires is_compact(x)
     // requires r.size() > x.size()
     {
@@ -189,7 +186,7 @@ export namespace purple
     }
 
     template <typename Integer>
-    void product_accumulate (vector<Integer> & r, vector<Integer> const & x, Integer y)
+    void product_accumulate (vector<Integer> & r, vector<Integer> const & x, Integer y) noexcept
     // requires is_compact(x)
     // requires r.size() > x.size()
     {
@@ -210,7 +207,7 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void __attribute__((noinline)) product_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y)
+    void product_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y) noexcept
     // requires is_compact(x) && is_compact(y)
     // requires r.size() > x.size() + y.size()
     {
@@ -231,7 +228,7 @@ export namespace purple
     }
 
     template <typename Integer>
-    void product_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y)
+    void product_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y) noexcept
     // requires is_compact(x) && is_compact(y)
     // requires r.size() > x.size() + y.size()
     {
@@ -253,7 +250,7 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void __attribute__((noinline)) square_accumulate (span<Integer> r, span<const Integer> x)
+    void square_accumulate (span<Integer> r, span<const Integer> x) noexcept
     // requires is_compact(x)
     // requires r.size() > 2 * x.size()
     {
@@ -278,7 +275,7 @@ export namespace purple
     }
 
     template <typename Integer>
-    void square_accumulate (vector<Integer> & r, vector<Integer> const & x)
+    void square_accumulate (vector<Integer> & r, vector<Integer> const & x) noexcept
     // requires is_compact(x)
     // requires r.size() > x.size() + y.size()
     {

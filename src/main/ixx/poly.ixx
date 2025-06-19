@@ -116,7 +116,16 @@ export namespace purple
         {
             // xi * yi
             for (int yi = 0; yi != yz; ++yi) {
-                tie( r[xi+yi], carry ) = product( x[xi], y[yi], carry );
+                auto ri = xi+yi;
+                auto xv = x[xi];
+                auto yv = y[yi];
+                auto rv = r[ri];
+                // xi * yi + carry
+                auto [p,c0] = product( xv, yv, carry );]
+                // store product and propagate carry
+                auto [s,c1] = sum( rv, p );
+                r[ri] = s;
+                carry = c0 + c1;
             }
             // propagate carry
             carry = sum_accumulate( r[xi+yz], carry );

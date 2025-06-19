@@ -206,3 +206,10 @@ TEST(product,product_v0M_v0M)
 {
     ASSERT_EQ( format( product(v0M,v0M) ), "00000000FFFFFFFE000000010000000000000000" );
 }
+
+TEST(product,product_D2836A67C068B195_0986A2ABBA94FA4D)
+{
+    auto const x = vector { 0xC068B195U, 0xD2836A67U };
+    auto const y = vector { 0xBA94FA4DU, 0x0986A2ABU };
+    ASSERT_EQ( format( product(x,y) ), "0000000007D5554BB89E1D378484892F090CEBD1" );
+}

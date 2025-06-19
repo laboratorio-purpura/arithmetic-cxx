@@ -42,3 +42,20 @@ target_link_libraries(purple-crypto-test
     GTest::gtest_main
     purple-crypto-api
 )
+
+# fuzz
+
+add_executable(purple-crypto-fuzz)
+
+FILE(GLOB fuzz_cxx_sources src/fuzz/cxx/*.cxx)
+
+target_sources(purple-crypto-fuzz
+    PRIVATE
+    ${fuzz_cxx_sources}
+)
+
+target_link_libraries(purple-crypto-fuzz
+    PRIVATE
+    fmt::fmt
+    purple-crypto-api
+)

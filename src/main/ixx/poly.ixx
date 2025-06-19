@@ -121,7 +121,7 @@ export namespace purple
                 auto yv = y[yi];
                 auto rv = r[ri];
                 // xi * yi + carry
-                auto [p,c0] = product( xv, yv, carry );]
+                auto [p,c0] = product( xv, yv, carry );
                 // store product and propagate carry
                 auto [s,c1] = sum( rv, p );
                 r[ri] = s;

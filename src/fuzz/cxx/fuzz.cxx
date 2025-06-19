@@ -24,11 +24,16 @@ namespace
 
     int assert_zero (span<char const *> args)
     {
+        size_t i {};
         unsigned long long number;
-        cin >> hex >> number;
-        while (number == 0)
-            cin >> number;
-        return 0;
+        while (cin) {
+            cin >> hex >> number;
+            if (number != 0) break;
+            ++i;
+        }
+        if (number == 0) return 0;
+        cout << "i = " << i << " -> NONZERO" << endl;
+        return 1;
     }
 
     int sum (span<char const *> args)
@@ -62,17 +67,14 @@ namespace
         {
             auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
             if (xz == -1) break;
-            fmt::println("x = {};",format(x));
-
             auto yz = fread(y.data(), sizeof(unsigned), y.size(), stdin);
             if (yz == -1) break;
-            fmt::println("y = {};",format(y));
-
             memset(r.data(),0,sizeof(unsigned)*r.size());
-
             sum_accumulate(r,x,y);
+            fmt::println("i = {};",i);
+            fmt::println("x = {};",format(x));
+            fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
-
             fmt::println("(x + y) - r;");
             fflush(stdout);
         }
@@ -111,18 +113,57 @@ namespace
         {
             auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
             if (xz == -1) break;
-            fmt::println("x = {};",format(x));
-
             auto yz = fread(y.data(), sizeof(unsigned), y.size(), stdin);
             if (yz == -1) break;
-            fmt::println("y = {};",format(y));
-
             memset(r.data(),0,sizeof(unsigned)*r.size());
-
             product_accumulate(r,x,y);
+            fmt::println("i = {};",i);
+            fmt::println("x = {};",format(x));
+            fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
-
             fmt::println("(x * y) - r;");
+            fflush(stdout);
+        }
+
+        return 0;
+    }
+
+    int square (span<char const *> args)
+    // requires args.size() > 1
+    {
+        if (args.size() < 3) {
+            fmt::println("usage: purple-crypto-fuzz square (degree) [iterations]");
+            return 1;
+        }
+
+        auto degree = std::stoi( args[2] );
+        if (degree < 1) {
+            fmt::println("error: expected degree > 0, actual: {}", degree);
+            return 1;
+        }
+
+        auto iterations = args.size() < 4 ? 1 : std::stoi( args[3] );
+        if (iterations < 1) {
+            fmt::println("error: expected iterations > 0, actual: {}", iterations);
+            return 1;
+        }
+
+        auto x = vector<unsigned>(degree);
+        auto r = vector<unsigned>((degree * 2) + 1);
+
+        fmt::println("obase=16;");
+        fmt::println("ibase=16;");
+
+        for (auto i = 0; i != iterations; ++i)
+        {
+            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xz == -1) break;
+            memset(r.data(),0,sizeof(unsigned)*r.size());
+            square_accumulate(r,x);
+            fmt::println("i = {};",i);
+            fmt::println("x = {};",format(x));
+            fmt::println("r = {};",format(r));
+            fmt::println("(x * x) - r;");
             fflush(stdout);
         }
 
@@ -143,6 +184,8 @@ namespace
             return sum(args);
         else if (command == "product")
             return product(args);
+        else if (command == "square")
+            return square(args);
         else {
             fmt::println("error: unknown command: {}",command);
             fmt::println("usage: purple-crypto-fuzz [command]...");

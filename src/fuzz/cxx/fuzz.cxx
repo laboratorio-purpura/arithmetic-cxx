@@ -132,7 +132,7 @@ namespace
     // requires args.size() > 1
     {
         if (args.size() < 3) {
-            fmt::println("usage: purple-crypto-fuzz product (degree) [iterations]");
+            fmt::println("usage: purple-crypto-fuzz product-scalar (degree) [iterations]");
             return 1;
         }
 
@@ -216,6 +216,52 @@ namespace
         return 0;
     }
 
+    int remainder_scalar (span<char const *> args)
+    // requires args.size() > 1
+    {
+        if (args.size() < 3) {
+            fmt::println("usage: purple-crypto-fuzz remainder-scalar (degree) [iterations]");
+            return 1;
+        }
+
+        auto degree = std::stoi( args[2] );
+        if (degree < 1) {
+            fmt::println("error: expected degree > 0, actual: {}", degree);
+            return 1;
+        }
+
+        auto iterations = args.size() < 4 ? 1 : std::stoi( args[3] );
+        if (iterations < 1) {
+            fmt::println("error: expected iterations > 0, actual: {}", iterations);
+            return 1;
+        }
+
+        auto x = vector<unsigned>(degree);
+        auto y = unsigned();
+        auto r = vector<unsigned>(degree + 1);
+
+        fmt::println("obase=16;");
+        fmt::println("ibase=16;");
+
+        for (auto i = 0; i != iterations; ++i)
+        {
+            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xz == -1) break;
+            auto yz = fread(&y, sizeof(unsigned), 1, stdin);
+            if (yz == -1) break;
+            memset(r.data(),0,sizeof(unsigned)*r.size());
+            remainder_accumulate(r,x,y);
+            fmt::println("i = {};",i);
+            fmt::println("x = {};",format(x));
+            fmt::println("y = {:08X};",y);
+            fmt::println("r = {};",format(r));
+            fmt::println("(x % y) - r;");
+            fflush(stdout);
+        }
+
+        return 0;
+    }
+
     int main (span<char const *> args)
     {
         if (args.size() < 2) {
@@ -232,6 +278,8 @@ namespace
             return product(args);
         else if (command == "product-scalar")
             return product_scalar(args);
+        else if (command == "remainder-scalar")
+            return remainder_scalar(args);
         else if (command == "square")
             return square(args);
         else {

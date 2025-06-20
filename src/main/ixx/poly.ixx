@@ -1,5 +1,6 @@
 module;
 
+#include <cassert>
 #include <span>
 #include <tuple>
 
@@ -18,6 +19,13 @@ export namespace purple
     /// 1 if and only if every term of x is significant, else 0.
     template <typename Integer>
     auto is_compact (span<const Integer> x) noexcept -> Integer;
+
+    /// 1 if and only if every term of x is significant, else 0.
+    template <typename Integer>
+    auto is_compact (span<Integer> x) noexcept -> Integer
+    {
+        return is_compact( span< const Integer >(x) );
+    }
 
     /// 1 if and only if x is the additive identity, else 0.
     template <typename Integer>
@@ -44,32 +52,31 @@ export namespace purple
     /// poly integer arithmetic
 
     template <typename Integer>
-    void sum_accumulate (span<Integer> r, span<const Integer> x, Integer y) noexcept
-    // requires is_compact(x)
-    // requires r.size() > x.size()
+    auto sum_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
+        assert( is_compact(r) );
         Integer carry = y;
-        auto xz = x.size();
-        for (auto i = 0u; i != xz; ++i) {
-            tie( r[i], carry ) = sum( x[i], carry );
+        auto rz = r.size();
+        for (auto i = 0uz; i != rz; ++i) {
+            tie( r[i], carry ) = sum( r[i], carry );
         }
-        r[xz] = carry;
+        return carry;
     }
 
     // --
 
     template <typename Integer>
-    void sum_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y) noexcept
-    // requires is_compact(x) && is_compact(y)
-    // requires x.size() == y.size()
-    // requires r.size() > x.size()
+    auto sum_accumulate (span<Integer> r, span<const Integer> y) noexcept -> Integer
     {
+        assert( is_compact(r) );
+        assert( is_compact(y) );
+        assert( r.size() >= y.size() );
         Integer carry {};
-        auto xz = x.size();
-        for (auto i = 0u; i != xz; ++i) {
-            tie( r[i], carry ) = sum( x[i], y[i], carry );
+        auto rz = r.size();
+        for (auto i = 0uz; i != rz; ++i) {
+            tie( r[i], carry ) = sum( r[i], y[i], carry );
         }
-        r[xz] = carry;
+        return carry;
     }
 
     // --

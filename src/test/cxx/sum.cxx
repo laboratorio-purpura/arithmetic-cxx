@@ -7,6 +7,11 @@ using namespace purple;
 using namespace purple::test;
 using namespace std;
 
+TEST(sum,sum_vM_1)
+{
+    ASSERT_EQ( format( sum(vM,1U) ), "0000000100000000" );
+}
+
 TEST(sum,sum_v0_v0)
 {
     ASSERT_EQ( format( sum(v0,v0) ), "0000000000000000" );
@@ -107,29 +112,9 @@ TEST(sum,sum_vM_vM)
     ASSERT_EQ( format( sum(vM,vM) ), "00000001FFFFFFFE" );
 }
 
-TEST(sum,sum_v00_v01)
+TEST(sum,sum_v01_v0)
 {
-    ASSERT_EQ( format( sum(v00,v01) ), "000000000000000100000000" );
-}
-
-TEST(sum,sum_v00_v02)
-{
-    ASSERT_EQ( format( sum(v00,v02) ), "000000000000000200000000" );
-}
-
-TEST(sum,sum_v00_v0L)
-{
-    ASSERT_EQ( format( sum(v00,v0L) ), "000000008000000000000000" );
-}
-
-TEST(sum,sum_v00_v0M)
-{
-    ASSERT_EQ( format( sum(v00,v0M) ), "00000000FFFFFFFF00000000" );
-}
-
-TEST(sum,sum_v01_v00)
-{
-    ASSERT_EQ( format( sum(v01,v00) ), "000000000000000100000000" );
+    ASSERT_EQ( format( sum(v01,v0) ), "000000000000000100000000" );
 }
 
 TEST(sum,sum_v01_v01)
@@ -152,9 +137,9 @@ TEST(sum,sum_v01_v0M)
     ASSERT_EQ( format( sum(v01,v0M) ), "000000010000000000000000" );
 }
 
-TEST(sum,sum_v0L_v00)
+TEST(sum,sum_v0L_v0)
 {
-    ASSERT_EQ( format( sum(v0L,v00) ), "000000008000000000000000" );
+    ASSERT_EQ( format( sum(v0L,v0) ), "000000008000000000000000" );
 }
 
 TEST(sum,sum_v0L_v01)
@@ -177,9 +162,9 @@ TEST(sum,sum_v0L_v0M)
     ASSERT_EQ( format( sum(v0L,v0M) ), "000000017FFFFFFF00000000" );
 }
 
-TEST(sum,sum_v0M_v00)
+TEST(sum,sum_v0M_v0)
 {
-    ASSERT_EQ( format( sum(v0M,v00) ), "00000000FFFFFFFF00000000" );
+    ASSERT_EQ( format( sum(v0M,v0) ), "00000000FFFFFFFF00000000" );
 }
 
 TEST(sum,sum_v0M_v01)

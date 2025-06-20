@@ -43,45 +43,42 @@ export namespace purple
     /// poly integer arithmetic
 
     template <typename Integer>
-    void sum_accumulate (vector<Integer> & r, vector<Integer> const & x, Integer y) noexcept
-    // requires is_compact(x)
-    // requires r.size() > x.size()
+    auto sum_accumulate (vector<Integer> & r, Integer y) noexcept -> Integer
     {
         auto rs = span( r.begin(), r.end() );
-        auto xs = span( x.begin(), x.end() );
-        sum_accumulate(rs,xs,y);
+        return sum_accumulate(rs,y);
     }
 
     template <typename Integer>
     auto sum (vector<Integer> const & x, Integer y) -> vector<Integer>
-    // requires is_compact(x)
     {
-        auto r = vector<Integer>( x.size() + 1 );
-        sum_accumulate(r,x,y);
+        auto const xz = x.size();
+        auto r = vector<Integer>( xz + 1 );
+        for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
+        auto rs = span( r.begin(), r.begin() + xz );
+        r[xz] = sum_accumulate(rs,y);
         return std::move(r);
     }
 
     // --
 
     template <typename Integer>
-    void sum_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y) noexcept
-    // requires is_compact(x) && is_compact(y)
-    // requires x.size() == y.size()
-    // requires r.size() > x.size()
+    auto sum_accumulate (vector<Integer> & r, vector<Integer> const & y) noexcept -> Integer
     {
         auto rs = span( r.begin(), r.end() );
-        auto xs = span( x.begin(), x.end() );
         auto ys = span( y.begin(), y.end() );
-        sum_accumulate(rs,xs,ys);
+        return sum_accumulate(rs,ys);
     }
 
     template <typename Integer>
     auto sum (vector<Integer> const & x, vector<Integer> const & y) -> vector<Integer>
-    // requires is_compact(x) && is_compact(y)
-    // requires x.size() == y.size()
     {
-        auto r = vector<Integer>( x.size() + 1 );
-        sum_accumulate(r,x,y);
+        auto const xz = x.size();
+        auto r = vector<Integer>( xz + 1 );
+        for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
+        auto rs = span( r.begin(), r.begin() + xz );
+        auto ys = span( y.begin(), y.end() );
+        r[xz] = sum_accumulate(rs,ys);
         return std::move(r);
     }
 

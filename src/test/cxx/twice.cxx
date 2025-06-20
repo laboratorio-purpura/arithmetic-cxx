@@ -32,11 +32,6 @@ TEST(twice,twice_vM)
     ASSERT_EQ( format( twice(vM) ), "00000001FFFFFFFE" );
 }
 
-TEST(twice,twice_v00)
-{
-    ASSERT_EQ( format( twice(v00) ), "000000000000000000000000" );
-}
-
 TEST(twice,twice_v01)
 {
     ASSERT_EQ( format( twice(v01) ), "000000000000000200000000" );

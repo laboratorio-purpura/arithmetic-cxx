@@ -82,16 +82,15 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void twice_accumulate (span<Integer> r, span<const Integer> x) noexcept
-    // requires is_compact(x)
-    // requires r.size() > x.size()
+    auto twice_accumulate (span<Integer> r) noexcept -> Integer
     {
+        assert( is_compact(r) );
         Integer carry {};
-        auto xz = x.size();
-        for (auto i = 0u; i != xz; ++i) {
-            tie( r[i], carry ) = twice( x[i], carry );
+        auto rz = r.size();
+        for (auto i = 0uz; i != rz; ++i) {
+            tie( r[i], carry ) = twice( r[i], carry );
         }
-        r[xz] = carry;
+        return carry;
     }
 
     // --

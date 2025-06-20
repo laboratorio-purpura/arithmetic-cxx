@@ -85,9 +85,7 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void twice_accumulate (vector<Integer> & r, vector<Integer> const & x) noexcept
-    // requires is_compact(x)
-    // requires r.size() > x.size()
+    auto twice_accumulate (vector<Integer> & r, vector<Integer> const & x) noexcept -> Integer
     {
         auto rs = span( r.begin(), r.end() );
         auto xs = span( x.begin(), x.end() );
@@ -96,10 +94,12 @@ export namespace purple
 
     template <typename Integer>
     auto twice (vector<Integer> const & x) -> vector<Integer>
-    // requires is_compact(x)
     {
-        auto r = vector<Integer>( x.size() + 1 );
-        twice_accumulate(r,x);
+        auto const xz = x.size();
+        auto r = vector<Integer>( xz + 1 );
+        for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
+        auto rs = span( r.begin(), r.begin() + xz );
+        r[xz] = twice_accumulate(rs);
         return std::move(r);
     }
 

@@ -51,6 +51,7 @@ export namespace purple
 
     /// poly integer arithmetic
 
+    /// Accumulates r += y, returns carry.
     template <typename Integer>
     auto sum_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
@@ -63,8 +64,7 @@ export namespace purple
         return carry;
     }
 
-    // --
-
+    // Accumulates r += y, returns carry.
     template <typename Integer>
     auto sum_accumulate (span<Integer> r, span<const Integer> y) noexcept -> Integer
     {
@@ -79,8 +79,7 @@ export namespace purple
         return carry;
     }
 
-    // --
-
+    // Accumulates r *= y, returns carry.
     template <typename Integer>
     auto product_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
@@ -93,10 +92,9 @@ export namespace purple
         return carry;
     }
 
-    // --
-
+    // Accumulates r += x * y, returns carry.
     template <typename Integer>
-    auto product_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y) noexcept -> Integer
+    auto product_sum_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y) noexcept -> Integer
     {
         assert( is_compact(x) );
         assert( is_compact(y) );
@@ -112,10 +110,10 @@ export namespace purple
                 auto xv = x[xi];
                 auto yv = y[yi];
                 auto rv = r[ri];
-                auto [p,c0] = product_sum( xv, yv, carry );
-                auto [s,c1] = sum( rv, p );
+                auto [ p0, p1 ] = product_sum( xv, yv, carry );
+                auto [ s, c ] = sum( rv, p0 );
                 r[ri] = s;
-                carry = c0 + c1;
+                carry = p1 + c;
             }
             // propagate carry
             carry = sum_accumulate( r[xi+yz], carry );

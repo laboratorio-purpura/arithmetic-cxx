@@ -85,21 +85,21 @@ export namespace purple
     // --
 
     template <typename Integer>
-    auto twice_accumulate (vector<Integer> & r, vector<Integer> const & x) noexcept -> Integer
+    auto twice_accumulate (vector<Integer> & r, vector<Integer> const & x, unsigned N) noexcept -> Integer
     {
         auto rs = span( r.begin(), r.end() );
         auto xs = span( x.begin(), x.end() );
-        twice_accumulate(rs,xs);
+        twice_accumulate(rs,xs,N);
     }
 
     template <typename Integer>
-    auto twice (vector<Integer> const & x) -> vector<Integer>
+    auto twice (vector<Integer> const & x, unsigned N = 1) -> vector<Integer>
     {
         auto const xz = x.size();
         auto r = vector<Integer>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
-        r[xz] = twice_accumulate(rs);
+        r[xz] = twice_accumulate(rs,N);
         return std::move(r);
     }
 

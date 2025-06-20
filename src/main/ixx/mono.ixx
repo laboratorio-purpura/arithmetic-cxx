@@ -47,21 +47,6 @@ export namespace purple
     }
 
     constexpr
-    auto twice (unsigned int x, unsigned int carry = 0) noexcept -> tuple< unsigned int, unsigned int >
-    {
-        auto r = ( static_cast<unsigned long long>(x) * 2 ) + carry;
-        return { r, r >> 32 };
-    }
-
-    constexpr
-    auto twice_accumulate (unsigned int & x, unsigned int carry = 0) noexcept -> unsigned int
-    {
-        auto r = ( static_cast<unsigned long long>(x) * 2 ) + carry;
-        x = r;
-        return r >> 32;
-    }
-
-    constexpr
     auto product (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> tuple< unsigned int, unsigned int >
     {
         auto r = ( static_cast<unsigned long long>(x) * y ) + carry;
@@ -72,6 +57,36 @@ export namespace purple
     auto product_accumulate (unsigned int & x, unsigned int y, unsigned int carry = 0) noexcept -> unsigned int
     {
         auto r = ( static_cast<unsigned long long>(x) * y ) + carry;
+        x = r;
+        return r >> 32;
+    }
+
+    constexpr
+    auto twice (unsigned int x, unsigned N) noexcept -> tuple< unsigned int, unsigned int >
+    {
+        auto r = static_cast<unsigned long long>(x) << N;
+        return { r, r >> 32 };
+    }
+
+    constexpr
+    auto twice_accumulate (unsigned int & x, unsigned N) noexcept -> unsigned int
+    {
+        auto r = static_cast<unsigned long long>(x) << N;
+        x = r;
+        return r >> 32;
+    }
+
+    constexpr
+    auto twice_sum (unsigned int x, unsigned N, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
+    {
+        auto r = ( static_cast<unsigned long long>(x) << N ) + y;
+        return { r, r >> 32 };
+    }
+
+    constexpr
+    auto twice_sum_accumulate (unsigned int & x, unsigned N, unsigned int y) noexcept -> unsigned int
+    {
+        auto r = ( static_cast<unsigned long long>(x) << N ) + y;
         x = r;
         return r >> 32;
     }

@@ -82,20 +82,6 @@ export namespace purple
     // --
 
     template <typename Integer>
-    auto twice_accumulate (span<Integer> r) noexcept -> Integer
-    {
-        assert( is_compact(r) );
-        Integer carry {};
-        auto rz = r.size();
-        for (auto i = 0uz; i != rz; ++i) {
-            tie( r[i], carry ) = twice( r[i], carry );
-        }
-        return carry;
-    }
-
-    // --
-
-    template <typename Integer>
     auto product_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
         assert( is_compact(r) );
@@ -140,7 +126,21 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void square_accumulate (span<Integer> r, span<const Integer> x) noexcept
+    auto twice_accumulate (span<Integer> r, unsigned N) noexcept -> Integer
+    {
+        assert( is_compact(r) );
+        Integer carry {};
+        auto rz = r.size();
+        for (auto i = 0uz; i != rz; ++i) {
+            carry = twice_sum_accumulate( r[i], N, carry );
+        }
+        return carry;
+    }
+
+    // --
+
+    template <typename Integer>
+    auto square_accumulate (span<Integer> r, span<const Integer> x) noexcept -> Integer
     // requires is_compact(x)
     // requires r.size() > 2 * x.size()
     {
@@ -160,8 +160,7 @@ export namespace purple
             // propagate carry
             carry = sum_accumulate( r[xi+xz], carry );
         }
-        // propagate carry
-        r[xz+xz] = carry; // TODO
+        return carry;
     }
 
     // --

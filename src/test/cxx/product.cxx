@@ -208,34 +208,29 @@ TEST(product,product_vM_vM)
     ASSERT_EQ( format( product(vM,vM) ), "00000000FFFFFFFE00000001" );
 }
 
-TEST(product,product_v00_v00)
+TEST(product,product_v0_v01)
 {
-    ASSERT_EQ( format( product(v00,v00) ), "0000000000000000000000000000000000000000" );
+    ASSERT_EQ( format( product(v0,v01) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v00_v01)
+TEST(product,product_v0_v02)
 {
-    ASSERT_EQ( format( product(v00,v01) ), "0000000000000000000000000000000000000000" );
+    ASSERT_EQ( format( product(v0,v02) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v00_v02)
+TEST(product,product_v0_v0L)
 {
-    ASSERT_EQ( format( product(v00,v02) ), "0000000000000000000000000000000000000000" );
+    ASSERT_EQ( format( product(v0,v0L) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v00_v0L)
+TEST(product,product_v0_v0M)
 {
-    ASSERT_EQ( format( product(v00,v0L) ), "0000000000000000000000000000000000000000" );
+    ASSERT_EQ( format( product(v0,v0M) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v00_v0M)
+TEST(product,product_v01_v0)
 {
-    ASSERT_EQ( format( product(v00,v0M) ), "0000000000000000000000000000000000000000" );
-}
-
-TEST(product,product_v01_v00)
-{
-    ASSERT_EQ( format( product(v01,v00) ), "0000000000000000000000000000000000000000" );
+    ASSERT_EQ( format( product(v01,v0) ), "00000000000000000000000000000000" );
 }
 
 TEST(product,product_v01_v01)
@@ -258,9 +253,9 @@ TEST(product,product_v01_v0M)
     ASSERT_EQ( format( product(v01,v0M) ), "0000000000000000FFFFFFFF0000000000000000" );
 }
 
-TEST(product,product_v0L_v00)
+TEST(product,product_v0L_v0)
 {
-    ASSERT_EQ( format( product(v0L,v00) ), "0000000000000000000000000000000000000000" );
+    ASSERT_EQ( format( product(v0L,v0) ), "00000000000000000000000000000000" );
 }
 
 TEST(product,product_v0L_v01)
@@ -283,9 +278,9 @@ TEST(product,product_v0L_v0M)
     ASSERT_EQ( format( product(v0L,v0M) ), "000000007FFFFFFF800000000000000000000000" );
 }
 
-TEST(product,product_v0M_v00)
+TEST(product,product_v0M_v0)
 {
-    ASSERT_EQ( format( product(v0M,v00) ), "0000000000000000000000000000000000000000" );
+    ASSERT_EQ( format( product(v0M,v0) ), "00000000000000000000000000000000" );
 }
 
 TEST(product,product_v0M_v01)
@@ -313,4 +308,11 @@ TEST(product,product_D2836A67C068B195_0986A2ABBA94FA4D)
     auto const x = vector { 0xC068B195U, 0xD2836A67U };
     auto const y = vector { 0xBA94FA4DU, 0x0986A2ABU };
     ASSERT_EQ( format( product(x,y) ), "0000000007D5554BB89E1D378484892F090CEBD1" );
+}
+
+TEST(product,product_9A6CD724F1136FB6_D4B89A2A8487D33B)
+{
+    auto const x = vector { 0xF1136FB6U, 0x9A6CD724U };
+    auto const y = vector { 0x8487D33BU, 0xD4B89A2AU };
+    ASSERT_EQ( format( product(x,y) ), "0000000080517D64596AF1500E65FEEC5587C0F2" );
 }

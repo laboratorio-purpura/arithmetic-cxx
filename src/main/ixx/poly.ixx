@@ -110,24 +110,23 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void product_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y) noexcept
-    // requires is_compact(x) && is_compact(y)
-    // requires r.size() > x.size() + y.size()
+    auto product_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y) noexcept -> Integer
     {
+        assert( is_compact(x) );
+        assert( is_compact(y) );
+        assert( r.size() >= x.size() + y.size() );
         Integer carry {};
-        int xz = x.size();
-        int yz = y.size();
-        for (int xi = 0; xi != xz; ++xi)
+        auto xz = x.size();
+        auto yz = y.size();
+        for (auto xi = 0uz; xi != xz; ++xi)
         {
-            // xi * yi
-            for (int yi = 0; yi != yz; ++yi) {
+            for (auto yi = 0uz; yi != yz; ++yi)
+            {
                 auto ri = xi+yi;
                 auto xv = x[xi];
                 auto yv = y[yi];
                 auto rv = r[ri];
-                // xi * yi + carry
                 auto [p,c0] = product( xv, yv, carry );
-                // store product and propagate carry
                 auto [s,c1] = sum( rv, p );
                 r[ri] = s;
                 carry = c0 + c1;
@@ -135,8 +134,7 @@ export namespace purple
             // propagate carry
             carry = sum_accumulate( r[xi+yz], carry );
         }
-        // propagate carry
-        r[xz+yz] = carry; // TODO
+        return carry;
     }
 
     // --

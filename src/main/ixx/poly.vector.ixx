@@ -127,22 +127,24 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void product_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y) noexcept
-    // requires is_compact(x) && is_compact(y)
-    // requires r.size() > x.size() + y.size()
+    auto product_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y) noexcept -> Integer
     {
         auto rs = span( r.begin(), r.end() );
         auto xs = span( x.begin(), x.end() );
         auto ys = span( y.begin(), y.end() );
-        product_accumulate(rs,xs,ys);
+        return product_accumulate(rs,xs,ys);
     }
 
     template <typename Integer>
     auto product (vector<Integer> const & x, vector<Integer> const & y) -> vector<Integer>
-    // requires is_compact(x) && is_compact(y)
     {
-        auto r = vector<Integer>( x.size() + y.size() + 1 );
-        product_accumulate(r,x,y);
+        auto xz = x.size();
+        auto yz = y.size();
+        auto r = vector<Integer>( xz + yz + 1 );
+        auto rs = span( r.begin(), r.begin() + xz + yz );
+        auto xs = span( x.begin(), x.end() );
+        auto ys = span( y.begin(), y.end() );
+        r[xz+yz] = product_accumulate(rs,xs,ys);
         return std::move(r);
     }
 

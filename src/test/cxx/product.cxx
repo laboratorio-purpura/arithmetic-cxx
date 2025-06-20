@@ -7,6 +7,107 @@ using namespace purple;
 using namespace purple::test;
 using namespace std;
 
+
+TEST(product,product_v0_0)
+{
+    ASSERT_EQ( format( product(v0,0U) ), "0000000000000000" );
+}
+
+TEST(product,product_v0_1)
+{
+    ASSERT_EQ( format( product(v0,1U) ), "0000000000000000" );
+}
+
+TEST(product,product_v0_2)
+{
+    ASSERT_EQ( format( product(v0,2U) ), "0000000000000000" );
+}
+
+TEST(product,product_v0_L)
+{
+    ASSERT_EQ( format( product(v0,L) ), "0000000000000000" );
+}
+
+TEST(product,product_v0_M)
+{
+    ASSERT_EQ( format( product(v0,M) ), "0000000000000000" );
+}
+
+TEST(product,product_v1_0)
+{
+    ASSERT_EQ( format( product(v1,0U) ), "0000000000000000" );
+}
+
+TEST(product,product_v1_1)
+{
+    ASSERT_EQ( format( product(v1,1U) ), "0000000000000001" );
+}
+
+TEST(product,product_v1_2)
+{
+    ASSERT_EQ( format( product(v1,2U) ), "0000000000000002" );
+}
+
+TEST(product,product_v1_L)
+{
+    ASSERT_EQ( format( product(v1,L) ), "0000000080000000" );
+}
+
+TEST(product,product_v1_M)
+{
+    ASSERT_EQ( format( product(v1,M) ), "00000000FFFFFFFF" );
+}
+
+TEST(product,product_vL_0)
+{
+    ASSERT_EQ( format( product(vL,0U) ), "0000000000000000" );
+}
+
+TEST(product,product_vL_1)
+{
+    ASSERT_EQ( format( product(vL,1U) ), "0000000080000000" );
+}
+
+TEST(product,product_vL_2)
+{
+    ASSERT_EQ( format( product(vL,2U) ), "0000000100000000" );
+}
+
+TEST(product,product_vL_L)
+{
+    ASSERT_EQ( format( product(vL,L) ), "4000000000000000" );
+}
+
+TEST(product,product_vL_M)
+{
+    ASSERT_EQ( format( product(vL,M) ), "7FFFFFFF80000000" );
+}
+
+TEST(product,product_vM_0)
+{
+    ASSERT_EQ( format( product(vM,0U) ), "0000000000000000" );
+}
+
+TEST(product,product_vM_1)
+{
+    ASSERT_EQ( format( product(vM,1U) ), "00000000FFFFFFFF" );
+}
+
+TEST(product,product_vM_2)
+{
+    ASSERT_EQ( format( product(vM,2U) ), "00000001FFFFFFFE" );
+}
+
+TEST(product,product_vM_L)
+{
+    ASSERT_EQ( format( product(vM,L) ), "7FFFFFFF80000000" );
+}
+
+TEST(product,product_vM_M)
+{
+    ASSERT_EQ( format( product(vM,M) ), "FFFFFFFE00000001" );
+}
+
 TEST(product,product_v0_v0)
 {
     ASSERT_EQ( format( product(v0,v0) ), "000000000000000000000000" );

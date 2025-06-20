@@ -96,16 +96,15 @@ export namespace purple
     // --
 
     template <typename Integer>
-    void product_accumulate (span<Integer> r, span<const Integer> x, Integer y) noexcept
-    // requires is_compact(x)
-    // requires r.size() > x.size()
+    auto product_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
+        assert( is_compact(r) );
         Integer carry {};
-        auto xz = x.size();
-        for (auto xi = 0u; xi != xz; ++xi) {
-            tie( r[xi], carry ) = product( x[xi], y, carry );
+        auto rz = r.size();
+        for (auto i = 0uz; i != rz; ++i) {
+            tie( r[i], carry ) = product( r[i], y, carry );
         }
-        r[xz] = carry;
+        return carry;
     }
 
     // --

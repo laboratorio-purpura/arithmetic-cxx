@@ -47,16 +47,31 @@ export namespace purple
     }
 
     constexpr
-    auto product (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> tuple< unsigned int, unsigned int >
+    auto product (unsigned int x, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
     {
-        auto r = ( static_cast<unsigned long long>(x) * y ) + carry;
+        auto r = ( static_cast<unsigned long long>(x) * y );
         return { r, r >> 32 };
     }
 
     constexpr
-    auto product_accumulate (unsigned int & x, unsigned int y, unsigned int carry = 0) noexcept -> unsigned int
+    auto product_accumulate (unsigned int & x, unsigned int y) noexcept -> unsigned int
     {
-        auto r = ( static_cast<unsigned long long>(x) * y ) + carry;
+        auto r = ( static_cast<unsigned long long>(x) * y );
+        x = r;
+        return r >> 32;
+    }
+
+    constexpr
+    auto product_sum (unsigned int x, unsigned int y, unsigned int z) noexcept -> tuple< unsigned int, unsigned int >
+    {
+        auto r = ( static_cast<unsigned long long>(x) * y ) + z;
+        return { r, r >> 32 };
+    }
+
+    constexpr
+    auto product_sum_accumulate (unsigned int & x, unsigned int y, unsigned int z) noexcept -> unsigned int
+    {
+        auto r = ( static_cast<unsigned long long>(x) * y ) + z;
         x = r;
         return r >> 32;
     }

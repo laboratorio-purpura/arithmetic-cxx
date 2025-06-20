@@ -88,7 +88,7 @@ export namespace purple
         Integer carry {};
         auto rz = r.size();
         for (auto i = 0uz; i != rz; ++i) {
-            tie( r[i], carry ) = product( r[i], y, carry );
+            tie( r[i], carry ) = product_sum( r[i], y, carry );
         }
         return carry;
     }
@@ -112,7 +112,7 @@ export namespace purple
                 auto xv = x[xi];
                 auto yv = y[yi];
                 auto rv = r[ri];
-                auto [p,c0] = product( xv, yv, carry );
+                auto [p,c0] = product_sum( xv, yv, carry );
                 auto [s,c1] = sum( rv, p );
                 r[ri] = s;
                 carry = c0 + c1;
@@ -153,7 +153,7 @@ export namespace purple
             // 2 * xi * xj
             for (auto xj = xi + 1u; xj != xz; ++xj) {
                 // xi * xj + carry
-                auto [r0,c0] = product( x[xi], x[xj], carry );
+                auto [r0,c0] = product_sum( x[xi], x[xj], carry );
                 // 2 * ( xi * xj + carry )
                 tie( r[xi+xj], carry ) = twice( r0, c0 );
             }

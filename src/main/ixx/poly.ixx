@@ -17,18 +17,11 @@ export namespace purple
 
     /// 1 if and only if every term of x is significant, else 0.
     template <typename Integer>
-    auto is_compact (span<const Integer> x) noexcept -> Integer;
-
-    /// 1 if and only if every term of x is significant, else 0.
-    template <typename Integer>
-    auto is_compact (span<Integer> x) noexcept -> Integer
-    {
-        return is_compact( span< const Integer >(x) );
-    }
+    auto is_compact (span<Integer const> x) noexcept -> Integer;
 
     /// 1 if and only if x is the additive identity, else 0.
     template <typename Integer>
-    auto is_zero (span<const Integer> x) noexcept -> Integer
+    auto is_zero (span<Integer const> x) noexcept -> Integer
     {
         Integer r { 1 };
         auto const xz = x.size();
@@ -39,7 +32,7 @@ export namespace purple
 
     /// 1 if and only if x is *not* the additive identity, else 0.
     template <typename Integer>
-    auto not_zero (span<const Integer> x) noexcept -> Integer
+    auto not_zero (span<Integer const> x) noexcept -> Integer
     {
         Integer r { 0 };
         auto const xz = x.size();
@@ -67,7 +60,7 @@ export namespace purple
 
     // Accumulates r + y, returns carry.
     template <typename Integer>
-    auto sum_accumulate (span<Integer> r, span<const Integer> y) noexcept -> Integer
+    auto sum_accumulate (span<Integer> r, span<Integer const> y) noexcept -> Integer
     {
         assert( is_compact(r) );
         assert( is_compact(y) );
@@ -95,7 +88,7 @@ export namespace purple
 
     // Accumulates r + (x * y), returns carry.
     template <typename Integer>
-    auto product_sum_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y) noexcept -> Integer
+    auto product_sum_accumulate (span<Integer> r, span<Integer const> x, span<Integer const> y) noexcept -> Integer
     {
         assert( is_compact(x) );
         assert( is_compact(y) );
@@ -135,7 +128,7 @@ export namespace purple
 
     // Accumulates r + x * x, returns carry.
     template <typename Integer>
-    auto square_sum_accumulate (span<Integer> r, span<const Integer> x) noexcept -> Integer
+    auto square_sum_accumulate (span<Integer> r, span<Integer const> x) noexcept -> Integer
     {
         assert( is_compact(x) );
         assert( r.size() >= 2 * x.size() );

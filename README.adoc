@@ -6,6 +6,13 @@ This is an educational project with the purpose of learning and sharing algorith
 
 This library is defined in a C++23 module.
 
+References:
+
+* Donald E. Knuth, "The Art of Computer Programming", volume 2, "Seminumerical Algorithms", third edition, ISBN 0-201-89684-2
+* MMIXmasters, "MIX to MMIX Conversion", https://mmix.cs.hm.edu/mmixmasters/index.html#MIXtoMMIX
+* Alexander Stepanov, Paul McJones, "Elements of Programming", Addison-Wesley, 2009, ISBN 978-0-321-63537-2
+* Alexander Stepanov, Daniel Rose, "From Mathematics to Generic Programming", Addison Wesley, 2015, ISBN 978-0-321-94204-3
+
 Building the library requires these tools.
 
 - clang 20+

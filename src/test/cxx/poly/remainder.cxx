@@ -139,3 +139,10 @@ TEST(poly_remainder,remainder_v0M_3)
 {
     ASSERT_EQ( format( remainder(v0M,3u) ), "0000000000000000" );
 }
+
+TEST(poly_remainder,remainder_43F509DFA4E23125_CD35EC77)
+{
+    vector<unsigned> x { 0xA4E23125, 0x43F509DF };
+    unsigned y { 0xCD35EC77 };
+    ASSERT_EQ( format( remainder(x,y) ), "A60B677E" );
+}

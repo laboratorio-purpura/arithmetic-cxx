@@ -107,16 +107,31 @@ export namespace purple
     }
 
     constexpr
-    auto square (unsigned int x, unsigned int carry = 0) noexcept -> tuple< unsigned int, unsigned int >
+    auto square (unsigned int x) noexcept -> tuple< unsigned int, unsigned int >
     {
-        auto r = ( static_cast<unsigned long long>(x) * x ) + carry;
+        auto r = static_cast<unsigned long long>(x) * x;
         return { r, r >> 32 };
     }
 
     constexpr
-    auto square_accumulate (unsigned int & x, unsigned int carry = 0) noexcept -> unsigned int
+    auto square_accumulate (unsigned int & x) noexcept -> unsigned int
     {
-        auto r = ( static_cast<unsigned long long>(x) * x ) + carry;
+        auto r = static_cast<unsigned long long>(x) * x;
+        x = r;
+        return r >> 32;
+    }
+
+    constexpr
+    auto square_sum (unsigned int x, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
+    {
+        auto r = ( static_cast<unsigned long long>(x) * x ) + y;
+        return { r, r >> 32 };
+    }
+
+    constexpr
+    auto square_sum_accumulate (unsigned int & x, unsigned int y) noexcept -> unsigned int
+    {
+        auto r = ( static_cast<unsigned long long>(x) * x ) + y;
         x = r;
         return r >> 32;
     }

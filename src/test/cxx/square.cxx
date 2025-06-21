@@ -56,3 +56,21 @@ TEST(square,square_v0M)
 {
     ASSERT_EQ( format( square(v0M) ), "00000000FFFFFFFE000000010000000000000000" );
 }
+
+TEST(square,square_C6D4E3CC)
+{
+    auto const x = vector { 0xC6D4E3CCU };
+    ASSERT_EQ( format( square(x) ), "000000009A6E0169A4936A90" );
+}
+
+TEST(square,square_17259613C6D4E3CC)
+{
+    auto const x = vector { 0xC6D4E3CCU, 0x17259613U };
+    ASSERT_EQ( format( square(x) ), "000000000217C67C476CE90119F2E1B1A4936A90" );
+}
+
+TEST(square,square_46B67C81FC10D1A7A6B76CE6)
+{
+    auto const x = vector { 0xA6B76CE6U, 0xFC10D1A7U, 0x46B67C81U };
+    ASSERT_EQ( format( square(x) ), "0000000013884E2C5B39C8C215CC2EB14643B120DC7204BB2726DEA4" );
+}

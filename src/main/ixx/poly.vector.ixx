@@ -163,24 +163,22 @@ export namespace purple
         return std::move(r);
     }
 
-    // --
-
     template <typename Integer>
-    void square_accumulate (vector<Integer> & r, vector<Integer> const & x) noexcept
-    // requires is_compact(x)
-    // requires r.size() > x.size() + y.size()
+    auto square_sum_accumulate (vector<Integer> & r, vector<Integer> const & x) noexcept -> Integer
     {
         auto rs = span( r.begin(), r.end() );
         auto xs = span( x.begin(), x.end() );
-        square_accumulate(rs,xs);
+        return square_sum_accumulate(rs,xs);
     }
 
     template <typename Integer>
     auto square (vector<Integer> const & x) -> vector<Integer>
-    // requires is_compact(x)
     {
-        auto r = vector<Integer>( (2 * x.size()) + 1 );
-        square_accumulate(r,x);
+        auto xz = x.size();
+        auto r = vector<Integer>( xz + xz + 1 );
+        auto rs = span( r.begin(), r.begin() + xz + xz );
+        auto xs = span( x.begin(), x.end() );
+        r[xz+xz] = square_sum_accumulate(rs,xs);
         return std::move(r);
     }
 

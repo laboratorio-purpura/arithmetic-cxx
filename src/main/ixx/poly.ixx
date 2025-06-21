@@ -132,27 +132,42 @@ export namespace purple
         return carry;
     }
 
-    // --
-
+    // Accumulates r + x * x, returns carry.
     template <typename Integer>
-    auto square_accumulate (span<Integer> r, span<const Integer> x) noexcept -> Integer
-    // requires is_compact(x)
-    // requires r.size() > 2 * x.size()
+    auto square_sum_accumulate (span<Integer> r, span<const Integer> x) noexcept -> Integer
     {
+        assert( is_compact(x) );
+        assert( r.size() >= 2 * x.size() );
         Integer carry {};
         auto xz = x.size();
-        for (auto xi = 0u; xi != xz; ++xi)
+        for (auto xi = 0uz; xi != xz; ++xi)
         {
             // xi ^ 2
-            tie( r[xi+xi], carry ) = square( x[xi], carry );
-            // 2 * xi * xj
-            for (auto xj = xi + 1u; xj != xz; ++xj) {
-                // xi * xj + carry
-                auto [r0,c0] = product_sum( x[xi], x[xj], carry );
-                // 2 * ( xi * xj + carry )
-                tie( r[xi+xj], carry ) = twice( r0, c0 );
+            {
+                auto ri = xi+xi;
+                // xi ^ 2 + carry
+                auto [ p0, p1 ] = square_sum( x[xi], carry );
+                // store
+                auto c = sum_accumulate( r[ri], p0 );
+                carry = p1 + c;
             }
-            // propagate carry
+            // 2 * xi * xj
+            for (auto xj = xi + 1uz; xj != xz; ++xj)
+            {
+                auto ri = xi+xj;
+                // xi * xj
+                auto [ p0, p1 ] = product( x[xi], x[xj] );
+                // 2 * xi * xj + carry
+                auto [ t00, t01 ] = twice_sum( p0, 1, carry );
+                auto [ t10, t11 ] = twice( p1, 1 );
+                // store
+                auto c0 = sum_accumulate( r[ri+0], t00 );
+                auto c1 = sum_accumulate( r[ri+1], t01, c0 );
+                auto c2 = sum_accumulate( r[ri+1], t10, c1 );
+                auto c3 = sum_accumulate( r[ri+2], t11, c2 );
+                carry = c3;
+            }
+            // store
             carry = sum_accumulate( r[xi+xz], carry );
         }
         return carry;

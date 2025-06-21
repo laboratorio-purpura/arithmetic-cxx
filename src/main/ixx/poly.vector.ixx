@@ -127,12 +127,27 @@ export namespace purple
     // --
 
     template <typename Integer>
-    auto product_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y) noexcept -> Integer
+    auto product_sum_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y) noexcept -> Integer
     {
         auto rs = span( r.begin(), r.end() );
         auto xs = span( x.begin(), x.end() );
         auto ys = span( y.begin(), y.end() );
-        return product_accumulate(rs,xs,ys);
+        return product_sum_accumulate(rs,xs,ys);
+    }
+
+    template <typename Integer>
+    auto product_sum (vector<Integer> const & x, vector<Integer> const & y, vector<Integer> const & z) -> vector<Integer>
+    {
+        auto xz = x.size();
+        auto yz = y.size();
+        auto zz = z.size();
+        auto r = vector<Integer>( xz + yz + 1 );
+        for (auto i = 0uz; i != zz; ++i) r[i] = z[i];
+        auto rs = span( r.begin(), r.begin() + xz + yz );
+        auto xs = span( x.begin(), x.end() );
+        auto ys = span( y.begin(), y.end() );
+        r[xz+yz] = product_sum_accumulate(rs,xs,ys);
+        return std::move(r);
     }
 
     template <typename Integer>
@@ -144,7 +159,7 @@ export namespace purple
         auto rs = span( r.begin(), r.begin() + xz + yz );
         auto xs = span( x.begin(), x.end() );
         auto ys = span( y.begin(), y.end() );
-        r[xz+yz] = product_accumulate(rs,xs,ys);
+        r[xz+yz] = product_sum_accumulate(rs,xs,ys);
         return std::move(r);
     }
 

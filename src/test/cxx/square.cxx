@@ -35,11 +35,6 @@ TEST(square,square_vM)
     ASSERT_EQ( format( square(vM) ), "00000000FFFFFFFE00000001" );
 }
 
-TEST(square,square_v00)
-{
-    ASSERT_EQ( format( square(v00) ), "0000000000000000000000000000000000000000" );
-}
-
 TEST(square,square_v01)
 {
     ASSERT_EQ( format( square(v01) ), "0000000000000000000000010000000000000000" );

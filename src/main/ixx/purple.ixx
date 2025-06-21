@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Pedro Lamarão <pedro.lamarao@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
-export module purple;
+export module purple.math;
 
 export import :mono;
 export import :poly;

@@ -1,6 +1,6 @@
-= polymatic
+= purple-math
 
-The `polymatic` library contains routine "polynomial" or "multiprecision" arithmetic with integer coefficients.
+The `purple-math` library contains routines for polynomial or "multiprecision" arithmetic with integer coefficients.
 
 This is an educational project with the purpose of learning and sharing algorithmic mathematics.
 
@@ -24,24 +24,24 @@ To test the library:
 
 [source,shell]
 ----
-cmake-build-default/polymatic-test
+cmake-build-default/purple-math-test
 ----
 
-`polymatic-test` is a Google Test program containing unit tests for the library.
+`purple-math-test` is a Google Test program containing unit tests for the library.
 
 Fuzzying the library requires these tools.
 
-- GNU bc
+- bc
 
-To fuzz the `square` routine with a 8 degree "poly" 1000 times:
+To fuzz the `square` routine with an 8 degree "number" 1000 times:
 
 [source,shell]
 ----
-cmake-build-default/polymatic-fuzz square 8 1000 </dev/random | tee log | bc | cmake-build-default/polymatic-fuzz assert-zero
+cmake-build-default/purple-math-fuzz square 8 1000 </dev/random | tee log | bc | cmake-build-default/purple-math-fuzz assert-zero
 ----
 
 If successful, this pipeline prints nothing and returns `0`. Else, it prints the index of the failed case, whose parameters can be found in the `log` file.
 
-`polymatic-fuzz square` prints a program for `GNU bc` whose expressions must always return `0`. If any expressions return a different value, that means the routine produced the wrong value.
+`purple-math-fuzz square` prints a program for `bc` whose expressions must always return `0`. If any expression returns nonzero, that means `bc` disagrees with `purple-math` on the correct result.
 
-`polymatic-fuzz assert-zero` consumes numbers from the standard input and tests for zero. If nonzero, it prints the index of this number and returns nonzero.
+`purple-math-fuzz assert-zero` consumes numbers from the standard input and tests for zero. If nonzero, it prints the index of this number and returns nonzero.

@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-import purple;
+import purple.math;
 import purple.test;
 
 using namespace purple;

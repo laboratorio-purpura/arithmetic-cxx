@@ -7,7 +7,7 @@ module;
 #include <tuple>
 #include <vector>
 
-export module purple:poly.vector;
+export module purple.math:poly.vector;
 
 import :poly;
 

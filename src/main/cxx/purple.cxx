@@ -1,1 +1,1 @@
-module purple;
+module purple.math;

@@ -33,6 +33,16 @@ export namespace purple
         return x >> 31U;
     }
 
+    // 1 if and only f x is smaller than y, else 0.
+    constexpr
+    auto is_smaller (unsigned int x, unsigned int y) noexcept -> unsigned int
+    {
+        auto r0 = x ^ y;
+        auto r1 = x - y;
+        r1 ^= r0 & (r1 ^ x ^ (1U << (32-1)));
+        return r1 >> 31;
+    }
+
     /// mono integer arithmetic
 
     constexpr
@@ -46,6 +56,20 @@ export namespace purple
     auto sum_accumulate (unsigned int & x, unsigned int y, unsigned int carry = 0) noexcept -> unsigned int
     {
         x = __builtin_addc(x,y,carry,&carry);
+        return carry;
+    }
+
+    constexpr
+    auto minus (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> tuple< unsigned int, unsigned int >
+    {
+        auto r = __builtin_subc(x,y,carry,&carry);
+        return { r, carry };
+    }
+
+    constexpr
+    auto minus_accumulate (unsigned int & x, unsigned int y, unsigned int carry = 0) noexcept -> unsigned int
+    {
+        x = __builtin_subc(x,y,carry,&carry);
         return carry;
     }
 

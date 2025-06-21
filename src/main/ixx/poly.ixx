@@ -11,6 +11,7 @@ export module purple.arithmetic:poly;
 
 import :mono;
 
+using std::ignore;
 using std::span;
 using std::tie;
 using std::tuple;
@@ -52,6 +53,21 @@ export namespace purple
         return r;
     }
 
+    /// 1 if and only if x is smaller than y, else 0.
+    template <typename Integer>
+    auto is_smaller (span<Integer const> x, span<Integer const> y) -> Integer
+    {
+        assert( is_compact(x) );
+        assert( is_compact(y) );
+        assert( x.size() == y.size() );
+        Integer carry {};
+        auto const z = x.size();
+        for (auto i = 0uz; i != z; ++i) {
+            tie( ignore, carry ) = minus( x[i], y[i], carry );
+        }
+        return carry;
+    }
+
     /// poly integer arithmetic
 
     /// Accumulates r + y, returns carry.
@@ -80,6 +96,36 @@ export namespace purple
         auto const rz = r.size();
         for (auto i = 0uz; i != rz; ++i) {
             carry = sum_accumulate( r[i], y[i], carry );
+        }
+        return carry;
+    }
+
+    /// Accumulates r - y, returns carry.
+    template <typename Integer>
+    auto minus_accumulate (span<Integer> r, Integer y) noexcept -> Integer
+    {
+        assert( is_compact(r) );
+        Integer carry {};
+        auto const z = r.size();
+        if (z == 0) return carry;
+        carry = minus_accumulate( r[0], y, carry );
+        for (auto i = 1uz; i != z; ++i) {
+            carry = minus_accumulate( r[i], 0, carry );
+        }
+        return carry;
+    }
+
+    // Accumulates r - y, returns carry.
+    template <typename Integer>
+    auto minus_accumulate (span<Integer> r, span<Integer const> y) noexcept -> Integer
+    {
+        assert( is_compact(r) );
+        assert( is_compact(y) );
+        assert( r.size() >= y.size() );
+        Integer carry {};
+        auto const z = r.size();
+        for (auto i = 0uz; i != z; ++i) {
+            carry = minus_accumulate( r[i], y[i], carry );
         }
         return carry;
     }

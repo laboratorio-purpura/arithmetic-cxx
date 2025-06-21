@@ -85,6 +85,19 @@ export namespace purple
         return std::move(r);
     }
 
+    template <typename Integer>
+    auto minus (vector<Integer> const & x, vector<Integer> const & y) -> vector<Integer>
+    {
+        auto const xz = x.size();
+        auto r = vector<Integer>( xz + 1 );
+        for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
+        auto rs = span( r.begin(), r.begin() + xz );
+        auto ys = span( y.begin(), y.end() );
+        auto carry = minus_accumulate(rs,ys);
+        // TODO: if carry...
+        return std::move(r);
+    }
+
     // --
 
     template <typename Integer>

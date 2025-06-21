@@ -2,6 +2,10 @@
 
 The `polymatic` library contains routine "polynomial" or "multiprecision" arithmetic with integer coefficients.
 
+This is an educational project with the purpose of learning and sharing algorithmic mathematics.
+
+This library is defined in a C++23 module.
+
 Building the library requires these tools.
 
 - clang 20+

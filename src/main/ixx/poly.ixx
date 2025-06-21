@@ -51,7 +51,7 @@ export namespace purple
 
     /// poly integer arithmetic
 
-    /// Accumulates r += y, returns carry.
+    /// Accumulates r + y, returns carry.
     template <typename Integer>
     auto sum_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
@@ -64,7 +64,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r += y, returns carry.
+    // Accumulates r + y, returns carry.
     template <typename Integer>
     auto sum_accumulate (span<Integer> r, span<const Integer> y) noexcept -> Integer
     {
@@ -79,7 +79,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r *= y, returns carry.
+    // Accumulates r * y, returns carry.
     template <typename Integer>
     auto product_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
@@ -92,7 +92,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r += x * y, returns carry.
+    // Accumulates r + (x * y), returns carry.
     template <typename Integer>
     auto product_sum_accumulate (span<Integer> r, span<const Integer> x, span<const Integer> y) noexcept -> Integer
     {
@@ -107,22 +107,19 @@ export namespace purple
             for (auto yi = 0uz; yi != yz; ++yi)
             {
                 auto ri = xi+yi;
-                auto xv = x[xi];
-                auto yv = y[yi];
-                auto rv = r[ri];
-                auto [ p0, p1 ] = product_sum( xv, yv, carry );
-                auto [ s, c ] = sum( rv, p0 );
-                r[ri] = s;
+                // xi * yi + carry
+                auto [ p0, p1 ] = product_sum( x[xi], y[yi], carry );
+                // store
+                auto c = sum_accumulate( r[ri], p0 );
                 carry = p1 + c;
             }
-            // propagate carry
+            // store
             carry = sum_accumulate( r[xi+yz], carry );
         }
         return carry;
     }
 
-    // --
-
+    // Accumulates r * 2 * N, returns carry.
     template <typename Integer>
     auto twice_accumulate (span<Integer> r, unsigned N) noexcept -> Integer
     {

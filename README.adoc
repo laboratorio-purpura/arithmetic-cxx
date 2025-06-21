@@ -1,4 +1,4 @@
-= purple-math
+= purple-arithmetic
 
 The `purple-arithmetic` library contains routines for polynomial or "multiprecision" arithmetic with integer coefficients.
 

@@ -19,6 +19,13 @@ export namespace purple
     template <typename Integer>
     auto is_compact (span<Integer const> x) noexcept -> Integer;
 
+    /// 1 if and only if every term of x is significant, else 0.
+    template <typename Integer>
+    auto is_compact (span<Integer> x) noexcept -> Integer
+    {
+        return is_compact(span<Integer const>(x));
+    }
+
     /// 1 if and only if x is the additive identity, else 0.
     template <typename Integer>
     auto is_zero (span<Integer const> x) noexcept -> Integer

@@ -10,7 +10,7 @@
 
 #include <fmt/format.h>
 
-import purple.math;
+import purple.arithmetic;
 
 using namespace std;
 

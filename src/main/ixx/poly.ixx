@@ -7,7 +7,7 @@ module;
 #include <span>
 #include <tuple>
 
-export module purple.math:poly;
+export module purple.arithmetic:poly;
 
 import :mono;
 

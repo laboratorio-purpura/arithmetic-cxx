@@ -5,7 +5,7 @@ module;
 
 #include <tuple>
 
-export module purple.math:mono;
+export module purple.arithmetic:mono;
 
 using std::tuple;
 

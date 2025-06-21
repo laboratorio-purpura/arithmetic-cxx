@@ -1,6 +1,6 @@
 = purple-math
 
-The `purple-math` library contains routines for polynomial or "multiprecision" arithmetic with integer coefficients.
+The `purple-arithmetic` library contains routines for polynomial or "multiprecision" arithmetic with integer coefficients.
 
 This is an educational project with the purpose of learning and sharing algorithmic mathematics.
 
@@ -24,10 +24,10 @@ To test the library:
 
 [source,shell]
 ----
-cmake-build-default/purple-math-test
+cmake-build-default/purple-arithmetic-test
 ----
 
-`purple-math-test` is a Google Test program containing unit tests for the library.
+`purple-arithmetic-test` is a Google Test program containing unit tests for the library.
 
 Fuzzying the library requires these tools.
 
@@ -37,11 +37,11 @@ To fuzz the `square` routine with an 8 degree "number" 1000 times:
 
 [source,shell]
 ----
-cmake-build-default/purple-math-fuzz square 8 1000 </dev/random | tee log | bc | cmake-build-default/purple-math-fuzz assert-zero
+cmake-build-default/purple-arithmetic-fuzz square 8 1000 </dev/random | tee log | bc | cmake-build-default/purple-arithmetic-fuzz assert-zero
 ----
 
 If successful, this pipeline prints nothing and returns `0`. Else, it prints the index of the failed case, whose parameters can be found in the `log` file.
 
-`purple-math-fuzz square` prints a program for `bc` whose expressions must always return `0`. If any expression returns nonzero, that means `bc` disagrees with `purple-math` on the correct result.
+`purple-arithmetic-fuzz square` prints a program for `bc` whose expressions must always return `0`. If any expression returns nonzero, that means `bc` disagrees with `purple-arithmetic` on the correct result.
 
-`purple-math-fuzz assert-zero` consumes numbers from the standard input and tests for zero. If nonzero, it prints the index of this number and returns nonzero.
+`purple-arithmetic-fuzz assert-zero` consumes numbers from the standard input and tests for zero. If nonzero, it prints the index of this number and returns nonzero.

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(purple-math VERSION 1.0.0 LANGUAGES C CXX)
+project(purple-arithmetic VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(CMAKE_CXX_STANDARD 23)
@@ -10,12 +10,12 @@ set(CMAKE_CXX_STANDARD 23)
 find_package(fmt REQUIRED)
 find_package(GTest REQUIRED)
 
-add_library(purple-math)
+add_library(purple-arithmetic)
 
 FILE(GLOB main_cxx_sources src/main/cxx/*.cxx)
 FILE(GLOB main_ixx_sources src/main/ixx/*.ixx)
 
-target_sources(purple-math
+target_sources(purple-arithmetic
     PUBLIC FILE_SET CXX_MODULES FILES
     ${main_ixx_sources}
     PRIVATE
@@ -24,38 +24,38 @@ target_sources(purple-math
 
 # test
 
-add_executable(purple-math-test)
+add_executable(purple-arithmetic-test)
 
 FILE(GLOB_RECURSE test_cxx_sources src/test/cxx/*.cxx)
 FILE(GLOB test_ixx_sources src/test/ixx/*.ixx)
 
-target_sources(purple-math-test
+target_sources(purple-arithmetic-test
     PUBLIC FILE_SET CXX_MODULES FILES
     ${test_ixx_sources}
     PRIVATE
     ${test_cxx_sources}
 )
 
-target_link_libraries(purple-math-test
+target_link_libraries(purple-arithmetic-test
     PRIVATE
     fmt::fmt
     GTest::gtest_main
-    purple-math
+    purple-arithmetic
 )
 
 # fuzz
 
-add_executable(purple-math-fuzz)
+add_executable(purple-arithmetic-fuzz)
 
 FILE(GLOB fuzz_cxx_sources src/fuzz/cxx/*.cxx)
 
-target_sources(purple-math-fuzz
+target_sources(purple-arithmetic-fuzz
     PRIVATE
     ${fuzz_cxx_sources}
 )
 
-target_link_libraries(purple-math-fuzz
+target_link_libraries(purple-arithmetic-fuzz
     PRIVATE
     fmt::fmt
-    purple-math
+    purple-arithmetic
 )

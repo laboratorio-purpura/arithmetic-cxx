@@ -56,7 +56,7 @@ export namespace purple
     {
         assert( is_compact(r) );
         Integer carry {};
-        auto rz = r.size();
+        auto const rz = r.size();
         if (rz == 0) return carry;
         carry = sum_accumulate( r[0], y, carry );
         for (auto i = 1uz; i != rz; ++i) {
@@ -73,7 +73,7 @@ export namespace purple
         assert( is_compact(y) );
         assert( r.size() >= y.size() );
         Integer carry {};
-        auto rz = r.size();
+        auto const rz = r.size();
         for (auto i = 0uz; i != rz; ++i) {
             carry = sum_accumulate( r[i], y[i], carry );
         }
@@ -86,7 +86,7 @@ export namespace purple
     {
         assert( is_compact(r) );
         Integer carry {};
-        auto rz = r.size();
+        auto const rz = r.size();
         for (auto i = 0uz; i != rz; ++i) {
             carry = product_sum_accumulate( r[i], y, carry );
         }
@@ -101,8 +101,8 @@ export namespace purple
         assert( is_compact(y) );
         assert( r.size() >= x.size() + y.size() );
         Integer carry {};
-        auto xz = x.size();
-        auto yz = y.size();
+        auto const xz = x.size();
+        auto const yz = y.size();
         for (auto xi = 0uz; xi != xz; ++xi)
         {
             for (auto yi = 0uz; yi != yz; ++yi)
@@ -126,7 +126,7 @@ export namespace purple
     {
         assert( is_compact(r) );
         Integer carry {};
-        auto rz = r.size();
+        auto const rz = r.size();
         for (auto i = 0uz; i != rz; ++i) {
             carry = twice_sum_accumulate( r[i], N, carry );
         }
@@ -140,7 +140,7 @@ export namespace purple
         assert( is_compact(x) );
         assert( r.size() >= 2 * x.size() );
         Integer carry {};
-        auto xz = x.size();
+        auto const xz = x.size();
         for (auto xi = 0uz; xi != xz; ++xi)
         {
             // xi ^ 2

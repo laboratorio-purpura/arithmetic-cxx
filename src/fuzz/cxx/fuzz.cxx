@@ -58,7 +58,6 @@ namespace
 
         auto x = vector<unsigned>(degree);
         auto y = vector<unsigned>(degree);
-        auto r = vector<unsigned>(degree + 1);
 
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
@@ -69,8 +68,7 @@ namespace
             if (xz == -1) break;
             auto yz = fread(y.data(), sizeof(unsigned), y.size(), stdin);
             if (yz == -1) break;
-            memset(r.data(),0,sizeof(unsigned)*r.size());
-            sum_accumulate(r,x,y);
+            auto r = purple::sum(x,y);
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
@@ -104,7 +102,6 @@ namespace
 
         auto x = vector<unsigned>(degree);
         auto y = vector<unsigned>(degree);
-        auto r = vector<unsigned>((degree * 2) + 1);
 
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
@@ -115,8 +112,7 @@ namespace
             if (xz == -1) break;
             auto yz = fread(y.data(), sizeof(unsigned), y.size(), stdin);
             if (yz == -1) break;
-            memset(r.data(),0,sizeof(unsigned)*r.size());
-            product_accumulate(r,x,y);
+            auto r = purple::product(x,y);
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
@@ -150,7 +146,6 @@ namespace
 
         auto x = vector<unsigned>(degree);
         auto y = unsigned();
-        auto r = vector<unsigned>(degree + 1);
 
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
@@ -161,8 +156,7 @@ namespace
             if (xz == -1) break;
             auto yz = fread(&y, sizeof(unsigned), 1, stdin);
             if (yz == -1) break;
-            memset(r.data(),0,sizeof(unsigned)*r.size());
-            product_accumulate(r,x,y);
+            auto r = purple::product(x,y);
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("y = {:08X};",y);
@@ -195,7 +189,6 @@ namespace
         }
 
         auto x = vector<unsigned>(degree);
-        auto r = vector<unsigned>((degree * 2) + 1);
 
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
@@ -204,8 +197,7 @@ namespace
         {
             auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
             if (xz == -1) break;
-            memset(r.data(),0,sizeof(unsigned)*r.size());
-            square_accumulate(r,x);
+            auto r = purple::square(x);
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("r = {};",format(r));

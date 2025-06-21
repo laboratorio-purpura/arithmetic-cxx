@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Pedro Lamarão <pedro.lamarao@gmail.com>
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include <cstdio>
 #include <iostream>
 #include <span>
@@ -9,7 +12,6 @@
 
 import purple;
 
-using namespace purple;
 using namespace std;
 
 namespace
@@ -265,7 +267,6 @@ namespace
 
         auto x = vector<unsigned>(degree);
         auto y = unsigned();
-        auto r = vector<unsigned>(degree + 1);
 
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
@@ -276,8 +277,7 @@ namespace
             if (xz == -1) break;
             auto yz = fread(&y, sizeof(unsigned), 1, stdin);
             if (yz == -1) break;
-            memset(r.data(),0,sizeof(unsigned)*r.size());
-            remainder_accumulate(r,x,y);
+            auto r = purple::remainder(x,y);
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("y = {:08X};",y);

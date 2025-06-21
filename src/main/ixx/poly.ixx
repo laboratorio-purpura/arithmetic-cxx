@@ -124,7 +124,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r * 2 * N, returns carry.
+    // Accumulates r * 2 ^ N, returns carry.
     template <typename Integer>
     auto twice_accumulate (span<Integer> r, unsigned N) noexcept -> Integer
     {

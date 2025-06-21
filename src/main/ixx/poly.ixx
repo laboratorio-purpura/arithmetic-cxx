@@ -9,7 +9,6 @@ export module purple:poly;
 import :mono;
 
 using std::span;
-using std::tie;
 using std::tuple;
 
 export namespace purple
@@ -56,10 +55,12 @@ export namespace purple
     auto sum_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
         assert( is_compact(r) );
-        Integer carry = y;
+        Integer carry {};
         auto rz = r.size();
-        for (auto i = 0uz; i != rz; ++i) {
-            tie( r[i], carry ) = sum( r[i], carry );
+        if (rz == 0) return carry;
+        carry = sum_accumulate( r[0], y, carry );
+        for (auto i = 1uz; i != rz; ++i) {
+            carry = sum_accumulate( r[i], 0, carry );
         }
         return carry;
     }
@@ -74,7 +75,7 @@ export namespace purple
         Integer carry {};
         auto rz = r.size();
         for (auto i = 0uz; i != rz; ++i) {
-            tie( r[i], carry ) = sum( r[i], y[i], carry );
+            carry = sum_accumulate( r[i], y[i], carry );
         }
         return carry;
     }
@@ -87,7 +88,7 @@ export namespace purple
         Integer carry {};
         auto rz = r.size();
         for (auto i = 0uz; i != rz; ++i) {
-            tie( r[i], carry ) = product_sum( r[i], y, carry );
+            carry = product_sum_accumulate( r[i], y, carry );
         }
         return carry;
     }

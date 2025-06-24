@@ -3,11 +3,11 @@
 
 module;
 
-#include <tuple>
+#include <array>
 
 export module purple.arithmetic:mono;
 
-using std::tuple;
+using std::array;
 
 export namespace purple
 {
@@ -46,7 +46,7 @@ export namespace purple
     /// mono integer arithmetic
 
     constexpr
-    auto sum (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> tuple< unsigned int, unsigned int >
+    auto sum (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> array< unsigned int, 2 >
     {
         auto r = __builtin_addc(x,y,carry,&carry);
         return { r, carry };
@@ -60,7 +60,7 @@ export namespace purple
     }
 
     constexpr
-    auto minus (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> tuple< unsigned int, unsigned int >
+    auto minus (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> array< unsigned int, 2 >
     {
         auto r = __builtin_subc(x,y,carry,&carry);
         return { r, carry };
@@ -74,10 +74,13 @@ export namespace purple
     }
 
     constexpr
-    auto product (unsigned int x, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
+    auto product (unsigned int x, unsigned int y) noexcept -> array< unsigned int, 2 >
     {
         auto r = ( static_cast<unsigned long long>(x) * y );
-        return { r, r >> 32 };
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
     }
 
     constexpr
@@ -89,10 +92,13 @@ export namespace purple
     }
 
     constexpr
-    auto product_sum (unsigned int x, unsigned int y, unsigned int z) noexcept -> tuple< unsigned int, unsigned int >
+    auto product_sum (unsigned int x, unsigned int y, unsigned int z) noexcept -> array< unsigned int, 2 >
     {
         auto r = ( static_cast<unsigned long long>(x) * y ) + z;
-        return { r, r >> 32 };
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
     }
 
     constexpr
@@ -104,10 +110,13 @@ export namespace purple
     }
 
     constexpr
-    auto twice (unsigned int x, unsigned N) noexcept -> tuple< unsigned int, unsigned int >
+    auto twice (unsigned int x, unsigned N) noexcept -> array< unsigned int, 2 >
     {
         auto r = static_cast<unsigned long long>(x) << N;
-        return { r, r >> 32 };
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
     }
 
     constexpr
@@ -119,10 +128,13 @@ export namespace purple
     }
 
     constexpr
-    auto twice_sum (unsigned int x, unsigned N, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
+    auto twice_sum (unsigned int x, unsigned N, unsigned int y) noexcept -> array< unsigned int, 2 >
     {
         auto r = ( static_cast<unsigned long long>(x) << N ) + y;
-        return { r, r >> 32 };
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
     }
 
     constexpr
@@ -134,10 +146,13 @@ export namespace purple
     }
 
     constexpr
-    auto half (unsigned int x, unsigned N) noexcept -> tuple< unsigned int, unsigned int >
+    auto half (unsigned int x, unsigned N) noexcept -> array< unsigned int, 2 >
     {
         auto r = static_cast<unsigned long long>(x) >> N;
-        return { r, r >> 32 };
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
     }
 
     constexpr
@@ -149,10 +164,13 @@ export namespace purple
     }
 
     constexpr
-    auto half_sum (unsigned int x, unsigned N, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
+    auto half_sum (unsigned int x, unsigned N, unsigned int y) noexcept -> array< unsigned int, 2 >
     {
         auto r = ( static_cast<unsigned long long>(x) >> N ) + y;
-        return { r, r >> 32 };
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
     }
 
     constexpr
@@ -164,10 +182,13 @@ export namespace purple
     }
 
     constexpr
-    auto square (unsigned int x) noexcept -> tuple< unsigned int, unsigned int >
+    auto square (unsigned int x) noexcept -> array< unsigned int, 2 >
     {
         auto r = static_cast<unsigned long long>(x) * x;
-        return { r, r >> 32 };
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
     }
 
     constexpr
@@ -179,10 +200,13 @@ export namespace purple
     }
 
     constexpr
-    auto square_sum (unsigned int x, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
+    auto square_sum (unsigned int x, unsigned int y) noexcept -> array< unsigned int, 2 >
     {
         auto r = ( static_cast<unsigned long long>(x) * x ) + y;
-        return { r, r >> 32 };
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
     }
 
     constexpr
@@ -194,7 +218,7 @@ export namespace purple
     }
 
     constexpr
-    auto ratio (unsigned int x, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
+    auto ratio (unsigned int x, unsigned int y) noexcept -> array< unsigned int, 2 >
     {
         auto q = x / y;
         auto r = x % y;

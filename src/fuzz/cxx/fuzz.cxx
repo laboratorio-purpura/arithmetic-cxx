@@ -332,10 +332,53 @@ namespace
         return 0;
     }
 
+    int ratio_2_1 (span<char const *> args)
+    {
+        if (args.size() < 2) {
+            fmt::println("usage: purple-crypto-fuzz ratio-2-1 [iterations]");
+            return 1;
+        }
+
+        auto iterations = args.size() < 3 ? 1 : std::stoi( args[2] );
+        if (iterations < 1) {
+            fmt::println("error: expected iterations > 0, actual: {}", iterations);
+            return 1;
+        }
+
+        fmt::println("obase=16;");
+        fmt::println("ibase=16;");
+
+        for (auto i = 0; i != iterations; ++i)
+        {
+            auto x = array<unsigned,2>();
+            auto xn = fread(x.data(), sizeof(unsigned), 2, stdin);
+            if (xn < 2) break;
+
+            auto y = unsigned();
+            auto yn = fread(&y, sizeof(unsigned), 1, stdin);
+            if (yn < 1) break;
+
+            // "normalise"
+            y |= 0x80000000U;
+
+            auto [q,r] = purple::ratio_normalised(x,y);
+
+            fmt::println("i = {};",i);
+            fmt::println("x = {};",format(x));
+            fmt::println("y = {:08X};",y);
+            fmt::println("q = {};",format(q));
+            fmt::println("r = {:08X};",r);
+            fmt::println("((x / y) - q) + (x % y) - r");
+            fflush(stdout);
+        }
+
+        return 0;
+    }
+
     int reciprocal_nonzero (span<char const *> args)
     {
         if (args.size() < 2) {
-            fmt::println("usage: purple-crypto-fuzz reciprocal_1 [iterations]");
+            fmt::println("usage: purple-crypto-fuzz reciprocal-nonzero [iterations]");
             return 1;
         }
 
@@ -357,7 +400,7 @@ namespace
             auto y = unsigned();
             auto yn = fread(&y, sizeof(unsigned), 1, stdin);
             if (yn < 1) break;
-            if (y == 0) y = ~y;
+            if (y == 0) y = 0xFFFFFFFFU;
 
             auto y_ = purple::reciprocal_nonzero(y);
             auto q = ( static_cast< unsigned long long >( x ) * y_ ) >> 32;
@@ -372,8 +415,7 @@ namespace
             fmt::println("y = {:08X};",y);
             fmt::println("q = {:08X};",q);
             fmt::println("r = {:08X};",r);
-            fmt::println("( x / y ) - q;");
-            fmt::println("( x % y ) - r;");
+            fmt::println("((x / y) - q) + (x % y) - r");
             fflush(stdout);
         }
 
@@ -383,7 +425,7 @@ namespace
     int reciprocal_normalised (span<char const *> args)
     {
         if (args.size() < 2) {
-            fmt::println("usage: purple-crypto-fuzz reciprocal_1 [iterations]");
+            fmt::println("usage: purple-crypto-fuzz reciprocal-normalised [iterations]");
             return 1;
         }
 
@@ -420,8 +462,7 @@ namespace
             fmt::println("y = {:08X};",y);
             fmt::println("q = {:08X};",q);
             fmt::println("r = {:08X};",r);
-            fmt::println("( x / y ) - q;");
-            fmt::println("( x % y ) - r;");
+            fmt::println("((x / y) - q) + (x % y) - r");
             fflush(stdout);
         }
 
@@ -490,6 +531,8 @@ namespace
             return product(args);
         else if (command == "product-scalar")
             return product_scalar(args);
+        else if (command == "ratio-2-1")
+            return ratio_2_1(args);
         else if (command == "reciprocal-nonzero")
             return reciprocal_nonzero(args);
         else if (command == "reciprocal-normalised")

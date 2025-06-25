@@ -59,13 +59,80 @@ export namespace purple
     {
         assert( is_compact(x) );
         assert( is_compact(y) );
-        assert( x.size() == y.size() );
+        auto const xz = x.size();
+        auto const yz = y.size();
+        if (xz < yz) return 1;
+        Integer difference {};
+        Integer carry { 0 };
+        for (auto i = 0uz; i != xz; ++i) {
+            tie( difference, carry ) = minus( x[i], y[i], carry );
+        }
+        return ( is_zero(difference) & carry ) | ( not_zero(difference) & not_zero(carry) );
+    }
+
+    /// 1 if and only if x is not smaller than y, else 0.
+    template <typename Integer>
+    auto not_smaller (span<Integer const> x, span<Integer const> y) -> Integer
+    {
+        assert( is_compact(x) );
+        assert( is_compact(y) );
+        auto const xz = x.size();
+        auto const yz = y.size();
+        if (xz < yz) return 0;
+        Integer difference {};
         Integer carry {};
         auto const z = x.size();
         for (auto i = 0uz; i != z; ++i) {
-            tie( ignore, carry ) = minus( x[i], y[i], carry );
+            tie( difference, carry ) = minus( x[i], y[i], carry );
         }
         return carry;
+    }
+
+    /// 1 if and only if x is greater than y, else 0.
+    template <typename Integer>
+    auto is_greater (span<Integer const> x, span<Integer const> y) -> Integer
+    {
+        return 1U - is_smaller(y,x);
+    }
+
+    /// 1 if and only if x is not greater than y, else 0.
+    template <typename Integer>
+    auto not_greater (span<Integer const> x, span<Integer const> y) -> Integer
+    {
+        return 1U - not_smaller(y,x);
+    }
+
+    /// 1 if and only if x is equal than y, else 0.
+    template <typename Integer>
+    auto is_equal (span<Integer const> x, span<Integer const> y) -> Integer
+    {
+        assert( is_compact(x) );
+        assert( is_compact(y) );
+        auto const xz = x.size();
+        auto const yz = y.size();
+        if (xz != yz) return 0;
+        Integer difference {};
+        Integer carry {};
+        for (auto i = 0uz; i != xz; ++i) {
+            tie( difference, carry ) = minus( x[i], y[i], carry );
+        }
+        return is_zero(difference) & is_zero(carry);
+    }
+
+    /// 1 if and only if x is equal than y, else 0.
+    template <typename Integer>
+    auto not_equal (span<Integer const> x, span<Integer const> y) -> Integer
+    {
+        assert( is_compact(x) );
+        assert( is_compact(y) );
+        assert( x.size() == y.size() );
+        Integer difference {};
+        Integer carry {};
+        auto const z = x.size();
+        for (auto i = 0uz; i != z; ++i) {
+            tie( difference, carry ) = minus( x[i], y[i], carry );
+        }
+        return not_zero(difference) | carry;
     }
 
     /// poly integer arithmetic

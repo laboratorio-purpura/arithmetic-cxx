@@ -53,3 +53,12 @@ If successful, this pipeline prints nothing and returns `0`. Else, it prints the
 `purple-arithmetic-fuzz square` prints a program for `bc` whose expressions must always return `0`. If any expression returns nonzero, that means `bc` disagrees with `purple-arithmetic` on the correct result.
 
 `purple-arithmetic-fuzz assert-zero` consumes numbers from the standard input and tests for zero. If nonzero, it prints the index of this number and returns nonzero.
+
+Available fuzzers:
+
+* `product` _degree_ _iterations_
+* `product-N-1` _degree_ _iterations_
+* `ratio-2-1` _iterations_
+* `square` _degree_ _iterations_
+* `sum` _degree_ _iterations_
+* `twice` _degree_ _iterations_

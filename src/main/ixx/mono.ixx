@@ -153,7 +153,7 @@ export namespace purple
     }
 
     constexpr
-    auto half_accumulate (unsigned int & x, unsigned N) noexcept -> unsigned int
+    void half_accumulate (unsigned int & x, unsigned N) noexcept
     {
         x >>= N;
     }

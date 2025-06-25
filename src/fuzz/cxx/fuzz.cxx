@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <cstdio>
+#include <functional>
 #include <iostream>
 #include <span>
 #include <string>
@@ -32,16 +33,26 @@ namespace
             cin >> hex >> number;
             if (number != 0) break;
             ++i;
+            if (i % 50 == 0)
+                fmt::println(".");
+            else
+                fmt::print(".");
         }
+        fflush(stdout);
         if (number == 0) return 0;
-        cout << "i = " << i << " -> NONZERO" << endl;
+        fmt::println("");
+        fmt::println("i = {} -> NONZERO\n",i);;
+        fflush(stdout);
         return 1;
     }
 
-    int sum (span<char const *> args)
+    int command_degree_iterations (
+        string_view command, span<char const *> args,
+        function<void (unsigned degree, unsigned iteration)> f
+    )
     {
         if (args.size() < 3) {
-            fmt::println("usage: purple-crypto-fuzz sum (degree) [iterations]");
+            fmt::println("usage: purple-crypto-fuzz {} (degree) [iterations]",command);
             return 1;
         }
 
@@ -57,460 +68,302 @@ namespace
             return 1;
         }
 
-        auto x = vector<unsigned>(degree);
-        auto y = vector<unsigned>(degree);
+        fmt::println("obase=16;");
+        fmt::println("ibase=16;");
+
+        for (auto i = 0; i != iterations; ++i)
+        {
+            f(degree,i);
+        }
+
+        return 0;
+    }
+
+    int command_iterations (
+        string_view command, span<char const *> args,
+        function<void (unsigned iteration)> f
+    )
+    {
+        if (args.size() < 2) {
+            fmt::println("usage: purple-crypto-fuzz {} [iterations]",command);
+            return 1;
+        }
+
+        auto iterations = args.size() < 3 ? 1 : std::stoi( args[2] );
+        if (iterations < 1) {
+            fmt::println("error: expected iterations > 0, actual: {}", iterations);
+            return 1;
+        }
 
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
 
         for (auto i = 0; i != iterations; ++i)
         {
-            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xz == -1) break;
-            auto yz = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yz == -1) break;
-            auto r = purple::sum(x,y);
+            f(i);
+        }
+
+        return 0;
+    }
+
+    int sum (span<char const *> args)
+    {
+        return command_degree_iterations("sum",args,[] (auto degree, auto i)
+        {
+            auto x = vector<unsigned>(degree);
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
+
+            auto y = vector<unsigned>(degree);
+            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
+            if (yr < 1) return;
+
+            auto r = purple::sum<unsigned>(x,y);
+
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
             fmt::println("(x + y) - r;");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
     int is_smaller (span<char const *> args)
     {
-        if (args.size() < 3) {
-            fmt::println("usage: purple-crypto-fuzz is-smaller (degree) [iterations]");
-            return 1;
-        }
-
-        auto degree = std::stoi(args[2] );
-        if (degree < 1) {
-            fmt::println("error: expected degree > 0, actual: {}", degree);
-            return 1;
-        }
-
-        auto iterations = args.size() < 4 ? 1 : std::stoi( args[3] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        auto x = vector<unsigned>(degree);
-        auto y = vector<unsigned>(degree);
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_degree_iterations("is-smaller",args,[] (auto degree, auto i)
         {
-            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xz == -1) break;
-            auto yz = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yz == -1) break;
+            auto x = vector<unsigned>(degree);
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
+
+            auto y = vector<unsigned>(degree);
+            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
+            if (yr < 1) return;
+
             auto r = purple::is_smaller<unsigned>(x,y);
+
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",r);
             fmt::println("(x < y) - r;");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
     int minus (span<char const *> args)
     {
-        if (args.size() < 3) {
-            fmt::println("usage: purple-crypto-fuzz minus (degree) [iterations]");
-            return 1;
-        }
-
-        auto degree = std::stoi(args[2] );
-        if (degree < 1) {
-            fmt::println("error: expected degree > 0, actual: {}", degree);
-            return 1;
-        }
-
-        auto iterations = args.size() < 4 ? 1 : std::stoi( args[3] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        auto x = vector<unsigned>(degree);
-        auto y = vector<unsigned>(degree);
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_degree_iterations("minus",args,[] (auto degree, auto i)
         {
-            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xz == -1) break;
-            auto yz = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yz == -1) break;
-            if (purple::is_smaller<unsigned>(x,y)) swap(x,y);
-            auto r = purple::minus(x,y);
+            auto x = vector<unsigned>(degree);
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
+
+            auto y = vector<unsigned>(degree);
+            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
+            if (yr < 1) return;
+
+            auto r = purple::minus<unsigned>(x,y);
+
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
             fmt::println("(x - y) - r;");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
     int product (span<char const *> args)
     {
-        if (args.size() < 3) {
-            fmt::println("usage: purple-crypto-fuzz product (degree) [iterations]");
-            return 1;
-        }
-
-        auto degree = std::stoi( args[2] );
-        if (degree < 1) {
-            fmt::println("error: expected degree > 0, actual: {}", degree);
-            return 1;
-        }
-
-        auto iterations = args.size() < 4 ? 1 : std::stoi( args[3] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        auto x = vector<unsigned>(degree);
-        auto y = vector<unsigned>(degree);
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_degree_iterations("product",args,[] (auto degree, auto i)
         {
-            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xz == -1) break;
-            auto yz = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yz == -1) break;
-            auto r = purple::product(x,y);
+            auto x = vector<unsigned>(degree);
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
+
+            auto y = vector<unsigned>(degree);
+            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
+            if (yr < 1) return;
+
+            auto r = purple::product<unsigned>(x,y);
+
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
             fmt::println("(x * y) - r;");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
-    int product_scalar (span<char const *> args)
+    int product_N_1 (span<char const *> args)
     {
-        if (args.size() < 3) {
-            fmt::println("usage: purple-crypto-fuzz product-scalar (degree) [iterations]");
-            return 1;
-        }
-
-        auto degree = std::stoi( args[2] );
-        if (degree < 1) {
-            fmt::println("error: expected degree > 0, actual: {}", degree);
-            return 1;
-        }
-
-        auto iterations = args.size() < 4 ? 1 : std::stoi( args[3] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        auto x = vector<unsigned>(degree);
-        auto y = unsigned();
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_degree_iterations("product-N-1",args,[] (auto degree, auto i)
         {
-            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xz == -1) break;
-            auto yz = fread(&y, sizeof(unsigned), 1, stdin);
-            if (yz == -1) break;
-            auto r = purple::product(x,y);
+            auto x = vector<unsigned>(degree);
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
+
+            auto y = array<unsigned,1>();
+            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
+            if (yr < 1) return;
+
+            auto r = purple::product<unsigned>(x,y[0]);
+
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
-            fmt::println("y = {:08X};",y);
+            fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
             fmt::println("(x * y) - r;");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
     int twice (span<char const *> args)
     {
-        if (args.size() < 3) {
-            fmt::println("usage: purple-crypto-fuzz twice (degree) [iterations]");
-            return 1;
-        }
-
-        auto degree = std::stoi( args[2] );
-        if (degree < 1) {
-            fmt::println("error: expected degree > 0, actual: {}", degree);
-            return 1;
-        }
-
-        auto iterations = args.size() < 4 ? 1 : std::stoi( args[3] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        auto x = vector<unsigned>(degree);
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_degree_iterations("twice",args,[] (auto degree, auto i)
         {
-            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xz == -1) break;
-            auto r = purple::twice(x);
+            auto x = vector<unsigned>(degree);
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
+
+            auto r = purple::twice<unsigned>(x);
+
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("r = {};",format(r));
-            fmt::println("(2 * x) - r;");
-            fflush(stdout);
-        }
-
-        return 0;
+            fmt::println("(x * 2) - r;");
+        });
     }
 
     int square (span<char const *> args)
     {
-        if (args.size() < 3) {
-            fmt::println("usage: purple-crypto-fuzz square (degree) [iterations]");
-            return 1;
-        }
-
-        auto degree = std::stoi( args[2] );
-        if (degree < 1) {
-            fmt::println("error: expected degree > 0, actual: {}", degree);
-            return 1;
-        }
-
-        auto iterations = args.size() < 4 ? 1 : std::stoi( args[3] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        auto x = vector<unsigned>(degree);
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_degree_iterations("square",args,[] (auto degree, auto i)
         {
-            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xz == -1) break;
-            auto r = purple::square(x);
+            auto x = vector<unsigned>(degree);
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
+
+            auto r = purple::square<unsigned>(x);
+
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
             fmt::println("r = {};",format(r));
             fmt::println("(x * x) - r;");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
     int ratio_2_1 (span<char const *> args)
     {
-        if (args.size() < 2) {
-            fmt::println("usage: purple-crypto-fuzz ratio-2-1 [iterations]");
-            return 1;
-        }
-
-        auto iterations = args.size() < 3 ? 1 : std::stoi( args[2] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_iterations("ratio-2-1",args,[] (auto i)
         {
             auto x = array<unsigned,2>();
-            auto xn = fread(x.data(), sizeof(unsigned), 2, stdin);
-            if (xn < 2) break;
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
 
-            auto y = unsigned();
-            auto yn = fread(&y, sizeof(unsigned), 1, stdin);
-            if (yn < 1) break;
+            auto y = array<unsigned,1>();
+            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
+            if (yr < 1) return;
 
             // "normalise"
-            y |= 0x80000000U;
+            y[0] |= 0x80000000U;
 
-            auto [q,r] = purple::ratio_normalised(x,y);
+            auto [q,r] = purple::ratio_normalised(x,y[0]);
 
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
-            fmt::println("y = {:08X};",y);
+            fmt::println("y = {:08X};",y[0]);
             fmt::println("q = {};",format(q));
             fmt::println("r = {:08X};",r);
             fmt::println("((x / y) - q) + (x % y) - r");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
     int reciprocal_nonzero (span<char const *> args)
     {
-        if (args.size() < 2) {
-            fmt::println("usage: purple-crypto-fuzz reciprocal-nonzero [iterations]");
-            return 1;
-        }
-
-        auto iterations = args.size() < 3 ? 1 : std::stoi( args[2] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_iterations("reciprocal-nonzero",args,[] (auto i)
         {
-            auto x = unsigned();
-            auto xn = fread(&x, sizeof(unsigned), 1, stdin);
-            if (xn < 1) break;
+            auto x = array<unsigned,1>();
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
 
-            auto y = unsigned();
-            auto yn = fread(&y, sizeof(unsigned), 1, stdin);
-            if (yn < 1) break;
-            if (y == 0) y = 0xFFFFFFFFU;
+            auto y = array<unsigned,1>();
+            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
+            if (yr < 1) return;
 
-            auto y_ = purple::reciprocal_nonzero(y);
-            auto q = ( static_cast< unsigned long long >( x ) * y_ ) >> 32;
-            auto r = static_cast< unsigned long long >( x ) - ( y * q );
-            if (r >= y) {
+            // nonzero
+            if (y[0] == 0U) y[0] = 0xFFFFFFFFU;
+            auto y_ = purple::reciprocal_nonzero(y[0]);
+
+            auto q = ( static_cast< unsigned long long >( x[0] ) * y_ ) >> 32;
+            auto r = static_cast< unsigned long long >( x[0] ) - ( y[0] * q );
+            if (r >= y[0]) {
                 q += 1;
-                r -= y;
+                r -= y[0];
             }
 
             fmt::println("i = {};",i);
-            fmt::println("x = {:08X};",x);
-            fmt::println("y = {:08X};",y);
+            fmt::println("x = {:08X};",x[0]);
+            fmt::println("y = {:08X};",y[0]);
             fmt::println("q = {:08X};",q);
             fmt::println("r = {:08X};",r);
             fmt::println("((x / y) - q) + (x % y) - r");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
     int reciprocal_normalised (span<char const *> args)
     {
-        if (args.size() < 2) {
-            fmt::println("usage: purple-crypto-fuzz reciprocal-normalised [iterations]");
-            return 1;
-        }
-
-        auto iterations = args.size() < 3 ? 1 : std::stoi( args[2] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_iterations("reciprocal-normalised",args,[] (auto i)
         {
-            auto x = unsigned();
-            auto xn = fread(&x, sizeof(unsigned), 1, stdin);
-            if (xn < 1) break;
+            auto x = array<unsigned,1>();
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
 
-            auto y = unsigned();
-            auto yn = fread(&y, sizeof(unsigned), 1, stdin);
-            if (yn < 1) break;
-            y |= 0x80000000U;
+            auto y = array<unsigned,1>();
+            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
+            if (yr < 1) return;
 
-            auto y_ = purple::reciprocal_normalised(y);
-            auto q = ( static_cast< unsigned long long >( x ) * y_ ) >> 32;
-            auto r = static_cast< unsigned long long >( x ) - ( y * q );
-            if (r >= y) {
+            // "normalise"
+            y[0] |= 0x80000000U;
+
+            auto y_ = purple::reciprocal_normalised(y[0]);
+
+            auto q = ( static_cast< unsigned long long >( x[0] ) * y_ ) >> 32;
+            auto r = static_cast< unsigned long long >( x[0] ) - ( y[0] * q );
+            if (r >= y[0]) {
                 q += 1;
-                r -= y;
+                r -= y[0];
             }
 
             fmt::println("i = {};",i);
-            fmt::println("x = {:08X};",x);
-            fmt::println("y = {:08X};",y);
+            fmt::println("x = {:08X};",x[0]);
+            fmt::println("y = {:08X};",y[0]);
             fmt::println("q = {:08X};",q);
             fmt::println("r = {:08X};",r);
             fmt::println("((x / y) - q) + (x % y) - r");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
-    int remainder_scalar (span<char const *> args)
-    // requires args.size() > 1
+    int remainder_N_1 (span<char const *> args)
     {
-        if (args.size() < 3) {
-            fmt::println("usage: purple-crypto-fuzz remainder-scalar (degree) [iterations]");
-            return 1;
-        }
-
-        auto degree = std::stoi( args[2] );
-        if (degree < 1) {
-            fmt::println("error: expected degree > 0, actual: {}", degree);
-            return 1;
-        }
-
-        auto iterations = args.size() < 4 ? 1 : std::stoi( args[3] );
-        if (iterations < 1) {
-            fmt::println("error: expected iterations > 0, actual: {}", iterations);
-            return 1;
-        }
-
-        auto x = vector<unsigned>(degree);
-        auto y = unsigned();
-
-        fmt::println("obase=16;");
-        fmt::println("ibase=16;");
-
-        for (auto i = 0; i != iterations; ++i)
+        return command_degree_iterations("remainder-N-1",args,[] (auto degree, auto i)
         {
-            auto xz = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xz == -1) break;
-            auto yz = fread(&y, sizeof(unsigned), 1, stdin);
-            if (yz == -1) break;
-            auto r = purple::remainder(x,y);
+            auto x = vector<unsigned>(degree);
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
+
+            auto y = array<unsigned,1>();
+            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
+            if (yr < 1) return;
+
+            // nonzero
+            if (y[0] == 0U) y[0] = 0xFFFFFFFFU;
+
+            auto r = purple::remainder<unsigned>(x,y[0]);
+
             fmt::println("i = {};",i);
             fmt::println("x = {};",format(x));
-            fmt::println("y = {:08X};",y);
+            fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
             fmt::println("(x % y) - r;");
-            fflush(stdout);
-        }
-
-        return 0;
+        });
     }
 
     int main (span<char const *> args)
@@ -529,16 +382,16 @@ namespace
             return minus(args);
         else if (command == "product")
             return product(args);
-        else if (command == "product-scalar")
-            return product_scalar(args);
+        else if (command == "product-N-1")
+            return product_N_1(args);
         else if (command == "ratio-2-1")
             return ratio_2_1(args);
         else if (command == "reciprocal-nonzero")
             return reciprocal_nonzero(args);
         else if (command == "reciprocal-normalised")
             return reciprocal_normalised(args);
-        else if (command == "remainder-scalar")
-            return remainder_scalar(args);
+        else if (command == "remainder-N-1")
+            return remainder_N_1(args);
         else if (command == "square")
             return square(args);
         else if (command == "sum")

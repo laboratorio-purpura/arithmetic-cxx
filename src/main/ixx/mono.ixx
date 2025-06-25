@@ -23,7 +23,7 @@ export namespace purple
     {
         x |= -x;
         x >>= 31U;
-        return 1 - x;
+        return 1U - x;
     }
 
     /// 1 if and only if x is *not* zero, else 0.
@@ -40,8 +40,19 @@ export namespace purple
     {
         auto r0 = x ^ y;
         auto r1 = x - y;
-        r1 ^= r0 & (r1 ^ x ^ (1U << (32-1)));
+        r1 ^= r0 & (r1 ^ x ^ (1U << 31));
         return r1 >> 31;
+    }
+
+    // 1 if and only f x is *not* smaller than y, else 0.
+    constexpr
+    auto not_smaller (unsigned int x, unsigned int y) noexcept -> unsigned int
+    {
+        auto r0 = x ^ y;
+        auto r1 = x - y;
+        r1 ^= r0 & (r1 ^ x ^ (1U << 31));
+        r1 >>= 31;
+        return 1U - r1;
     }
 
     /// mono integer arithmetic

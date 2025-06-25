@@ -5,10 +5,12 @@ module;
 
 #include <array>
 #include <cassert>
+#include <tuple>
 
 export module purple.arithmetic:mono;
 
 using std::array;
+using std::tuple;
 
 export namespace purple
 {
@@ -58,7 +60,7 @@ export namespace purple
     /// mono integer arithmetic
 
     constexpr
-    auto sum (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> array< unsigned int, 2 >
+    auto sum (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> tuple< unsigned int, unsigned int >
     {
         auto r = __builtin_addc(x,y,carry,&carry);
         return { r, carry };
@@ -72,7 +74,7 @@ export namespace purple
     }
 
     constexpr
-    auto minus (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> array< unsigned int, 2 >
+    auto minus (unsigned int x, unsigned int y, unsigned int carry = 0) noexcept -> tuple< unsigned int, unsigned int >
     {
         auto r = __builtin_subc(x,y,carry,&carry);
         return { r, carry };
@@ -206,7 +208,7 @@ export namespace purple
     }
 
     constexpr
-    auto ratio (unsigned int x, unsigned int y) noexcept -> array< unsigned int, 2 >
+    auto ratio (unsigned int x, unsigned int y) noexcept -> tuple< unsigned int, unsigned int >
     {
         auto q = x / y;
         auto r = x % y;

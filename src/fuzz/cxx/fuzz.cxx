@@ -16,7 +16,7 @@ using namespace std;
 
 namespace
 {
-    auto format (vector<unsigned> const & integer)
+    auto format (span<unsigned> integer)
     {
         string s;
         for (auto i = integer.size(); i > 0; --i)
@@ -332,6 +332,102 @@ namespace
         return 0;
     }
 
+    int reciprocal_nonzero (span<char const *> args)
+    {
+        if (args.size() < 2) {
+            fmt::println("usage: purple-crypto-fuzz reciprocal_1 [iterations]");
+            return 1;
+        }
+
+        auto iterations = args.size() < 3 ? 1 : std::stoi( args[2] );
+        if (iterations < 1) {
+            fmt::println("error: expected iterations > 0, actual: {}", iterations);
+            return 1;
+        }
+
+        fmt::println("obase=16;");
+        fmt::println("ibase=16;");
+
+        for (auto i = 0; i != iterations; ++i)
+        {
+            auto x = unsigned();
+            auto xn = fread(&x, sizeof(unsigned), 1, stdin);
+            if (xn < 1) break;
+
+            auto y = unsigned();
+            auto yn = fread(&y, sizeof(unsigned), 1, stdin);
+            if (yn < 1) break;
+            if (y == 0) y = ~y;
+
+            auto y_ = purple::reciprocal_nonzero(y);
+            auto q = ( static_cast< unsigned long long >( x ) * y_ ) >> 32;
+            auto r = static_cast< unsigned long long >( x ) - ( y * q );
+            if (r >= y) {
+                q += 1;
+                r -= y;
+            }
+
+            fmt::println("i = {};",i);
+            fmt::println("x = {:08X};",x);
+            fmt::println("y = {:08X};",y);
+            fmt::println("q = {:08X};",q);
+            fmt::println("r = {:08X};",r);
+            fmt::println("( x / y ) - q;");
+            fmt::println("( x % y ) - r;");
+            fflush(stdout);
+        }
+
+        return 0;
+    }
+
+    int reciprocal_normalised (span<char const *> args)
+    {
+        if (args.size() < 2) {
+            fmt::println("usage: purple-crypto-fuzz reciprocal_1 [iterations]");
+            return 1;
+        }
+
+        auto iterations = args.size() < 3 ? 1 : std::stoi( args[2] );
+        if (iterations < 1) {
+            fmt::println("error: expected iterations > 0, actual: {}", iterations);
+            return 1;
+        }
+
+        fmt::println("obase=16;");
+        fmt::println("ibase=16;");
+
+        for (auto i = 0; i != iterations; ++i)
+        {
+            auto x = unsigned();
+            auto xn = fread(&x, sizeof(unsigned), 1, stdin);
+            if (xn < 1) break;
+
+            auto y = unsigned();
+            auto yn = fread(&y, sizeof(unsigned), 1, stdin);
+            if (yn < 1) break;
+            y |= 0x80000000U;
+
+            auto y_ = purple::reciprocal_normalised(y);
+            auto q = ( static_cast< unsigned long long >( x ) * y_ ) >> 32;
+            auto r = static_cast< unsigned long long >( x ) - ( y * q );
+            if (r >= y) {
+                q += 1;
+                r -= y;
+            }
+
+            fmt::println("i = {};",i);
+            fmt::println("x = {:08X};",x);
+            fmt::println("y = {:08X};",y);
+            fmt::println("q = {:08X};",q);
+            fmt::println("r = {:08X};",r);
+            fmt::println("( x / y ) - q;");
+            fmt::println("( x % y ) - r;");
+            fflush(stdout);
+        }
+
+        return 0;
+    }
+
     int remainder_scalar (span<char const *> args)
     // requires args.size() > 1
     {
@@ -394,6 +490,10 @@ namespace
             return product(args);
         else if (command == "product-scalar")
             return product_scalar(args);
+        else if (command == "reciprocal-nonzero")
+            return reciprocal_nonzero(args);
+        else if (command == "reciprocal-normalised")
+            return reciprocal_normalised(args);
         else if (command == "remainder-scalar")
             return remainder_scalar(args);
         else if (command == "square")

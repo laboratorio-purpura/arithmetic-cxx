@@ -4,6 +4,7 @@
 module;
 
 #include <array>
+#include <cassert>
 
 export module purple.arithmetic:mono;
 
@@ -223,5 +224,30 @@ export namespace purple
         auto q = x / y;
         auto r = x % y;
         return { q, r };
+    }
+
+    /// 32-bit fixed point division reciprocal of nonzero divisor.
+    auto reciprocal_nonzero ( unsigned y ) -> unsigned
+    // requires 0 < y
+    {
+        assert( 0U < y );
+        // 2^32 / y
+        return 0xFFFFFFFFu / y;
+    }
+
+    /// 32-bit fixed point division reciprocal of "normalised" divisor.
+    ///
+    /// Reference:
+    /// "Improved division by invariant integers",
+    /// Niels Möller, Torbjörn Granlund.
+    auto reciprocal_normalised (unsigned y) -> unsigned
+    // requires 2^31 <= y < 2^32
+    {
+        assert( 0x80000000U <= y );
+        assert( y <= 0xFFFFFFFFU );
+        // ( ( ( 2^64 - 1 ) / y ) / 2^32 ) - 2^32
+        auto x = static_cast< unsigned long long >( 0xFFFFFFFFU - y ) << 32 | 0xFFFFFFFFU;
+        auto q = x / y;
+        return q >> 32;
     }
 }

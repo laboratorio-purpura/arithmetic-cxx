@@ -56,6 +56,7 @@ If successful, this pipeline prints nothing and returns `0`. Else, it prints the
 
 Available fuzzers:
 
+* `half` _degree_ _iterations_
 * `product` _degree_ _iterations_
 * `product-N-1` _degree_ _iterations_
 * `ratio-2-1` _iterations_

@@ -291,6 +291,21 @@ export namespace purple
         return carry;
     }
 
+    // Accumulates r / 2^N.
+    template <typename Integer>
+    auto half_accumulate (span<Integer> r, unsigned N) noexcept
+    {
+        constexpr auto B = sizeof(Integer) * 8uz;
+        assert( is_compact(r) );
+        auto const rz = r.size();
+        if (rz == 0) return;
+        r[0] >>= N;
+        for (auto i = 1uz; i != rz; ++i) {
+            r[i-1] |= r[i] << (B - N);
+            r[i] >>= N;
+        }
+    }
+
     // --
 
     template <typename Integer>

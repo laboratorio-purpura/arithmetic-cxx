@@ -128,6 +128,24 @@ namespace
         });
     }
 
+    int half (span<char const *> args)
+    {
+        return command_degree_iterations("half",args,[] (auto degree, auto i)
+        {
+            auto x = vector<unsigned>(degree);
+            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
+            if (xr < 1) return;
+
+            auto r = x;
+            purple::half_accumulate<unsigned>(r,1);
+
+            fmt::println("i = {};",i);
+            fmt::println("x = {};",format(x));
+            fmt::println("r = {};",format(r));
+            fmt::println("(x / 2) - r;");
+        });
+    }
+
     int is_smaller (span<char const *> args)
     {
         return command_degree_iterations("is-smaller",args,[] (auto degree, auto i)
@@ -376,6 +394,8 @@ namespace
         auto command = string_view( args[1] );
         if (command == "assert-zero")
             return assert_zero(args);
+        else if (command == "half")
+            return half(args);
         else if (command == "is-smaller")
             return is_smaller(args);
         else if (command == "minus")

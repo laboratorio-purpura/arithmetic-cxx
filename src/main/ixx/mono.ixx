@@ -147,39 +147,15 @@ export namespace purple
     }
 
     constexpr
-    auto half (unsigned int x, unsigned N) noexcept -> array< unsigned int, 2 >
+    auto half (unsigned int & x, unsigned N) noexcept -> unsigned int
     {
-        auto r = static_cast<unsigned long long>(x) >> N;
-        return {
-            static_cast<unsigned>( r ),
-            static_cast<unsigned>( r >> 32 )
-        };
+        return x >> N;
     }
 
     constexpr
     auto half_accumulate (unsigned int & x, unsigned N) noexcept -> unsigned int
     {
-        auto r = static_cast<unsigned long long>(x) >> N;
-        x = r;
-        return r >> 32;
-    }
-
-    constexpr
-    auto half_sum (unsigned int x, unsigned N, unsigned int y) noexcept -> array< unsigned int, 2 >
-    {
-        auto r = ( static_cast<unsigned long long>(x) >> N ) + y;
-        return {
-            static_cast<unsigned>( r ),
-            static_cast<unsigned>( r >> 32 )
-        };
-    }
-
-    constexpr
-    auto half_sum_accumulate (unsigned int & x, unsigned N, unsigned int y) noexcept -> unsigned int
-    {
-        auto r = ( static_cast<unsigned long long>(x) >> N ) + y;
-        x = r;
-        return r >> 32;
+        x >>= N;
     }
 
     constexpr

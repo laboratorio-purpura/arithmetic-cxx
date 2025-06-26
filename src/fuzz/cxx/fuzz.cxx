@@ -49,11 +49,11 @@ namespace
         return 1;
     }
 
-    using random_engine = independent_bits_engine<default_random_engine,CHAR_BIT,uint8_t>;
+    using random_integer = minstd_rand;
 
     int command_degree_iterations (
         string_view command, span<char const *> args,
-        function<void (unsigned degree, unsigned iteration, random_engine& random)> f
+        function<void (unsigned degree, unsigned iteration, random_integer& random)> f
     )
     {
         if (args.size() < 3) {
@@ -73,14 +73,15 @@ namespace
             return 1;
         }
 
-        random_engine random;
+        random_device random;
+        random_integer integers { random() };
 
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
 
         for (auto i = 0; i != iterations; ++i)
         {
-            f(degree,i,random);
+            f(degree,i,integers);
         }
 
         return 0;
@@ -88,7 +89,7 @@ namespace
 
     int command_iterations (
         string_view command, span<char const *> args,
-        function<void (unsigned iteration, random_engine& random)> f
+        function<void (unsigned iteration, random_integer& random)> f
     )
     {
         if (args.size() < 2) {
@@ -102,14 +103,15 @@ namespace
             return 1;
         }
 
-        random_engine random;
+        random_device random;
+        random_integer integers { random() };
 
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
 
         for (auto i = 0; i != iterations; ++i)
         {
-            f(i,random);
+            f(i,integers);
         }
 
         return 0;
@@ -120,10 +122,10 @@ namespace
         return command_degree_iterations("sum",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto y = vector<unsigned>(degree);
-            ranges::generate(y,random);
+            ranges::generate(y,ref(random));
 
             auto r = purple::sum<unsigned>(x,y);
 
@@ -140,7 +142,7 @@ namespace
         return command_degree_iterations("half",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto r = x;
             purple::half_accumulate<unsigned>(r,1);
@@ -157,10 +159,10 @@ namespace
         return command_degree_iterations("is-smaller",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto y = vector<unsigned>(degree);
-            ranges::generate(y,random);
+            ranges::generate(y,ref(random));
 
             auto r = purple::is_smaller<unsigned>(x,y);
 
@@ -177,10 +179,10 @@ namespace
         return command_degree_iterations("minus",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto y = vector<unsigned>(degree);
-            ranges::generate(y,random);
+            ranges::generate(y,ref(random));
 
             auto r = purple::minus<unsigned>(x,y);
 
@@ -197,10 +199,10 @@ namespace
         return command_degree_iterations("product",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto y = vector<unsigned>(degree);
-            ranges::generate(y,random);
+            ranges::generate(y,ref(random));
 
             auto r = purple::product<unsigned>(x,y);
 
@@ -217,10 +219,10 @@ namespace
         return command_degree_iterations("product-N-1",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto y = array<unsigned,1>();
-            ranges::generate(y,random);
+            ranges::generate(y,ref(random));
 
             auto r = purple::product<unsigned>(x,y[0]);
 
@@ -237,7 +239,7 @@ namespace
         return command_degree_iterations("twice",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto r = purple::twice<unsigned>(x);
 
@@ -253,7 +255,7 @@ namespace
         return command_degree_iterations("square",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto r = purple::square<unsigned>(x);
 
@@ -269,10 +271,10 @@ namespace
         return command_iterations("ratio-2-1",args,[] (auto iteration, auto& random)
         {
             auto x = array<unsigned,2>();
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto y = array<unsigned,1>();
-            ranges::generate(x,random);
+            ranges::generate(y,ref(random));
 
             // "normalise"
             y[0] |= 0x80000000U;
@@ -294,10 +296,10 @@ namespace
         return command_iterations("reciprocal-nonzero",args,[] (auto i, auto& random)
         {
             auto x = array<unsigned,1>();
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto y = array<unsigned,1>();
-            ranges::generate(y,random);
+            ranges::generate(y,ref(random));
 
             // nonzero
             if (y[0] == 0U) y[0] = 0xFFFFFFFFU;
@@ -324,10 +326,10 @@ namespace
         return command_iterations("reciprocal-normalised",args,[] (auto i, auto& random)
         {
             auto x = array<unsigned,1>();
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto y = array<unsigned,1>();
-            ranges::generate(y,random);
+            ranges::generate(y,ref(random));
 
             // "normalise"
             y[0] |= 0x80000000U;
@@ -355,10 +357,10 @@ namespace
         return command_degree_iterations("remainder-N-1",args,[] (auto degree, auto i, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            ranges::generate(x,random);
+            ranges::generate(x,ref(random));
 
             auto y = array<unsigned,1>();
-            ranges::generate(y,random);
+            ranges::generate(y,ref(random));
 
             // nonzero
             if (y[0] == 0U) y[0] = 0xFFFFFFFFU;

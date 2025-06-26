@@ -16,9 +16,11 @@ using std::span;
 using std::tie;
 using std::tuple;
 
+/// Poly-degree arithmetic.
+
 export namespace purple
 {
-    /// poly integer properties
+    /// Properties.
 
     /// 1 if and only if every term of x is significant, else 0.
     template <typename Integer>
@@ -135,7 +137,7 @@ export namespace purple
         return not_zero(difference) | carry;
     }
 
-    /// poly integer arithmetic
+    /// Operators.
 
     /// Accumulates r + y, returns carry.
     template <typename Integer>

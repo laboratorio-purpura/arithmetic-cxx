@@ -50,11 +50,21 @@ export namespace purple
     constexpr
     auto not_smaller (unsigned int x, unsigned int y) noexcept -> unsigned int
     {
-        auto r0 = x ^ y;
-        auto r1 = x - y;
-        r1 ^= r0 & (r1 ^ x ^ (1U << 31));
-        r1 >>= 31;
-        return 1U - r1;
+        return 1U - is_smaller(x,y);
+    }
+
+    // 1 if and only f x is greater than y, else 0.
+    constexpr
+    auto is_greater (unsigned int x, unsigned int y) noexcept -> unsigned int
+    {
+        return 1U - not_smaller(y,x);
+    }
+
+    // 1 if and only f x is *not* greater than y, else 0.
+    constexpr
+    auto not_greater (unsigned int x, unsigned int y) noexcept -> unsigned int
+    {
+        return 1U - is_smaller(y,x);
     }
 
     /// mono integer arithmetic

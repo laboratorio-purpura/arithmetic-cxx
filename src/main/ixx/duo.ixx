@@ -18,8 +18,6 @@ using std::span;
 using std::tie;
 using std::tuple;
 
-// Core interfaces.
-
 export namespace purple
 {
     // Accumulate minus and return carry.
@@ -81,12 +79,7 @@ export namespace purple
         }
         return q;
     }
-}
 
-// Convenient interfaces.
-
-export namespace purple
-{
     /// Quotient and remainder.
     template <typename Integer>
     auto ratio ( span<Integer,2> x, Integer y ) -> tuple< array<Integer,2>, Integer >

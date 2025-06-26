@@ -279,7 +279,7 @@ namespace
             } while (y[0] == 0);
             // nonzero
 
-            auto [q,r] = purple::ratio(x,y[0]);
+            auto [q,r] = purple::ratio<unsigned>(x,y[0]);
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));

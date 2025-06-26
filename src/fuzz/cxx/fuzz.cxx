@@ -274,13 +274,12 @@ namespace
             ranges::generate(x,ref(random));
 
             auto y = array<unsigned,1>();
-            ranges::generate(y,ref(random));
+            do {
+                ranges::generate(y,ref(random));
+            } while (y[0] == 0);
+            // nonzero
 
-            // "normalise"
-            y[0] |= 0x80000000U;
-
-            auto [q,r] = purple::ratio_normalised(x,y[0]);
-            // auto [q,r] = purple::ratio(x,y[0]);
+            auto [q,r] = purple::ratio(x,y[0]);
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));

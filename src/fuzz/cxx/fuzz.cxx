@@ -1,9 +1,12 @@
 // SPDX-FileCopyrightText: 2025 Pedro Lamarão <pedro.lamarao@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include <algorithm>
 #include <cstdio>
 #include <functional>
 #include <iostream>
+#include <random>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -28,7 +31,7 @@ namespace
     int assert_zero (span<char const *> args)
     {
         size_t i {};
-        unsigned long long number;
+        unsigned long long number; // TODO: number may be larger
         while (cin) {
             cin >> hex >> number;
             if (number != 0) break;
@@ -46,9 +49,11 @@ namespace
         return 1;
     }
 
+    using random_engine = independent_bits_engine<default_random_engine,CHAR_BIT,uint8_t>;
+
     int command_degree_iterations (
         string_view command, span<char const *> args,
-        function<void (unsigned degree, unsigned iteration)> f
+        function<void (unsigned degree, unsigned iteration, random_engine& random)> f
     )
     {
         if (args.size() < 3) {
@@ -68,12 +73,14 @@ namespace
             return 1;
         }
 
+        random_engine random;
+
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
 
         for (auto i = 0; i != iterations; ++i)
         {
-            f(degree,i);
+            f(degree,i,random);
         }
 
         return 0;
@@ -81,7 +88,7 @@ namespace
 
     int command_iterations (
         string_view command, span<char const *> args,
-        function<void (unsigned iteration)> f
+        function<void (unsigned iteration, random_engine& random)> f
     )
     {
         if (args.size() < 2) {
@@ -95,12 +102,14 @@ namespace
             return 1;
         }
 
+        random_engine random;
+
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
 
         for (auto i = 0; i != iterations; ++i)
         {
-            f(i);
+            f(i,random);
         }
 
         return 0;
@@ -108,19 +117,17 @@ namespace
 
     int sum (span<char const *> args)
     {
-        return command_degree_iterations("sum",args,[] (auto degree, auto i)
+        return command_degree_iterations("sum",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto y = vector<unsigned>(degree);
-            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yr < 1) return;
+            ranges::generate(y,random);
 
             auto r = purple::sum<unsigned>(x,y);
 
-            fmt::println("i = {};",i);
+            fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
@@ -130,16 +137,15 @@ namespace
 
     int half (span<char const *> args)
     {
-        return command_degree_iterations("half",args,[] (auto degree, auto i)
+        return command_degree_iterations("half",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto r = x;
             purple::half_accumulate<unsigned>(r,1);
 
-            fmt::println("i = {};",i);
+            fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("r = {};",format(r));
             fmt::println("(x / 2) - r;");
@@ -148,19 +154,17 @@ namespace
 
     int is_smaller (span<char const *> args)
     {
-        return command_degree_iterations("is-smaller",args,[] (auto degree, auto i)
+        return command_degree_iterations("is-smaller",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto y = vector<unsigned>(degree);
-            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yr < 1) return;
+            ranges::generate(y,random);
 
             auto r = purple::is_smaller<unsigned>(x,y);
 
-            fmt::println("i = {};",i);
+            fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",r);
@@ -170,19 +174,17 @@ namespace
 
     int minus (span<char const *> args)
     {
-        return command_degree_iterations("minus",args,[] (auto degree, auto i)
+        return command_degree_iterations("minus",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto y = vector<unsigned>(degree);
-            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yr < 1) return;
+            ranges::generate(y,random);
 
             auto r = purple::minus<unsigned>(x,y);
 
-            fmt::println("i = {};",i);
+            fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
@@ -192,19 +194,17 @@ namespace
 
     int product (span<char const *> args)
     {
-        return command_degree_iterations("product",args,[] (auto degree, auto i)
+        return command_degree_iterations("product",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto y = vector<unsigned>(degree);
-            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yr < 1) return;
+            ranges::generate(y,random);
 
             auto r = purple::product<unsigned>(x,y);
 
-            fmt::println("i = {};",i);
+            fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
@@ -214,19 +214,17 @@ namespace
 
     int product_N_1 (span<char const *> args)
     {
-        return command_degree_iterations("product-N-1",args,[] (auto degree, auto i)
+        return command_degree_iterations("product-N-1",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto y = array<unsigned,1>();
-            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yr < 1) return;
+            ranges::generate(y,random);
 
             auto r = purple::product<unsigned>(x,y[0]);
 
-            fmt::println("i = {};",i);
+            fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
@@ -236,15 +234,14 @@ namespace
 
     int twice (span<char const *> args)
     {
-        return command_degree_iterations("twice",args,[] (auto degree, auto i)
+        return command_degree_iterations("twice",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto r = purple::twice<unsigned>(x);
 
-            fmt::println("i = {};",i);
+            fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("r = {};",format(r));
             fmt::println("(x * 2) - r;");
@@ -253,15 +250,14 @@ namespace
 
     int square (span<char const *> args)
     {
-        return command_degree_iterations("square",args,[] (auto degree, auto i)
+        return command_degree_iterations("square",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto r = purple::square<unsigned>(x);
 
-            fmt::println("i = {};",i);
+            fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("r = {};",format(r));
             fmt::println("(x * x) - r;");
@@ -270,22 +266,21 @@ namespace
 
     int ratio_2_1 (span<char const *> args)
     {
-        return command_iterations("ratio-2-1",args,[] (auto i)
+        return command_iterations("ratio-2-1",args,[] (auto iteration, auto& random)
         {
             auto x = array<unsigned,2>();
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto y = array<unsigned,1>();
-            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yr < 1) return;
+            ranges::generate(x,random);
 
             // "normalise"
             y[0] |= 0x80000000U;
 
             auto [q,r] = purple::ratio_normalised(x,y[0]);
+            // auto [q,r] = purple::ratio(x,y[0]);
 
-            fmt::println("i = {};",i);
+            fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("y = {:08X};",y[0]);
             fmt::println("q = {};",format(q));
@@ -296,15 +291,13 @@ namespace
 
     int reciprocal_nonzero (span<char const *> args)
     {
-        return command_iterations("reciprocal-nonzero",args,[] (auto i)
+        return command_iterations("reciprocal-nonzero",args,[] (auto i, auto& random)
         {
             auto x = array<unsigned,1>();
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto y = array<unsigned,1>();
-            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yr < 1) return;
+            ranges::generate(y,random);
 
             // nonzero
             if (y[0] == 0U) y[0] = 0xFFFFFFFFU;
@@ -328,15 +321,13 @@ namespace
 
     int reciprocal_normalised (span<char const *> args)
     {
-        return command_iterations("reciprocal-normalised",args,[] (auto i)
+        return command_iterations("reciprocal-normalised",args,[] (auto i, auto& random)
         {
             auto x = array<unsigned,1>();
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto y = array<unsigned,1>();
-            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yr < 1) return;
+            ranges::generate(y,random);
 
             // "normalise"
             y[0] |= 0x80000000U;
@@ -361,15 +352,13 @@ namespace
 
     int remainder_N_1 (span<char const *> args)
     {
-        return command_degree_iterations("remainder-N-1",args,[] (auto degree, auto i)
+        return command_degree_iterations("remainder-N-1",args,[] (auto degree, auto i, auto& random)
         {
             auto x = vector<unsigned>(degree);
-            auto xr = fread(x.data(), sizeof(unsigned), x.size(), stdin);
-            if (xr < 1) return;
+            ranges::generate(x,random);
 
             auto y = array<unsigned,1>();
-            auto yr = fread(y.data(), sizeof(unsigned), y.size(), stdin);
-            if (yr < 1) return;
+            ranges::generate(y,random);
 
             // nonzero
             if (y[0] == 0U) y[0] = 0xFFFFFFFFU;

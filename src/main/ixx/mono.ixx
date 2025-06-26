@@ -67,6 +67,14 @@ export namespace purple
         return 1U - is_smaller(y,x);
     }
 
+    // count of "top" zeros.
+    constexpr
+    auto top_zeros ( unsigned x )
+    // requires x != 0
+    {
+        return __builtin_clzg( x );
+    }
+
     /// mono integer arithmetic
 
     constexpr

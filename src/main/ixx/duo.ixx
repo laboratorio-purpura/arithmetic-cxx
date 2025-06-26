@@ -93,7 +93,7 @@ export namespace purple
             tie( q[1], r[1] ) = ratio( r[1], y ); // TODO: ...with reciprocal
         assert( r[1] < y );
 
-        auto ylz = __builtin_clzg( y ); // TODO: generalize
+        auto ylz = top_zeros( y );
         ignore = twice_accumulate( y, ylz );
         ignore = twice_accumulate<Integer>( r, ylz );
         assert( 0x80000000U <= y );

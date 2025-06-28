@@ -256,8 +256,8 @@ export namespace purple
         return { q, r };
     }
 
-    /// 32-bit fixed point division reciprocal of nonzero divisor.
-    auto reciprocal_nonzero ( unsigned y ) -> unsigned
+    /// Inverse approximation.
+    auto inverse_nonzero ( unsigned y ) -> unsigned
     // requires 0 < y
     {
         assert( 0U < y );
@@ -265,8 +265,8 @@ export namespace purple
         return 0xFFFFFFFFu / y;
     }
 
-    /// 32-bit fixed point division reciprocal of "normalised" divisor.
-    auto reciprocal_normalised ( unsigned y ) -> unsigned
+    /// Inverse approximation.
+    auto inverse_normalised ( unsigned y ) -> unsigned
     // requires 2^31 <= y < 2^32
     {
         assert( 0x80000000U <= y );
@@ -274,6 +274,6 @@ export namespace purple
         // ( ( ( 2^64 - 1 ) / y ) / 2^32 ) - 2^32
         auto x = static_cast< unsigned long long >( 0xFFFFFFFFU - y ) << 32 | 0xFFFFFFFFU;
         auto q = x / y;
-        return q >> 32;
+        return q;
     }
 }

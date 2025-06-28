@@ -290,64 +290,40 @@ namespace
         });
     }
 
-    int reciprocal_nonzero (span<char const *> args)
+    int inverse_nonzero (span<char const *> args)
     {
-        return command_iterations("reciprocal-nonzero",args,[] (auto i, auto& random)
+        return command_iterations("inverse-nonzero",args,[] (auto i, auto& random)
         {
-            auto x = array<unsigned,1>();
-            ranges::generate(x,ref(random));
-
-            auto y = array<unsigned,1>();
-            ranges::generate(y,ref(random));
+            auto y = random();
 
             // nonzero
-            if (y[0] == 0U) y[0] = 0xFFFFFFFFU;
-            auto y_ = purple::reciprocal_nonzero(y[0]);
+            if (y == 0U) y = 0xFFFFFFFFU;
 
-            auto q = ( static_cast< unsigned long long >( x[0] ) * y_ ) >> 32;
-            auto r = static_cast< unsigned long long >( x[0] ) - ( y[0] * q );
-            if (r >= y[0]) {
-                q += 1;
-                r -= y[0];
-            }
+            auto iy = purple::inverse_nonzero(y);
 
             fmt::println("i = {};",i);
-            fmt::println("x = {:08X};",x[0]);
-            fmt::println("y = {:08X};",y[0]);
-            fmt::println("q = {:08X};",q);
-            fmt::println("r = {:08X};",r);
-            fmt::println("((x / y) - q) + (x % y) - r");
+            fmt::println("y = {:08X};",y);
+            fmt::println("iy = {:08X};",iy);
+            fmt::println("( 2^32 / y ) - iy");
         });
     }
 
-    int reciprocal_normalised (span<char const *> args)
+    int inverse_normalised (span<char const *> args)
     {
-        return command_iterations("reciprocal-normalised",args,[] (auto i, auto& random)
+        return command_iterations("inverse-normalised",args,[] (auto i, auto& random)
         {
-            auto x = array<unsigned,1>();
-            ranges::generate(x,ref(random));
-
-            auto y = array<unsigned,1>();
-            ranges::generate(y,ref(random));
+            auto y = random();
 
             // "normalise"
-            y[0] |= 0x80000000U;
+            y |= 0x80000000U;
 
-            auto y_ = purple::reciprocal_normalised(y[0]);
-
-            auto q = ( static_cast< unsigned long long >( x[0] ) * y_ ) >> 32;
-            auto r = static_cast< unsigned long long >( x[0] ) - ( y[0] * q );
-            if (r >= y[0]) {
-                q += 1;
-                r -= y[0];
-            }
+            auto iy = purple::inverse_normalised(y);
 
             fmt::println("i = {};",i);
-            fmt::println("x = {:08X};",x[0]);
-            fmt::println("y = {:08X};",y[0]);
-            fmt::println("q = {:08X};",q);
-            fmt::println("r = {:08X};",r);
-            fmt::println("((x / y) - q) + (x % y) - r");
+            fmt::println("b = 100000000;",i);
+            fmt::println("y = {:08X};",y);
+            fmt::println("iy = {:08X};",iy);
+            fmt::println("( ( ( b^2 - 1 ) / y ) - b ) - iy");
         });
     }
 
@@ -396,10 +372,10 @@ namespace
             return product_N_1(args);
         else if (command == "ratio-2-1")
             return ratio_2_1(args);
-        else if (command == "reciprocal-nonzero")
-            return reciprocal_nonzero(args);
-        else if (command == "reciprocal-normalised")
-            return reciprocal_normalised(args);
+        else if (command == "inverse-nonzero")
+            return inverse_nonzero(args);
+        else if (command == "inverse-normalised")
+            return inverse_normalised(args);
         else if (command == "remainder-N-1")
             return remainder_N_1(args);
         else if (command == "square")

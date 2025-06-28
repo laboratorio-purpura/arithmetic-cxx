@@ -101,7 +101,7 @@ export namespace purple
         assert( 0x80000000U <= y );
         assert( y <= 0xFFFFFFFFU );
 
-        auto y_ = purple::reciprocal_normalised( y );
+        auto y_ = inverse_normalised( y );
 
         q[0] = ratio_singular_normalised_accumulate<Integer>( r, y, y_ );
 

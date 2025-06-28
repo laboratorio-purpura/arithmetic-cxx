@@ -18,10 +18,20 @@ using std::span;
 using std::tie;
 using std::tuple;
 
-// Dual-degree arithmetic.
+// Duo-degree arithmetic.
 
 export namespace purple
 {
+    // Accumulate sum and return carry.
+    template <typename Integer>
+    auto sum_accumulate ( span<Integer,2> x, span<Integer,2> y )
+    {
+        auto carry = Integer(0);
+        carry = sum_accumulate( x[0], y[0], carry );
+        carry = sum_accumulate( x[1], y[1], carry );
+        return carry;
+    }
+
     // Accumulate minus and return carry.
     template <typename Integer>
     auto minus_accumulate ( span<Integer,2> x, Integer y )
@@ -62,16 +72,16 @@ export namespace purple
         r[1] >>= N;
     }
 
-    /// Accumulate remainder and return singular quotient by "normalised" divisor & reciprocal.
+    /// Accumulate remainder and return quotient by "normalised" divisor with inverse.
     template <typename Integer>
-    auto ratio_singular_normalised_accumulate ( span<Integer,2> r, Integer y, Integer y_ ) -> Integer
+    auto ratio_normalised_accumulate_v0 ( span<Integer,2> r, Integer y, Integer iy ) -> Integer
     {
         assert( 0x80000000U <= y );
         assert( y <= 0xFFFFFFFFU );
         assert( r[1] < y );
-        assert( y_ == reciprocal_normalised(y) );
+        assert( iy == inverse_normalised(y) );
 
-        auto [q,q0] = product( r[1], y_ );
+        auto [q,q0] = product( r[1], iy );
         ignore = sum_accumulate( q, r[1] );
         auto pp = product( q, y );
         ignore = minus_accumulate<Integer>( r, pp );
@@ -82,17 +92,52 @@ export namespace purple
         return q;
     }
 
+    /// Accumulate remainder and return quotient by "normalised" divisor with inverse.
+    template <typename Integer>
+    auto ratio_normalised_accumulate_v1 ( span<Integer,2> r, Integer y, Integer iy ) -> Integer
+    // requires 2^31 <= y < 2^32
+    // requires r[1] < y
+    // requires iy ~ 1 / y
+    {
+        assert( 0x80000000U <= y );
+        assert( y <= 0xFFFFFFFFU );
+        assert( r[1] < y );
+        assert( iy == inverse_normalised(y) );
+
+        // t = ( r[1] * iy ) + x
+        auto t = product( r[1], iy );
+        ignore = sum_accumulate<Integer>( t, r );
+        // q = ( t[1] + 1 ) mod B
+        auto q = sum_modulus( t[1], Integer(1) );
+        // r = ( x - ( q * y ) ) mod B
+        auto qy = product( q, y );
+        r[0] = difference_modulus( r[0], qy[0] );
+        r[1] = Integer(0);
+        // if r > t[0] : q = ( q - 1 ) mod B; r = ( r + y ) mod B
+        if ( is_greater( r[0], t[0] ) ) {
+            q = difference_modulus( q, 1 );
+            r[0] = sum_modulus( r[0], y );
+        }
+        // if r >= y : q = ( q + 1 ) mod B; r = ( r - y ) mod B
+        if ( not_smaller( r[0], y ) ) [[unlikely]] {
+            q = sum_modulus( q, 1 );
+            r[0] = difference_modulus( r[0], y );
+        }
+        // terminate
+        return q;
+    }
+
     /// Quotient and remainder.
     template <typename Integer>
     auto ratio ( span<Integer,2> x, Integer y ) -> tuple< array<Integer,2>, Integer >
     {
         assert( 0 < y );
 
-        auto q = array<Integer,2> { };
+        auto q = array<Integer,2> { Integer(0), Integer(0) };
         auto r = array<Integer,2> { x[0], x[1] };
 
         if ( r[1] >= y )
-            tie( q[1], r[1] ) = ratio( r[1], y ); // TODO: ...with reciprocal
+            tie( q[1], r[1] ) = ratio( r[1], y ); // TODO: ...with inverse
         assert( r[1] < y );
 
         auto ylz = top_zeros( y );
@@ -101,9 +146,9 @@ export namespace purple
         assert( 0x80000000U <= y );
         assert( y <= 0xFFFFFFFFU );
 
-        auto y_ = inverse_normalised( y );
+        auto iy = inverse_normalised( y );
 
-        q[0] = ratio_singular_normalised_accumulate<Integer>( r, y, y_ );
+        q[0] = ratio_normalised_accumulate_v1<Integer>( r, y, iy );
 
         half_accumulate<Integer>( r, ylz );
 

@@ -3,6 +3,7 @@
 
 module;
 
+#include <array>
 #include <vector>
 
 #include <fmt/format.h>
@@ -13,12 +14,26 @@ using namespace std;
 
 export namespace purple::test
 {
+    template <size_t N>
+    auto format (array<unsigned,N> const & integer)
+    {
+        string s;
+        for (auto i = integer.size(); i > 0; --i)
+            s += fmt::format("{:08X}",integer[i-1]);
+        return s;
+    }
+
     auto format (vector<unsigned> const & integer)
     {
         string s;
         for (auto i = integer.size(); i > 0; --i)
             s += fmt::format("{:08X}",integer[i-1]);
         return s;
+    }
+
+    auto format (unsigned integer)
+    {
+        return fmt::format("{:08X}",integer);
     }
 
     constexpr unsigned L = 0x80000000U;
@@ -29,17 +44,20 @@ export namespace purple::test
     const vector<unsigned> v0 { 0U };
     const vector<unsigned> v1 { 1U };
     const vector<unsigned> v2 { 2U };
+    const vector<unsigned> v3 { 2U };
     const vector<unsigned> vL { L  };
     const vector<unsigned> vM { M  };
 
     const vector<unsigned> v00 { 0U, 0U };
     const vector<unsigned> v10 { 1U, 0U };
     const vector<unsigned> v20 { 2U, 0U };
+    const vector<unsigned> v30 { 2U, 0U };
     const vector<unsigned> vL0 { L,  0U };
     const vector<unsigned> vM0 { M,  0U };
 
     const vector<unsigned> v01 { 0U, 1U, };
     const vector<unsigned> v02 { 0U, 2U, };
+    const vector<unsigned> v03 { 0U, 2U, };
     const vector<unsigned> v0L { 0U, L,  };
     const vector<unsigned> v0M { 0U, M,  };
 

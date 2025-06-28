@@ -184,7 +184,7 @@ namespace
             auto y = vector<unsigned>(degree);
             ranges::generate(y,ref(random));
 
-            auto r = purple::minus<unsigned>(x,y);
+            auto r = purple::difference<unsigned>(x,y);
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));

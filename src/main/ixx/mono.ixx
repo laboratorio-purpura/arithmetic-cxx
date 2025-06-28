@@ -79,7 +79,7 @@ export namespace purple
 
     /// Operators.
 
-    /// Sum and carry.
+    /// Sum with carry.
     constexpr
     auto sum ( unsigned int x, unsigned int y, unsigned int carry = 0 ) noexcept -> tuple< unsigned int, unsigned int >
     {
@@ -87,7 +87,7 @@ export namespace purple
         return { r, carry };
     }
 
-    /// Accumulate sum and return carry.
+    /// Accumulate sum, return carry.
     constexpr
     auto sum_accumulate ( unsigned int & x, unsigned int y, unsigned int carry = 0 ) noexcept -> unsigned int
     {
@@ -107,17 +107,17 @@ export namespace purple
         x += y;
     }
 
-    /// Minus and carry.
+    /// Difference with carry.
     constexpr
-    auto minus ( unsigned int x, unsigned int y, unsigned int carry = 0 ) noexcept -> tuple< unsigned int, unsigned int >
+    auto difference ( unsigned int x, unsigned int y, unsigned int carry = 0 ) noexcept -> tuple< unsigned int, unsigned int >
     {
         auto r = __builtin_subc(x,y,carry,&carry);
         return { r, carry };
     }
 
-    /// Accumulate minus and return carry.
+    /// Accumulate difference, return carry.
     constexpr
-    auto minus_accumulate ( unsigned int & x, unsigned int y, unsigned int carry = 0 ) noexcept -> unsigned int
+    auto difference_accumulate ( unsigned int & x, unsigned int y, unsigned int carry = 0 ) noexcept -> unsigned int
     {
         x = __builtin_subc(x,y,carry,&carry);
         return carry;

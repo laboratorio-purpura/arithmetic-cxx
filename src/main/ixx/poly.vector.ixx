@@ -46,31 +46,14 @@ export namespace purple
     /// poly integer arithmetic
 
     template <typename Integer>
-    auto sum_accumulate (vector<Integer> & r, Integer y) noexcept -> Integer
-    {
-        auto rs = span( r.begin(), r.end() );
-        return sum_accumulate(rs,y);
-    }
-
-    template <typename Integer>
     auto sum (vector<Integer> const & x, Integer y) -> vector<Integer>
     {
         auto const xz = x.size();
         auto r = vector<Integer>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
-        r[xz] = sum_accumulate(rs,y);
+        r[xz] = sum_accumulate<Integer>(rs,y);
         return std::move(r);
-    }
-
-    // --
-
-    template <typename Integer>
-    auto sum_accumulate (vector<Integer> & r, vector<Integer> const & y) noexcept -> Integer
-    {
-        auto rs = span( r.begin(), r.end() );
-        auto ys = span( y.begin(), y.end() );
-        return sum_accumulate(rs,ys);
     }
 
     template <typename Integer>
@@ -81,19 +64,19 @@ export namespace purple
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
         auto ys = span( y.begin(), y.end() );
-        r[xz] = sum_accumulate(rs,ys);
+        r[xz] = sum_accumulate<Integer>(rs,ys);
         return std::move(r);
     }
 
     template <typename Integer>
-    auto minus (vector<Integer> const & x, vector<Integer> const & y) -> vector<Integer>
+    auto difference (vector<Integer> const & x, vector<Integer> const & y) -> vector<Integer>
     {
         auto const xz = x.size();
         auto r = vector<Integer>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
         auto ys = span( y.begin(), y.end() );
-        auto carry = minus_accumulate(rs,ys);
+        auto carry = difference_accumulate<Integer>(rs,ys);
         // TODO: if carry...
         return std::move(r);
     }

@@ -22,7 +22,17 @@ using std::tuple;
 
 export namespace purple
 {
-    // Accumulate sum and return carry.
+    // Accumulate sum, return carry.
+    template <typename Integer>
+    auto sum_accumulate ( span<Integer,2> x, Integer y )
+    {
+        auto carry = Integer(0);
+        carry = sum_accumulate( x[0], y, carry );
+        carry = sum_accumulate( x[1], Integer(0), carry );
+        return carry;
+    }
+
+    // Accumulate sum, return carry.
     template <typename Integer>
     auto sum_accumulate ( span<Integer,2> x, span<Integer,2> y )
     {
@@ -32,23 +42,23 @@ export namespace purple
         return carry;
     }
 
-    // Accumulate minus and return carry.
+    // Accumulate difference, return carry.
     template <typename Integer>
-    auto minus_accumulate ( span<Integer,2> x, Integer y )
+    auto difference_accumulate ( span<Integer,2> x, Integer y )
     {
         auto carry = Integer(0);
-        carry = minus_accumulate( x[0], y, carry );
-        carry = minus_accumulate( x[1], Integer(0), carry );
+        carry = difference_accumulate( x[0], y, carry );
+        carry = difference_accumulate( x[1], Integer(0), carry );
         return carry;
     }
 
-    // Accumulate minus and return carry.
+    // Accumulate difference, return carry.
     template <typename Integer>
-    auto minus_accumulate ( span<Integer,2> x, span<Integer,2> y )
+    auto difference_accumulate ( span<Integer,2> x, span<Integer,2> y )
     {
         auto carry = Integer(0);
-        carry = minus_accumulate( x[0], y[0], carry );
-        carry = minus_accumulate( x[1], y[1], carry );
+        carry = difference_accumulate( x[0], y[0], carry );
+        carry = difference_accumulate( x[1], y[1], carry );
         return carry;
     }
 
@@ -84,10 +94,10 @@ export namespace purple
         auto [q,q0] = product( r[1], iy );
         ignore = sum_accumulate( q, r[1] );
         auto pp = product( q, y );
-        ignore = minus_accumulate<Integer>( r, pp );
+        ignore = difference_accumulate<Integer>( r, pp );
         while ( is_greater( r[1], Integer(0) ) || not_smaller( r[0], y ) ) {
             ignore = sum_accumulate( q, 1 );
-            ignore = minus_accumulate( r, y );
+            ignore = difference_accumulate( r, y );
         }
         return q;
     }

@@ -64,12 +64,12 @@ export namespace purple
         auto const xz = x.size();
         auto const yz = y.size();
         if (xz < yz) return 1;
-        Integer difference {};
+        Integer r {};
         Integer carry { 0 };
         for (auto i = 0uz; i != xz; ++i) {
-            tie( difference, carry ) = minus( x[i], y[i], carry );
+            tie( r, carry ) = difference( x[i], y[i], carry );
         }
-        return ( is_zero(difference) & carry ) | ( not_zero(difference) & not_zero(carry) );
+        return ( is_zero(r) & carry ) | ( not_zero(r) & not_zero(carry) );
     }
 
     /// 1 if and only if x is not smaller than y, else 0.
@@ -85,7 +85,7 @@ export namespace purple
         Integer carry {};
         auto const z = x.size();
         for (auto i = 0uz; i != z; ++i) {
-            tie( difference, carry ) = minus( x[i], y[i], carry );
+            tie( difference, carry ) = difference( x[i], y[i], carry );
         }
         return carry;
     }
@@ -116,7 +116,7 @@ export namespace purple
         Integer difference {};
         Integer carry {};
         for (auto i = 0uz; i != xz; ++i) {
-            tie( difference, carry ) = minus( x[i], y[i], carry );
+            tie( difference, carry ) = difference( x[i], y[i], carry );
         }
         return is_zero(difference) & is_zero(carry);
     }
@@ -132,14 +132,14 @@ export namespace purple
         Integer carry {};
         auto const z = x.size();
         for (auto i = 0uz; i != z; ++i) {
-            tie( difference, carry ) = minus( x[i], y[i], carry );
+            tie( difference, carry ) = difference( x[i], y[i], carry );
         }
         return not_zero(difference) | carry;
     }
 
     /// Operators.
 
-    /// Accumulates r + y, returns carry.
+    /// Accumulate sum, return carry.
     template <typename Integer>
     auto sum_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
@@ -154,7 +154,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r + y, returns carry.
+    // Accumulate sum, return carry.
     template <typename Integer>
     auto sum_accumulate (span<Integer> r, span<Integer const> y) noexcept -> Integer
     {
@@ -169,24 +169,24 @@ export namespace purple
         return carry;
     }
 
-    /// Accumulates r - y, returns carry.
+    /// Accumulate difference, return carry.
     template <typename Integer>
-    auto minus_accumulate (span<Integer> r, Integer y) noexcept -> Integer
+    auto difference_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
         assert( is_compact(r) );
         Integer carry {};
         auto const z = r.size();
         if (z == 0) return carry;
-        carry = minus_accumulate( r[0], y, carry );
+        carry = difference_accumulate( r[0], y, carry );
         for (auto i = 1uz; i != z; ++i) {
-            carry = minus_accumulate( r[i], 0, carry );
+            carry = difference_accumulate( r[i], 0, carry );
         }
         return carry;
     }
 
-    // Accumulates r - y, returns carry.
+    // Accumulate difference, return carry.
     template <typename Integer>
-    auto minus_accumulate (span<Integer> r, span<Integer const> y) noexcept -> Integer
+    auto difference_accumulate (span<Integer> r, span<Integer const> y) noexcept -> Integer
     {
         assert( is_compact(r) );
         assert( is_compact(y) );
@@ -194,7 +194,7 @@ export namespace purple
         Integer carry {};
         auto const z = r.size();
         for (auto i = 0uz; i != z; ++i) {
-            carry = minus_accumulate( r[i], y[i], carry );
+            carry = difference_accumulate( r[i], y[i], carry );
         }
         return carry;
     }

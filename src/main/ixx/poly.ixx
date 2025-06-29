@@ -311,7 +311,7 @@ export namespace purple
         }
     }
 
-    /// Store quotient, return remainder, by "normalised" divisor with inverse.
+    /// Store quotient, return remainder, with "normalised" operands.
     template <typename Integer>
     auto ratio_normalised ( span<Integer> q, span<Integer const> x, Integer y, Integer iy ) -> Integer
     // requires q.size() >= x.size()

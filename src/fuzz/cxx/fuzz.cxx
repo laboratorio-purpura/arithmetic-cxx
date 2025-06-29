@@ -163,7 +163,7 @@ namespace
             // nonzero
             if (y == 0U) y = 0xFFFFFFFFU;
 
-            auto iy = purple::inverse_nonzero(y);
+            auto iy = purple::inverse(y);
 
             fmt::println("i = {};",i);
             fmt::println("y = {:08X};",y);

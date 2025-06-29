@@ -282,7 +282,7 @@ export namespace purple
     }
 
     /// Inverse approximation.
-    auto inverse_nonzero ( unsigned y ) -> unsigned
+    auto inverse ( unsigned y ) -> unsigned
     // requires y != 0
     {
         assert( 0U < y );
@@ -290,7 +290,7 @@ export namespace purple
         return 0xFFFFFFFFu / y;
     }
 
-    /// Inverse approximation.
+    /// Inverse approximation of "normalised" integer.
     auto inverse_normalised ( unsigned y ) -> unsigned
     // requires 2^31 <= y < 2^32
     {

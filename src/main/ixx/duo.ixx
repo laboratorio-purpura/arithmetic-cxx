@@ -82,7 +82,7 @@ export namespace purple
         r[1] >>= N;
     }
 
-    /// Quotient and remainder by "normalised" divisor with inverse.
+    /// Quotient and remainder with "normalised" operands.
     template <typename Integer>
     auto ratio_normalised ( span<Integer,2> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
     // requires B/2 <= y < B

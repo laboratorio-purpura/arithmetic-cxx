@@ -10,17 +10,17 @@ using namespace purple;
 using namespace purple::test;
 using namespace std;
 
-TEST(mono,inverse_nonzero_00000001)
+TEST(mono,inverse_00000001)
 {
     auto y = 0x00000001U;
-    auto iy = inverse_nonzero(y);
+    auto iy = inverse(y);
     ASSERT_EQ( format(iy), "FFFFFFFF" );
 }
 
-TEST(mono,inverse_nonzero_FFFFFFFF)
+TEST(mono,inverse_FFFFFFFF)
 {
     auto y = 0xFFFFFFFFU;
-    auto iy = inverse_nonzero(y);
+    auto iy = inverse(y);
     ASSERT_EQ( format(iy), "00000001" );
 }
 

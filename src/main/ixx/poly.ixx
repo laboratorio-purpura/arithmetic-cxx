@@ -26,18 +26,18 @@ export namespace purple
 
     /// 1 if and only if every term of x is significant, else 0.
     template <typename Integer>
-    auto is_compact (span<Integer const> x) noexcept -> Integer;
+    auto is_compact ( span<Integer const> x ) noexcept -> Integer;
 
     /// 1 if and only if every term of x is significant, else 0.
     template <typename Integer>
-    auto is_compact (span<Integer> x) noexcept -> Integer
+    auto is_compact ( span<Integer> x ) noexcept -> Integer
     {
         return is_compact(span<Integer const>(x));
     }
 
     /// 1 if and only if x is the additive identity, else 0.
     template <typename Integer>
-    auto is_zero (span<Integer const> x) noexcept -> Integer
+    auto is_zero ( span<Integer const> x ) noexcept -> Integer
     {
         Integer r { 1 };
         auto const xz = x.size();
@@ -48,7 +48,7 @@ export namespace purple
 
     /// 1 if and only if x is *not* the additive identity, else 0.
     template <typename Integer>
-    auto not_zero (span<Integer const> x) noexcept -> Integer
+    auto not_zero ( span<Integer const> x ) noexcept -> Integer
     {
         Integer r { 0 };
         auto const xz = x.size();
@@ -59,7 +59,7 @@ export namespace purple
 
     /// 1 if and only if x is smaller than y, else 0.
     template <typename Integer>
-    auto is_smaller (span<Integer const> x, span<Integer const> y) -> Integer
+    auto is_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
         assert( is_compact(x) );
         assert( is_compact(y) );
@@ -76,7 +76,7 @@ export namespace purple
 
     /// 1 if and only if x is not smaller than y, else 0.
     template <typename Integer>
-    auto not_smaller (span<Integer const> x, span<Integer const> y) -> Integer
+    auto not_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
         assert( is_compact(x) );
         assert( is_compact(y) );
@@ -94,21 +94,21 @@ export namespace purple
 
     /// 1 if and only if x is greater than y, else 0.
     template <typename Integer>
-    auto is_greater (span<Integer const> x, span<Integer const> y) -> Integer
+    auto is_greater ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
         return 1U - is_smaller(y,x);
     }
 
     /// 1 if and only if x is not greater than y, else 0.
     template <typename Integer>
-    auto not_greater (span<Integer const> x, span<Integer const> y) -> Integer
+    auto not_greater ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
         return 1U - not_smaller(y,x);
     }
 
     /// 1 if and only if x is equal than y, else 0.
     template <typename Integer>
-    auto is_equal (span<Integer const> x, span<Integer const> y) -> Integer
+    auto is_equal ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
         assert( is_compact(x) );
         assert( is_compact(y) );
@@ -125,7 +125,7 @@ export namespace purple
 
     /// 1 if and only if x is equal than y, else 0.
     template <typename Integer>
-    auto not_equal (span<Integer const> x, span<Integer const> y) -> Integer
+    auto not_equal ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
         assert( is_compact(x) );
         assert( is_compact(y) );
@@ -143,7 +143,7 @@ export namespace purple
 
     /// Accumulate sum, return carry.
     template <typename Integer>
-    auto sum_accumulate (span<Integer> r, Integer y) noexcept -> Integer
+    auto sum_accumulate ( span<Integer> r, Integer y ) noexcept -> Integer
     {
         assert( is_compact(r) );
         Integer carry {};
@@ -158,7 +158,7 @@ export namespace purple
 
     // Accumulate sum, return carry.
     template <typename Integer>
-    auto sum_accumulate (span<Integer> r, span<Integer const> y) noexcept -> Integer
+    auto sum_accumulate ( span<Integer> r, span<Integer const> y ) noexcept -> Integer
     {
         assert( is_compact(r) );
         assert( is_compact(y) );
@@ -173,7 +173,7 @@ export namespace purple
 
     /// Accumulate difference, return carry.
     template <typename Integer>
-    auto difference_accumulate (span<Integer> r, Integer y) noexcept -> Integer
+    auto difference_accumulate ( span<Integer> r, Integer y ) noexcept -> Integer
     {
         assert( is_compact(r) );
         Integer carry {};
@@ -188,7 +188,7 @@ export namespace purple
 
     // Accumulate difference, return carry.
     template <typename Integer>
-    auto difference_accumulate (span<Integer> r, span<Integer const> y) noexcept -> Integer
+    auto difference_accumulate ( span<Integer> r, span<Integer const> y ) noexcept -> Integer
     {
         assert( is_compact(r) );
         assert( is_compact(y) );
@@ -203,7 +203,7 @@ export namespace purple
 
     // Accumulate product, return carry.
     template <typename Integer>
-    auto product_accumulate (span<Integer> r, Integer y) noexcept -> Integer
+    auto product_accumulate ( span<Integer> r, Integer y ) noexcept -> Integer
     {
         assert( is_compact(r) );
         Integer carry {};
@@ -216,7 +216,7 @@ export namespace purple
 
     // Accumulate product and sum, return carry.
     template <typename Integer>
-    auto product_sum_accumulate (span<Integer> r, span<Integer const> x, span<Integer const> y) noexcept -> Integer
+    auto product_sum_accumulate ( span<Integer> r, span<Integer const> x, span<Integer const> y ) noexcept -> Integer
     {
         assert( is_compact(x) );
         assert( is_compact(y) );
@@ -243,7 +243,7 @@ export namespace purple
 
     // Accumulate twice N times, return carry.
     template <typename Integer>
-    auto twice_accumulate (span<Integer> r, unsigned N) noexcept -> Integer
+    auto twice_accumulate ( span<Integer> r, unsigned N ) noexcept -> Integer
     {
         assert( is_compact(r) );
         Integer carry {};
@@ -256,7 +256,7 @@ export namespace purple
 
     // Accumulate square, return carry.
     template <typename Integer>
-    auto square_sum_accumulate (span<Integer> r, span<Integer const> x) noexcept -> Integer
+    auto square_sum_accumulate ( span<Integer> r, span<Integer const> x ) noexcept -> Integer
     {
         assert( is_compact(x) );
         assert( r.size() >= 2 * x.size() );
@@ -297,7 +297,7 @@ export namespace purple
 
     // Accumulate half N times, rounded down.
     template <typename Integer>
-    auto half_accumulate (span<Integer> r, unsigned N) noexcept
+    auto half_accumulate ( span<Integer> r, unsigned N ) noexcept
     {
         constexpr auto B = sizeof(Integer) * 8uz;
         assert( is_compact(r) );

@@ -3,6 +3,7 @@
 
 module;
 
+#include <array>
 #include <cassert>
 #include <span>
 #include <tuple>
@@ -12,6 +13,7 @@ export module purple.arithmetic:poly;
 import :mono;
 import :duo;
 
+using std::array;
 using std::ignore;
 using std::span;
 using std::tie;

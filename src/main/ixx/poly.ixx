@@ -15,6 +15,7 @@ import :duo;
 
 using std::array;
 using std::ignore;
+using std::size_t;
 using std::span;
 using std::tie;
 
@@ -243,7 +244,7 @@ export namespace purple
 
     // Accumulate twice N times, return carry.
     template <typename Integer>
-    auto twice_accumulate ( span<Integer> r, unsigned N ) noexcept -> Integer
+    auto twice_accumulate ( span<Integer> r, size_t N ) noexcept -> Integer
     {
         assert( is_compact(r) );
         Integer carry {};
@@ -297,7 +298,7 @@ export namespace purple
 
     // Accumulate half N times, rounded down.
     template <typename Integer>
-    auto half_accumulate ( span<Integer> r, unsigned N ) noexcept
+    auto half_accumulate ( span<Integer> r, size_t N ) noexcept
     {
         constexpr auto B = sizeof(Integer) * 8uz;
         assert( is_compact(r) );

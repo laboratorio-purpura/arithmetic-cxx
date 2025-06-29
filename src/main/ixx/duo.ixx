@@ -14,6 +14,7 @@ import :mono;
 
 using std::array;
 using std::ignore;
+using std::size_t;
 using std::span;
 using std::tie;
 
@@ -63,7 +64,7 @@ export namespace purple
 
     // Accumulate twice N times, return carry.
     template <typename Integer>
-    auto twice_accumulate ( span<Integer,2> x, unsigned N )
+    auto twice_accumulate ( span<Integer,2> x, size_t N )
     {
         auto carry = Integer(0);
         carry = twice_sum_accumulate( x[0], N, carry );
@@ -73,7 +74,7 @@ export namespace purple
 
     // Accumulate half N times, rounded down.
     template <typename Integer>
-    auto half_accumulate ( span<Integer,2> r, unsigned N ) noexcept
+    auto half_accumulate ( span<Integer,2> r, size_t N ) noexcept
     {
         constexpr auto B = sizeof(Integer) * 8uz;
         r[0] >>= N;

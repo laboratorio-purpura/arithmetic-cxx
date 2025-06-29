@@ -10,6 +10,7 @@ module;
 export module purple.arithmetic:mono;
 
 using std::array;
+using std::size_t;
 using std::tuple;
 
 // Mono-degree arithmetic.
@@ -177,7 +178,7 @@ export namespace purple
 
     /// Twice N times, low and high.
     constexpr
-    auto twice ( unsigned int x, unsigned N ) noexcept -> array< unsigned int, 2 >
+    auto twice ( unsigned int x, size_t N ) noexcept -> array< unsigned int, 2 >
     {
         auto r = static_cast<unsigned long long>(x) << N;
         return {
@@ -188,7 +189,7 @@ export namespace purple
 
     /// Twice N times, accumulate low, return high.
     constexpr
-    auto twice_accumulate ( unsigned int & x, unsigned N ) noexcept -> unsigned int
+    auto twice_accumulate ( unsigned int & x, size_t N ) noexcept -> unsigned int
     {
         auto r = static_cast<unsigned long long>(x) << N;
         x = r;
@@ -197,7 +198,7 @@ export namespace purple
 
     /// Twice N times and sum, low and high.
     constexpr
-    auto twice_sum ( unsigned int x, unsigned N, unsigned int y ) noexcept -> array< unsigned int, 2 >
+    auto twice_sum ( unsigned int x, size_t N, unsigned int y ) noexcept -> array< unsigned int, 2 >
     {
         auto r = ( static_cast<unsigned long long>(x) << N ) + y;
         return {
@@ -208,7 +209,7 @@ export namespace purple
 
     /// Twice N times and sum, accumulate low, return high.
     constexpr
-    auto twice_sum_accumulate ( unsigned int & x, unsigned N, unsigned int y ) noexcept -> unsigned int
+    auto twice_sum_accumulate ( unsigned int & x, size_t N, unsigned int y ) noexcept -> unsigned int
     {
         auto r = ( static_cast<unsigned long long>(x) << N ) + y;
         x = r;
@@ -217,14 +218,14 @@ export namespace purple
 
     /// Half N times, rounded down.
     constexpr
-    auto half ( unsigned int & x, unsigned N ) noexcept -> unsigned int
+    auto half ( unsigned int & x, size_t N ) noexcept -> unsigned int
     {
         return x >> N;
     }
 
     /// Accumulate half N times rounded down.
     constexpr
-    void half_accumulate ( unsigned int & x, unsigned N ) noexcept
+    void half_accumulate ( unsigned int & x, size_t N ) noexcept
     {
         x >>= N;
     }

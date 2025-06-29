@@ -15,7 +15,6 @@ import :duo;
 using std::ignore;
 using std::span;
 using std::tie;
-using std::tuple;
 
 /// Poly-degree arithmetic.
 

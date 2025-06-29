@@ -316,7 +316,6 @@ export namespace purple
     auto ratio_normalised ( span<Integer> q, span<Integer const> x, Integer y, Integer iy ) -> Integer
     // requires q.size() >= x.size()
     // requires B/2 <= y < B
-    // requires x[ x.size() - 1 ] < y
     // requires iy = ( (B^2 - 1) / y ) - B
     {
         auto const xz = x.size();

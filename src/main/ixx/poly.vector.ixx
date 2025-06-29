@@ -81,16 +81,6 @@ export namespace purple
         return std::move(r);
     }
 
-    // --
-
-    template <typename Integer>
-    auto twice_accumulate (vector<Integer> & r, vector<Integer> const & x, unsigned N) noexcept -> Integer
-    {
-        auto rs = span( r.begin(), r.end() );
-        auto xs = span( x.begin(), x.end() );
-        twice_accumulate(rs,xs,N);
-    }
-
     template <typename Integer>
     auto twice (vector<Integer> const & x, unsigned N = 1) -> vector<Integer>
     {
@@ -102,16 +92,6 @@ export namespace purple
         return std::move(r);
     }
 
-    // --
-
-    template <typename Integer>
-    auto product_accumulate (vector<Integer> & r, vector<Integer> const & x, Integer y) noexcept -> Integer
-    {
-        auto rs = span( r.begin(), r.end() );
-        auto xs = span( x.begin(), x.end() );
-        return product_accumulate(rs,xs,y);
-    }
-
     template <typename Integer>
     auto product (vector<Integer> const & x, Integer y) -> vector<Integer>
     {
@@ -121,17 +101,6 @@ export namespace purple
         auto rs = span( r.begin(), r.begin() + xz );
         r[xz] = product_accumulate(rs,y);
         return std::move(r);
-    }
-
-    // --
-
-    template <typename Integer>
-    auto product_sum_accumulate (vector<Integer> & r, vector<Integer> const & x, vector<Integer> const & y) noexcept -> Integer
-    {
-        auto rs = span( r.begin(), r.end() );
-        auto xs = span( x.begin(), x.end() );
-        auto ys = span( y.begin(), y.end() );
-        return product_sum_accumulate(rs,xs,ys);
     }
 
     template <typename Integer>
@@ -160,14 +129,6 @@ export namespace purple
         auto ys = span( y.begin(), y.end() );
         r[xz+yz] = product_sum_accumulate(rs,xs,ys);
         return std::move(r);
-    }
-
-    template <typename Integer>
-    auto square_sum_accumulate (vector<Integer> & r, vector<Integer> const & x) noexcept -> Integer
-    {
-        auto rs = span( r.begin(), r.end() );
-        auto xs = span( x.begin(), x.end() );
-        return square_sum_accumulate(rs,xs);
     }
 
     template <typename Integer>

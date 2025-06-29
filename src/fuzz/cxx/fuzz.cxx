@@ -117,9 +117,9 @@ namespace
         return 0;
     }
 
-    int sum (span<char const *> args)
+    int difference (span<char const *> args)
     {
-        return command_degree_iterations("sum",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree_iterations("minus",args,[] (auto degree, auto iteration, auto& random)
         {
             auto x = vector<unsigned>(degree);
             ranges::generate(x,ref(random));
@@ -127,13 +127,13 @@ namespace
             auto y = vector<unsigned>(degree);
             ranges::generate(y,ref(random));
 
-            auto r = purple::sum<unsigned>(x,y);
+            auto r = purple::difference<unsigned>(x,y);
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",format(r));
-            fmt::println("(x + y) - r;");
+            fmt::println("(x - y) - r;");
         });
     }
 
@@ -154,6 +154,43 @@ namespace
         });
     }
 
+    int inverse_nonzero (span<char const *> args)
+    {
+        return command_iterations("inverse-nonzero",args,[] (auto i, auto& random)
+        {
+            auto y = random();
+
+            // nonzero
+            if (y == 0U) y = 0xFFFFFFFFU;
+
+            auto iy = purple::inverse_nonzero(y);
+
+            fmt::println("i = {};",i);
+            fmt::println("y = {:08X};",y);
+            fmt::println("iy = {:08X};",iy);
+            fmt::println("( 2^32 / y ) - iy");
+        });
+    }
+
+    int inverse_normalised (span<char const *> args)
+    {
+        return command_iterations("inverse-normalised",args,[] (auto i, auto& random)
+        {
+            auto y = random();
+
+            // "normalise"
+            y |= 0x80000000U;
+
+            auto iy = purple::inverse_normalised(y);
+
+            fmt::println("i = {};",i);
+            fmt::println("b = 100000000;",i);
+            fmt::println("y = {:08X};",y);
+            fmt::println("iy = {:08X};",iy);
+            fmt::println("( ( ( b^2 - 1 ) / y ) - b ) - iy");
+        });
+    }
+
     int is_smaller (span<char const *> args)
     {
         return command_degree_iterations("is-smaller",args,[] (auto degree, auto iteration, auto& random)
@@ -171,26 +208,6 @@ namespace
             fmt::println("y = {};",format(y));
             fmt::println("r = {};",r);
             fmt::println("(x < y) - r;");
-        });
-    }
-
-    int minus (span<char const *> args)
-    {
-        return command_degree_iterations("minus",args,[] (auto degree, auto iteration, auto& random)
-        {
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
-
-            auto y = vector<unsigned>(degree);
-            ranges::generate(y,ref(random));
-
-            auto r = purple::difference<unsigned>(x,y);
-
-            fmt::println("i = {};",iteration);
-            fmt::println("x = {};",format(x));
-            fmt::println("y = {};",format(y));
-            fmt::println("r = {};",format(r));
-            fmt::println("(x - y) - r;");
         });
     }
 
@@ -221,48 +238,15 @@ namespace
             auto x = vector<unsigned>(degree);
             ranges::generate(x,ref(random));
 
-            auto y = array<unsigned,1>();
-            ranges::generate(y,ref(random));
+            auto y = random();
 
-            auto r = purple::product<unsigned>(x,y[0]);
+            auto r = purple::product<unsigned>(x,y);
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
-            fmt::println("y = {};",format(y));
+            fmt::println("y = {:08X};",y);
             fmt::println("r = {};",format(r));
             fmt::println("(x * y) - r;");
-        });
-    }
-
-    int twice (span<char const *> args)
-    {
-        return command_degree_iterations("twice",args,[] (auto degree, auto iteration, auto& random)
-        {
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
-
-            auto r = purple::twice<unsigned>(x);
-
-            fmt::println("i = {};",iteration);
-            fmt::println("x = {};",format(x));
-            fmt::println("r = {};",format(r));
-            fmt::println("(x * 2) - r;");
-        });
-    }
-
-    int square (span<char const *> args)
-    {
-        return command_degree_iterations("square",args,[] (auto degree, auto iteration, auto& random)
-        {
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
-
-            auto r = purple::square<unsigned>(x);
-
-            fmt::println("i = {};",iteration);
-            fmt::println("x = {};",format(x));
-            fmt::println("r = {};",format(r));
-            fmt::println("(x * x) - r;");
         });
     }
 
@@ -313,40 +297,55 @@ namespace
         });
     }
 
-    int inverse_nonzero (span<char const *> args)
+    int square (span<char const *> args)
     {
-        return command_iterations("inverse-nonzero",args,[] (auto i, auto& random)
+        return command_degree_iterations("square",args,[] (auto degree, auto iteration, auto& random)
         {
-            auto y = random();
+            auto x = vector<unsigned>(degree);
+            ranges::generate(x,ref(random));
 
-            // nonzero
-            if (y == 0U) y = 0xFFFFFFFFU;
+            auto r = purple::square<unsigned>(x);
 
-            auto iy = purple::inverse_nonzero(y);
-
-            fmt::println("i = {};",i);
-            fmt::println("y = {:08X};",y);
-            fmt::println("iy = {:08X};",iy);
-            fmt::println("( 2^32 / y ) - iy");
+            fmt::println("i = {};",iteration);
+            fmt::println("x = {};",format(x));
+            fmt::println("r = {};",format(r));
+            fmt::println("(x * x) - r;");
         });
     }
 
-    int inverse_normalised (span<char const *> args)
+    int sum (span<char const *> args)
     {
-        return command_iterations("inverse-normalised",args,[] (auto i, auto& random)
+        return command_degree_iterations("sum",args,[] (auto degree, auto iteration, auto& random)
         {
-            auto y = random();
+            auto x = vector<unsigned>(degree);
+            ranges::generate(x,ref(random));
 
-            // "normalise"
-            y |= 0x80000000U;
+            auto y = vector<unsigned>(degree);
+            ranges::generate(y,ref(random));
 
-            auto iy = purple::inverse_normalised(y);
+            auto r = purple::sum<unsigned>(x,y);
 
-            fmt::println("i = {};",i);
-            fmt::println("b = 100000000;",i);
-            fmt::println("y = {:08X};",y);
-            fmt::println("iy = {:08X};",iy);
-            fmt::println("( ( ( b^2 - 1 ) / y ) - b ) - iy");
+            fmt::println("i = {};",iteration);
+            fmt::println("x = {};",format(x));
+            fmt::println("y = {};",format(y));
+            fmt::println("r = {};",format(r));
+            fmt::println("(x + y) - r;");
+        });
+    }
+
+    int twice (span<char const *> args)
+    {
+        return command_degree_iterations("twice",args,[] (auto degree, auto iteration, auto& random)
+        {
+            auto x = vector<unsigned>(degree);
+            ranges::generate(x,ref(random));
+
+            auto r = purple::twice<unsigned>(x);
+
+            fmt::println("i = {};",iteration);
+            fmt::println("x = {};",format(x));
+            fmt::println("r = {};",format(r));
+            fmt::println("(x * 2) - r;");
         });
     }
 
@@ -360,6 +359,8 @@ namespace
         auto command = string_view( args[1] );
         if (command == "assert-zero")
             return assert_zero(args);
+        else if (command == "difference")
+            return difference(args);
         else if (command == "half")
             return half(args);
         else if (command == "inverse-nonzero")
@@ -368,8 +369,6 @@ namespace
             return inverse_normalised(args);
         else if (command == "is-smaller")
             return is_smaller(args);
-        else if (command == "minus")
-            return minus(args);
         else if (command == "product")
             return product(args);
         else if (command == "product-N-1")

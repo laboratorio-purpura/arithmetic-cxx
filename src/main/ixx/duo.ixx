@@ -62,7 +62,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulate twice N times and return carry.
+    // Accumulate twice N times, return carry.
     template <typename Integer>
     auto twice_accumulate ( span<Integer,2> x, unsigned N )
     {
@@ -72,7 +72,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulate half N times rounded down.
+    // Accumulate half N times, rounded down.
     template <typename Integer>
     auto half_accumulate ( span<Integer,2> r, unsigned N ) noexcept
     {

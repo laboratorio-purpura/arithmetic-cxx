@@ -146,7 +146,7 @@ export namespace purple
         };
     }
 
-    /// Product, accumulate low and return high.
+    /// Product, accumulate low, return high.
     constexpr
     auto product_accumulate ( unsigned int & x, unsigned int y ) noexcept -> unsigned int
     {
@@ -166,7 +166,7 @@ export namespace purple
         };
     }
 
-    /// Product and sum, accumulate low and return high.
+    /// Product and sum, accumulate low, return high.
     constexpr
     auto product_sum_accumulate ( unsigned int & x, unsigned int y, unsigned int z ) noexcept -> unsigned int
     {
@@ -186,7 +186,7 @@ export namespace purple
         };
     }
 
-    /// Twice N times, accumulate low and return high.
+    /// Twice N times, accumulate low, return high.
     constexpr
     auto twice_accumulate ( unsigned int & x, unsigned N ) noexcept -> unsigned int
     {
@@ -206,7 +206,7 @@ export namespace purple
         };
     }
 
-    /// Twice N times and sum, accumulate low and return high.
+    /// Twice N times and sum, accumulate low, return high.
     constexpr
     auto twice_sum_accumulate ( unsigned int & x, unsigned N, unsigned int y ) noexcept -> unsigned int
     {
@@ -215,7 +215,7 @@ export namespace purple
         return r >> 32;
     }
 
-    /// Half N times rounded down.
+    /// Half N times, rounded down.
     constexpr
     auto half ( unsigned int & x, unsigned N ) noexcept -> unsigned int
     {
@@ -240,7 +240,7 @@ export namespace purple
         };
     }
 
-    /// Square, accumulate low and return high.
+    /// Square, accumulate low,return high.
     constexpr
     auto square_accumulate ( unsigned int & x ) noexcept -> unsigned int
     {
@@ -260,7 +260,7 @@ export namespace purple
         };
     }
 
-    /// Square and sum, accumulate low and return high.
+    /// Square and sum, accumulate low, return high.
     constexpr
     auto square_sum_accumulate ( unsigned int & x, unsigned int y ) noexcept -> unsigned int
     {

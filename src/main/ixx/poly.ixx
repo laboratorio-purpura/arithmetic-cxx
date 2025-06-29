@@ -200,7 +200,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r * y, returns carry.
+    // Accumulate product, return carry.
     template <typename Integer>
     auto product_accumulate (span<Integer> r, Integer y) noexcept -> Integer
     {
@@ -213,7 +213,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r + (x * y), returns carry.
+    // Accumulate product and sum, return carry.
     template <typename Integer>
     auto product_sum_accumulate (span<Integer> r, span<Integer const> x, span<Integer const> y) noexcept -> Integer
     {
@@ -240,7 +240,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r * 2 ^ N, returns carry.
+    // Accumulate twice N times, return carry.
     template <typename Integer>
     auto twice_accumulate (span<Integer> r, unsigned N) noexcept -> Integer
     {
@@ -253,7 +253,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r + x * x, returns carry.
+    // Accumulate square, return carry.
     template <typename Integer>
     auto square_sum_accumulate (span<Integer> r, span<Integer const> x) noexcept -> Integer
     {
@@ -294,7 +294,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulates r / 2^N.
+    // Accumulate half N times, rounded down.
     template <typename Integer>
     auto half_accumulate (span<Integer> r, unsigned N) noexcept
     {

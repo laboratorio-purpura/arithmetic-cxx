@@ -310,9 +310,9 @@ export namespace purple
         }
     }
 
-    /// Accumulate quotient, return remainder, by "normalised" divisor with inverse.
+    /// Store quotient, return remainder, by "normalised" divisor with inverse.
     template <typename Integer>
-    auto ratio_normalised_accumulate (span<Integer> q, span<Integer const> x, Integer y, Integer iy) -> Integer
+    auto ratio_normalised ( span<Integer> q, span<Integer const> x, Integer y, Integer iy ) -> Integer
     // requires q.size() >= x.size()
     // requires B/2 <= y < B
     // requires iy = ( (B^2 - 1) / y ) - B
@@ -320,9 +320,8 @@ export namespace purple
         auto const xz = x.size();
         auto r = Integer(0);
         for (auto i = xz; i != 0; --i) {
-            auto r_ = array { x[i-1], r };
-            q[i-1] = ratio_normalised_accumulate<Integer>( r_, y, iy );
-            r = r_[0];
+            auto t = array<unsigned,2> { x[i-1], r };
+            tie( q[i-1], r ) = ratio_normalised<Integer>( t, y, iy );
         }
         return r;
     }

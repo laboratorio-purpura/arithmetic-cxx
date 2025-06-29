@@ -81,39 +81,38 @@ export namespace purple
         r[1] >>= N;
     }
 
-    /// Accumulate remainder, return quotient, by "normalised" divisor with inverse.
+    /// Quotient and remainder by "normalised" divisor with inverse.
     template <typename Integer>
-    auto ratio_normalised_accumulate ( span<Integer,2> r, Integer y, Integer iy ) -> Integer
+    auto ratio_normalised ( span<Integer,2> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
     // requires B/2 <= y < B
-    // requires r[1] < y
+    // requires x[1] < y
     // requires iy = ( (B^2 - 1) / y ) - B
     {
         assert( 0x80000000U <= y );
         assert( y <= 0xFFFFFFFFU );
-        assert( r[1] < y );
+        assert( x[1] < y );
         assert( iy == inverse_normalised(y) );
 
         // t = ( r[1] * iy ) + x
-        auto t = product( r[1], iy );
-        ignore = sum_accumulate<Integer>( t, r );
+        auto t = product( x[1], iy );
+        ignore = sum_accumulate<Integer>( t, x );
         // q = ( t[1] + 1 ) mod B
         auto q = sum_modulus( t[1], Integer(1) );
         // r = ( x - ( q * y ) ) mod B
         auto qy = product( q, y );
-        r[0] = difference_modulus( r[0], qy[0] );
-        r[1] = Integer(0);
+        auto r = difference_modulus( x[0], qy[0] );
         // if r > t[0] : q = ( q - 1 ) mod B; r = ( r + y ) mod B
-        if ( is_greater( r[0], t[0] ) ) {
+        if ( is_greater( r, t[0] ) ) {
             q = difference_modulus( q, 1 );
-            r[0] = sum_modulus( r[0], y );
+            r = sum_modulus( r, y );
         }
         // if r >= y : q = ( q + 1 ) mod B; r = ( r - y ) mod B
-        if ( not_smaller( r[0], y ) ) [[unlikely]] {
+        if ( not_smaller( r, y ) ) [[unlikely]] {
             q = sum_modulus( q, 1 );
-            r[0] = difference_modulus( r[0], y );
+            r = difference_modulus( r, y );
         }
         // terminate
-        return q;
+        return { q, r };
     }
 
     /// Quotient and remainder.
@@ -138,7 +137,7 @@ export namespace purple
 
         auto iy = inverse_normalised( y );
 
-        q[0] = ratio_normalised_accumulate<Integer>( r, y, iy );
+        tie( q[0], r[0] ) = ratio_normalised<Integer>( r, y, iy );
 
         half_accumulate<Integer>( r, ylz );
 

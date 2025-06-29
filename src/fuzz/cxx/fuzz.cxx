@@ -286,7 +286,7 @@ namespace
 
             auto q = vector<unsigned>(degree);
             auto iy = purple::inverse_normalised(y);
-            auto r = purple::ratio_normalised_accumulate<unsigned>( q, x, y, iy );
+            auto r = purple::ratio_normalised<unsigned>( q, x, y, iy );
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));

@@ -34,7 +34,7 @@ export namespace purple
 
     // Accumulate sum, return carry.
     template <typename Integer>
-    auto sum_accumulate ( span<Integer,2> x, span<Integer,2> y )
+    auto sum_accumulate ( span<Integer,2> x, span<Integer const,2> y )
     {
         auto carry = Integer(0);
         carry = sum_accumulate( x[0], y[0], carry );
@@ -54,7 +54,7 @@ export namespace purple
 
     // Accumulate difference, return carry.
     template <typename Integer>
-    auto difference_accumulate ( span<Integer,2> x, span<Integer,2> y )
+    auto difference_accumulate ( span<Integer,2> x, span<Integer const,2> y )
     {
         auto carry = Integer(0);
         carry = difference_accumulate( x[0], y[0], carry );
@@ -84,7 +84,7 @@ export namespace purple
 
     /// Quotient and remainder with "normalised" operands.
     template <typename Integer>
-    auto ratio_normalised ( span<Integer,2> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
+    auto ratio_normalised ( span<Integer const,2> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
     // requires B/2 <= y < B
     // requires x[1] < y
     // requires iy = ( (B^2 - 1) / y ) - B
@@ -118,7 +118,7 @@ export namespace purple
 
     /// Quotient and remainder.
     template <typename Integer>
-    auto ratio ( span<Integer,2> x, Integer y ) -> tuple< array<Integer,2>, Integer >
+    auto ratio ( span<Integer const,2> x, Integer y ) -> tuple< array<Integer,2>, Integer >
     // requires y != 0
     {
         assert( 0 < y );

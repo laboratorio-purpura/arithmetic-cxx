@@ -273,20 +273,43 @@ namespace
             auto x = array<unsigned,2>();
             ranges::generate(x,ref(random));
 
-            auto y = array<unsigned,1>();
-            do {
-                ranges::generate(y,ref(random));
-            } while (y[0] == 0);
-            // nonzero
+            auto y = random();
+            while (y == 0) y = random();
 
-            auto [q,r] = purple::ratio<unsigned>(x,y[0]);
+            auto [q,r] = purple::ratio<unsigned>(x,y);
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
-            fmt::println("y = {:08X};",y[0]);
+            fmt::println("y = {:08X};",y);
             fmt::println("q = {};",format(q));
             fmt::println("r = {:08X};",r);
             fmt::println("((x / y) - q) + (x % y) - r");
+        });
+    }
+
+    int ratio_N_1 (span<char const *> args)
+    {
+        return command_degree_iterations("ratio-N-1",args,[] (auto degree, auto iteration, auto& random)
+        {
+            auto x = vector<unsigned>(degree);
+            ranges::generate(x,ref(random));
+
+            auto y = random();
+            while (y == 0) y = random();
+
+            // "normalise"
+            y |= 0x80000000U;
+
+            auto q = vector<unsigned>(degree);
+            auto iy = purple::inverse_normalised(y);
+            auto r = purple::ratio_normalised_accumulate<unsigned>( q, x, y, iy );
+
+            fmt::println("i = {};",iteration);
+            fmt::println("x = {};",format(x));
+            fmt::println("y = {:08X};",y);
+            fmt::println("q = {};",format(q));
+            fmt::println("r = {:08X};",r);
+            fmt::println("((x / y) - q) + ((x % y) - r)");
         });
     }
 
@@ -327,29 +350,6 @@ namespace
         });
     }
 
-    int remainder_N_1 (span<char const *> args)
-    {
-        return command_degree_iterations("remainder-N-1",args,[] (auto degree, auto i, auto& random)
-        {
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
-
-            auto y = array<unsigned,1>();
-            ranges::generate(y,ref(random));
-
-            // nonzero
-            if (y[0] == 0U) y[0] = 0xFFFFFFFFU;
-
-            auto r = purple::remainder<unsigned>(x,y[0]);
-
-            fmt::println("i = {};",i);
-            fmt::println("x = {};",format(x));
-            fmt::println("y = {};",format(y));
-            fmt::println("r = {};",format(r));
-            fmt::println("(x % y) - r;");
-        });
-    }
-
     int main (span<char const *> args)
     {
         if (args.size() < 2) {
@@ -362,6 +362,10 @@ namespace
             return assert_zero(args);
         else if (command == "half")
             return half(args);
+        else if (command == "inverse-nonzero")
+            return inverse_nonzero(args);
+        else if (command == "inverse-normalised")
+            return inverse_normalised(args);
         else if (command == "is-smaller")
             return is_smaller(args);
         else if (command == "minus")
@@ -372,12 +376,8 @@ namespace
             return product_N_1(args);
         else if (command == "ratio-2-1")
             return ratio_2_1(args);
-        else if (command == "inverse-nonzero")
-            return inverse_nonzero(args);
-        else if (command == "inverse-normalised")
-            return inverse_normalised(args);
-        else if (command == "remainder-N-1")
-            return remainder_N_1(args);
+        else if (command == "ratio-N-1")
+            return ratio_N_1(args);
         else if (command == "square")
             return square(args);
         else if (command == "sum")

@@ -10,6 +10,7 @@ module;
 export module purple.arithmetic:poly;
 
 import :mono;
+import :duo;
 
 using std::ignore;
 using std::span;
@@ -308,43 +309,21 @@ export namespace purple
         }
     }
 
-    // --
-
+    /// Accumulate quotient, return remainder, by "normalised" divisor with inverse.
     template <typename Integer>
-    void ratio_accumulate (span<Integer> q, span<Integer> r, span<const Integer> x, Integer y)
-    // requires is_compact(x)
-    // requires not_zero(y)
+    auto ratio_normalised_accumulate (span<Integer> q, span<Integer const> x, Integer y, Integer iy) -> Integer
     // requires q.size() >= x.size()
-    // requires r.size() >= x.size()
+    // requires B/2 <= y < B
+    // requires iy = ( (B^2 - 1) / y ) - B
     {
         auto const xz = x.size();
-        for (auto j = xz; j != 0; --j) {
-            tie( q[j-1], r[j-1] ) = ratio( x[j-1], y );
+        auto r = Integer(0);
+        for (auto i = xz; i != 0; --i) {
+            auto r_ = array { x[i-1], r };
+            q[i-1] = ratio_normalised_accumulate_v1<Integer>( r_, y, iy );
+            r = r_[0];
         }
-    }
-
-    template <typename Integer>
-    void quotient_accumulate (span<Integer> q, span<const Integer> x, Integer y)
-    // requires is_compact(x)
-    // requires not_zero(y)
-    // requires q.size() >= x.size()
-    {
-        auto const xz = x.size();
-        for (auto j = xz; j != 0; --j) {
-            tie( q[j-1], std::ignore ) = ratio( x[j-1], y );
-        }
-    }
-
-    template <typename Integer>
-    void remainder_accumulate (span<Integer> r, span<const Integer> x, Integer y)
-    // requires is_compact(x)
-    // requires not_zero(y)
-    // requires r.size() >= x.size()
-    {
-        auto const xz = x.size();
-        for (auto j = xz; j != 0; --j) {
-            tie( std::ignore, r[j-1] ) = ratio( x[j-1], y );
-        }
+        return r;
     }
 }
 

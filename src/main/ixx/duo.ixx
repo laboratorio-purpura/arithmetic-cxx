@@ -82,9 +82,12 @@ export namespace purple
         r[1] >>= N;
     }
 
-    /// Accumulate remainder and return quotient by "normalised" divisor with inverse.
+    /// Accumulate remainder, return quotient, by "normalised" divisor with inverse.
     template <typename Integer>
     auto ratio_normalised_accumulate_v0 ( span<Integer,2> r, Integer y, Integer iy ) -> Integer
+    // requires B/2 <= y < B
+    // requires r[1] < y
+    // requires iy = ( (B^2 - 1) / y ) - B
     {
         assert( 0x80000000U <= y );
         assert( y <= 0xFFFFFFFFU );
@@ -102,12 +105,12 @@ export namespace purple
         return q;
     }
 
-    /// Accumulate remainder and return quotient by "normalised" divisor with inverse.
+    /// Accumulate remainder, return quotient, by "normalised" divisor with inverse.
     template <typename Integer>
     auto ratio_normalised_accumulate_v1 ( span<Integer,2> r, Integer y, Integer iy ) -> Integer
-    // requires 2^31 <= y < 2^32
+    // requires B/2 <= y < B
     // requires r[1] < y
-    // requires iy ~ 1 / y
+    // requires iy = ( (B^2 - 1) / y ) - B
     {
         assert( 0x80000000U <= y );
         assert( y <= 0xFFFFFFFFU );
@@ -140,6 +143,7 @@ export namespace purple
     /// Quotient and remainder.
     template <typename Integer>
     auto ratio ( span<Integer,2> x, Integer y ) -> tuple< array<Integer,2>, Integer >
+    // requires y != 0
     {
         assert( 0 < y );
 

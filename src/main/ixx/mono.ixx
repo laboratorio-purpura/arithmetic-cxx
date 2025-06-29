@@ -96,7 +96,7 @@ export namespace purple
     }
 
     /// Sum modulo sizeof(x) * 8.
-    auto sum_modulus ( unsigned int & x, unsigned int y ) -> unsigned int
+    auto sum_modulus ( unsigned int x, unsigned int y ) -> unsigned int
     {
         return x + y;
     }

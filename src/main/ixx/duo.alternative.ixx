@@ -16,8 +16,6 @@ import :duo;
 using std::array;
 using std::ignore;
 using std::span;
-using std::tie;
-using std::tuple;
 
 // Duo-degree arithmetic.
 

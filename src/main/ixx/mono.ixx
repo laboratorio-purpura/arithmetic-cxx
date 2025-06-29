@@ -272,7 +272,7 @@ export namespace purple
     /// Quotient and remainder.
     constexpr
     auto ratio ( unsigned int x, unsigned int y ) noexcept -> tuple< unsigned int, unsigned int >
-    // requires 0 < y
+    // requires y != 0
     {
         assert( 0 < y );
         auto q = x / y;
@@ -282,7 +282,7 @@ export namespace purple
 
     /// Inverse approximation.
     auto inverse_nonzero ( unsigned y ) -> unsigned
-    // requires 0 < y
+    // requires y != 0
     {
         assert( 0U < y );
         // 2^32 / y

@@ -125,22 +125,28 @@ export namespace purple
         auto q = array<Integer,2> { Integer(0), Integer(0) };
         auto r = array<Integer,2> { x[0], x[1] };
 
+        // "normalise" dividend
         if ( r[1] >= y )
             tie( q[1], r[1] ) = ratio( r[1], y ); // TODO: ...with inverse
         assert( r[1] < y );
 
+        // "normalise" divisor and remainder
         auto ylz = top_zeros( y );
         ignore = twice_accumulate( y, ylz );
         ignore = twice_accumulate<Integer>( r, ylz );
         assert( 0x80000000U <= y );
         assert( y <= 0xFFFFFFFFU );
 
+        // compute dividend inverse
         auto iy = inverse_normalised( y );
 
+        // compute normalised ratio
         tie( q[0], r[0] ) = ratio_normalised<Integer>( r, y, iy );
 
+        // "denormalise" remainder
         half_accumulate<Integer>( r, ylz );
 
+        // terminate
         return { q, r[0] };
     }
 }

@@ -47,35 +47,27 @@ TEST(poly,ratio_4_1_random)
     random_device random;
     random_integer generator { random() };
 
-    auto x = array<unsigned,4> {};
-    auto y = generator();
-
-    auto gx = mpz_class();
-    auto gy = mpz_class();
-
     for (auto i = 0uz; i != 10; ++i)
     {
-        x = { generator(), generator(), generator(), generator() };
-        y = generator();
+        auto x = array { generator(), generator(), generator(), generator() };
+        auto y = generator();
         while (y == 0) y = generator();
         y |= 0x80000000U;
-
         auto q = array<unsigned,4>();
         auto r = ratio<unsigned>( q, x, y );
 
-        gx.set_str( format(x), 16 );
-        gy.set_str( format(y), 16 );
-
+        auto gx = mpz_class( format(x), 16 );
+        auto gy = mpz_class( format(y), 16 );
         mpz_class gq = gx / gy;
         mpz_class gr = gx % gy;
 
         SCOPED_TRACE( std::string() +
             "purple:\n" +
             "x = " + format(x) + "; y = " + format(y) + "\n" +
-            "q = " + format(q) + "; r = " + format(r) + "\n" +
+            "x / y = " + format(q) + "; x % y = " + format(r) + "\n" +
             "gmp:\n" +
             "x = " + gx.get_str(16) + "; y = " + gy.get_str(16) + "\n"
-            "q = " + gq.get_str(16) + "; r = " + gr.get_str(16) + "\n"
+            "x / y = " + gq.get_str(16) + "; x % y = " + gr.get_str(16) + "\n"
         );
 
         ASSERT_EQ( cmp( gq, mpz_class( format(q), 16 ) ), 0 );

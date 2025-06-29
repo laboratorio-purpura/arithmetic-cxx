@@ -22,309 +22,309 @@ using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2
 using std::span;
 using std::vector;
 
-TEST(product,product_v0_0)
+TEST(poly,product_v0_0)
 {
     ASSERT_EQ( format( product(v0,0U) ), "0000000000000000" );
 }
 
-TEST(product,product_v0_1)
+TEST(poly,product_v0_1)
 {
     ASSERT_EQ( format( product(v0,1U) ), "0000000000000000" );
 }
 
-TEST(product,product_v0_2)
+TEST(poly,product_v0_2)
 {
     ASSERT_EQ( format( product(v0,2U) ), "0000000000000000" );
 }
 
-TEST(product,product_v0_L)
+TEST(poly,product_v0_L)
 {
     ASSERT_EQ( format( product(v0,L) ), "0000000000000000" );
 }
 
-TEST(product,product_v0_M)
+TEST(poly,product_v0_M)
 {
     ASSERT_EQ( format( product(v0,M) ), "0000000000000000" );
 }
 
-TEST(product,product_v1_0)
+TEST(poly,product_v1_0)
 {
     ASSERT_EQ( format( product(v1,0U) ), "0000000000000000" );
 }
 
-TEST(product,product_v1_1)
+TEST(poly,product_v1_1)
 {
     ASSERT_EQ( format( product(v1,1U) ), "0000000000000001" );
 }
 
-TEST(product,product_v1_2)
+TEST(poly,product_v1_2)
 {
     ASSERT_EQ( format( product(v1,2U) ), "0000000000000002" );
 }
 
-TEST(product,product_v1_L)
+TEST(poly,product_v1_L)
 {
     ASSERT_EQ( format( product(v1,L) ), "0000000080000000" );
 }
 
-TEST(product,product_v1_M)
+TEST(poly,product_v1_M)
 {
     ASSERT_EQ( format( product(v1,M) ), "00000000FFFFFFFF" );
 }
 
-TEST(product,product_vL_0)
+TEST(poly,product_vL_0)
 {
     ASSERT_EQ( format( product(vL,0U) ), "0000000000000000" );
 }
 
-TEST(product,product_vL_1)
+TEST(poly,product_vL_1)
 {
     ASSERT_EQ( format( product(vL,1U) ), "0000000080000000" );
 }
 
-TEST(product,product_vL_2)
+TEST(poly,product_vL_2)
 {
     ASSERT_EQ( format( product(vL,2U) ), "0000000100000000" );
 }
 
-TEST(product,product_vL_L)
+TEST(poly,product_vL_L)
 {
     ASSERT_EQ( format( product(vL,L) ), "4000000000000000" );
 }
 
-TEST(product,product_vL_M)
+TEST(poly,product_vL_M)
 {
     ASSERT_EQ( format( product(vL,M) ), "7FFFFFFF80000000" );
 }
 
-TEST(product,product_vM_0)
+TEST(poly,product_vM_0)
 {
     ASSERT_EQ( format( product(vM,0U) ), "0000000000000000" );
 }
 
-TEST(product,product_vM_1)
+TEST(poly,product_vM_1)
 {
     ASSERT_EQ( format( product(vM,1U) ), "00000000FFFFFFFF" );
 }
 
-TEST(product,product_vM_2)
+TEST(poly,product_vM_2)
 {
     ASSERT_EQ( format( product(vM,2U) ), "00000001FFFFFFFE" );
 }
 
-TEST(product,product_vM_L)
+TEST(poly,product_vM_L)
 {
     ASSERT_EQ( format( product(vM,L) ), "7FFFFFFF80000000" );
 }
 
-TEST(product,product_vM_M)
+TEST(poly,product_vM_M)
 {
     ASSERT_EQ( format( product(vM,M) ), "FFFFFFFE00000001" );
 }
 
-TEST(product,product_v0_v0)
+TEST(poly,product_v0_v0)
 {
     ASSERT_EQ( format( product(v0,v0) ), "000000000000000000000000" );
 }
 
-TEST(product,product_v0_v1)
+TEST(poly,product_v0_v1)
 {
     ASSERT_EQ( format( product(v0,v1) ), "000000000000000000000000" );
 }
 
-TEST(product,product_v0_v2)
+TEST(poly,product_v0_v2)
 {
     ASSERT_EQ( format( product(v0,v2) ), "000000000000000000000000" );
 }
 
-TEST(product,product_v0_vL)
+TEST(poly,product_v0_vL)
 {
     ASSERT_EQ( format( product(v0,vL) ), "000000000000000000000000" );
 }
 
-TEST(product,product_v0_vM)
+TEST(poly,product_v0_vM)
 {
     ASSERT_EQ( format( product(v0,vM) ), "000000000000000000000000" );
 }
 
-TEST(product,product_v1_v0)
+TEST(poly,product_v1_v0)
 {
     ASSERT_EQ( format( product(v1,v0) ), "000000000000000000000000" );
 }
 
-TEST(product,product_v1_v1)
+TEST(poly,product_v1_v1)
 {
     ASSERT_EQ( format( product(v1,v1) ), "000000000000000000000001" );
 }
 
-TEST(product,product_v1_v2)
+TEST(poly,product_v1_v2)
 {
     ASSERT_EQ( format( product(v1,v2) ), "000000000000000000000002" );
 }
 
-TEST(product,product_v1_vL)
+TEST(poly,product_v1_vL)
 {
     ASSERT_EQ( format( product(v1,vL) ), "000000000000000080000000" );
 }
 
-TEST(product,product_v1_vM)
+TEST(poly,product_v1_vM)
 {
     ASSERT_EQ( format( product(v1,vM) ), "0000000000000000FFFFFFFF" );
 }
 
-TEST(product,product_vL_v0)
+TEST(poly,product_vL_v0)
 {
     ASSERT_EQ( format( product(vL,v0) ), "000000000000000000000000" );
 }
 
-TEST(product,product_vL_v1)
+TEST(poly,product_vL_v1)
 {
     ASSERT_EQ( format( product(vL,v1) ), "000000000000000080000000" );
 }
 
-TEST(product,product_vL_v2)
+TEST(poly,product_vL_v2)
 {
     ASSERT_EQ( format( product(vL,v2) ), "000000000000000100000000" );
 }
 
-TEST(product,product_vL_vL)
+TEST(poly,product_vL_vL)
 {
     ASSERT_EQ( format( product(vL,vL) ), "000000004000000000000000" );
 }
 
-TEST(product,product_vL_vM)
+TEST(poly,product_vL_vM)
 {
     ASSERT_EQ( format( product(vL,vM) ), "000000007FFFFFFF80000000" );
 }
 
-TEST(product,product_vM_v0)
+TEST(poly,product_vM_v0)
 {
     ASSERT_EQ( format( product(vM,v0) ), "000000000000000000000000" );
 }
 
-TEST(product,product_vM_v1)
+TEST(poly,product_vM_v1)
 {
     ASSERT_EQ( format( product(vM,v1) ), "0000000000000000FFFFFFFF" );
 }
 
-TEST(product,product_vM_v2)
+TEST(poly,product_vM_v2)
 {
     ASSERT_EQ( format( product(vM,v2) ), "0000000000000001FFFFFFFE" );
 }
 
-TEST(product,product_vM_vL)
+TEST(poly,product_vM_vL)
 {
     ASSERT_EQ( format( product(vM,vL) ), "000000007FFFFFFF80000000" );
 }
 
-TEST(product,product_vM_vM)
+TEST(poly,product_vM_vM)
 {
     ASSERT_EQ( format( product(vM,vM) ), "00000000FFFFFFFE00000001" );
 }
 
-TEST(product,product_v0_v01)
+TEST(poly,product_v0_v01)
 {
     ASSERT_EQ( format( product(v0,v01) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v0_v02)
+TEST(poly,product_v0_v02)
 {
     ASSERT_EQ( format( product(v0,v02) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v0_v0L)
+TEST(poly,product_v0_v0L)
 {
     ASSERT_EQ( format( product(v0,v0L) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v0_v0M)
+TEST(poly,product_v0_v0M)
 {
     ASSERT_EQ( format( product(v0,v0M) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v01_v0)
+TEST(poly,product_v01_v0)
 {
     ASSERT_EQ( format( product(v01,v0) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v01_v01)
+TEST(poly,product_v01_v01)
 {
     ASSERT_EQ( format( product(v01,v01) ), "0000000000000000000000010000000000000000" );
 }
 
-TEST(product,product_v01_v02)
+TEST(poly,product_v01_v02)
 {
     ASSERT_EQ( format( product(v01,v02) ), "0000000000000000000000020000000000000000" );
 }
 
-TEST(product,product_v01_v0L)
+TEST(poly,product_v01_v0L)
 {
     ASSERT_EQ( format( product(v01,v0L) ), "0000000000000000800000000000000000000000" );
 }
 
-TEST(product,product_v01_v0M)
+TEST(poly,product_v01_v0M)
 {
     ASSERT_EQ( format( product(v01,v0M) ), "0000000000000000FFFFFFFF0000000000000000" );
 }
 
-TEST(product,product_v0L_v0)
+TEST(poly,product_v0L_v0)
 {
     ASSERT_EQ( format( product(v0L,v0) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v0L_v01)
+TEST(poly,product_v0L_v01)
 {
     ASSERT_EQ( format( product(v0L,v01) ), "0000000000000000800000000000000000000000" );
 }
 
-TEST(product,product_v0L_v02)
+TEST(poly,product_v0L_v02)
 {
     ASSERT_EQ( format( product(v0L,v02) ), "0000000000000001000000000000000000000000" );
 }
 
-TEST(product,product_v0L_v0L)
+TEST(poly,product_v0L_v0L)
 {
     ASSERT_EQ( format( product(v0L,v0L) ), "0000000040000000000000000000000000000000" );
 }
 
-TEST(product,product_v0L_v0M)
+TEST(poly,product_v0L_v0M)
 {
     ASSERT_EQ( format( product(v0L,v0M) ), "000000007FFFFFFF800000000000000000000000" );
 }
 
-TEST(product,product_v0M_v0)
+TEST(poly,product_v0M_v0)
 {
     ASSERT_EQ( format( product(v0M,v0) ), "00000000000000000000000000000000" );
 }
 
-TEST(product,product_v0M_v01)
+TEST(poly,product_v0M_v01)
 {
     ASSERT_EQ( format( product(v0M,v01) ), "0000000000000000FFFFFFFF0000000000000000" );
 }
 
-TEST(product,product_v0M_v02)
+TEST(poly,product_v0M_v02)
 {
     ASSERT_EQ( format( product(v0M,v02) ), "0000000000000001FFFFFFFE0000000000000000" );
 }
 
-TEST(product,product_v0M_v0L)
+TEST(poly,product_v0M_v0L)
 {
     ASSERT_EQ( format( product(v0M,v0L) ), "000000007FFFFFFF800000000000000000000000" );
 }
 
-TEST(product,product_v0M_v0M)
+TEST(poly,product_v0M_v0M)
 {
     ASSERT_EQ( format( product(v0M,v0M) ), "00000000FFFFFFFE000000010000000000000000" );
 }
 
-TEST(product,product_D2836A67C068B195_0986A2ABBA94FA4D)
+TEST(poly,product_D2836A67C068B195_0986A2ABBA94FA4D)
 {
     auto const x = vector { 0xC068B195U, 0xD2836A67U };
     auto const y = vector { 0xBA94FA4DU, 0x0986A2ABU };
     ASSERT_EQ( format( product(x,y) ), "0000000007D5554BB89E1D378484892F090CEBD1" );
 }
 
-TEST(product,product_9A6CD724F1136FB6_D4B89A2A8487D33B)
+TEST(poly,product_9A6CD724F1136FB6_D4B89A2A8487D33B)
 {
     auto const x = vector { 0xF1136FB6U, 0x9A6CD724U };
     auto const y = vector { 0x8487D33BU, 0xD4B89A2AU };

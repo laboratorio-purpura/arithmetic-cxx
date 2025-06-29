@@ -22,47 +22,47 @@ using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2
 using std::span;
 using std::vector;
 
-TEST(twice,twice_v0)
+TEST(poly,twice_v0)
 {
     ASSERT_EQ( format( twice(v0) ), "0000000000000000" );
 }
 
-TEST(twice,twice_v1)
+TEST(poly,twice_v1)
 {
     ASSERT_EQ( format( twice(v1) ), "0000000000000002" );
 }
 
-TEST(twice,twice_v2)
+TEST(poly,twice_v2)
 {
     ASSERT_EQ( format( twice(v2) ), "0000000000000004" );
 }
 
-TEST(twice,twice_vL)
+TEST(poly,twice_vL)
 {
     ASSERT_EQ( format( twice(vL) ), "0000000100000000" );
 }
 
-TEST(twice,twice_vM)
+TEST(poly,twice_vM)
 {
     ASSERT_EQ( format( twice(vM) ), "00000001FFFFFFFE" );
 }
 
-TEST(twice,twice_v01)
+TEST(poly,twice_v01)
 {
     ASSERT_EQ( format( twice(v01) ), "000000000000000200000000" );
 }
 
-TEST(twice,twice_v02)
+TEST(poly,twice_v02)
 {
     ASSERT_EQ( format( twice(v02) ), "000000000000000400000000" );
 }
 
-TEST(twice,twice_v0L)
+TEST(poly,twice_v0L)
 {
     ASSERT_EQ( format( twice(v0L) ), "000000010000000000000000" );
 }
 
-TEST(twice,twice_v0M)
+TEST(poly,twice_v0M)
 {
     ASSERT_EQ( format( twice(v0M) ), "00000001FFFFFFFE00000000" );
 }

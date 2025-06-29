@@ -107,7 +107,7 @@ export namespace purple
 
     /// Accumulate remainder, return quotient, by "normalised" divisor with inverse.
     template <typename Integer>
-    auto ratio_normalised_accumulate_v1 ( span<Integer,2> r, Integer y, Integer iy ) -> Integer
+    auto ratio_normalised_accumulate ( span<Integer,2> r, Integer y, Integer iy ) -> Integer
     // requires B/2 <= y < B
     // requires r[1] < y
     // requires iy = ( (B^2 - 1) / y ) - B
@@ -162,7 +162,7 @@ export namespace purple
 
         auto iy = inverse_normalised( y );
 
-        q[0] = ratio_normalised_accumulate_v1<Integer>( r, y, iy );
+        q[0] = ratio_normalised_accumulate<Integer>( r, y, iy );
 
         half_accumulate<Integer>( r, ylz );
 

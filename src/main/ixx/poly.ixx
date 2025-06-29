@@ -320,7 +320,7 @@ export namespace purple
         auto r = Integer(0);
         for (auto i = xz; i != 0; --i) {
             auto r_ = array { x[i-1], r };
-            q[i-1] = ratio_normalised_accumulate_v1<Integer>( r_, y, iy );
+            q[i-1] = ratio_normalised_accumulate<Integer>( r_, y, iy );
             r = r_[0];
         }
         return r;

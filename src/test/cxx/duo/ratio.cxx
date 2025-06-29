@@ -14,10 +14,11 @@ import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+
 using std::array;
 using std::random_device;
-using std::span;
 using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
+using std::span;
 
 TEST(duo,ratio_v00_80000000)
 {

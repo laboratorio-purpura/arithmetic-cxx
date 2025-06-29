@@ -326,6 +326,16 @@ export namespace purple
         }
         return r;
     }
+
+    /// Store quotient, return remainder, with "normalised" operands.
+    template <typename Integer>
+    auto ratio ( span<Integer> q, span<Integer const> x, Integer y ) -> Integer
+    // requires q.size() >= x.size()
+    // requires B/2 <= y < B
+    {
+        auto iy = inverse_normalised(y);
+        return ratio_normalised( q, x, y, iy );
+    }
 }
 
 /// Deferred definitions.

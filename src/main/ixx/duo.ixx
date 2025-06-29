@@ -141,11 +141,11 @@ export namespace purple
         // compute dividend inverse
         auto iy = inverse_normalised( y );
 
-        // compute normalised ratio
+        // compute "normalised" ratio
         tie( q[0], r[0] ) = ratio_normalised<Integer>( r, y, iy );
 
         // "denormalise" remainder
-        half_accumulate<Integer>( r, ylz );
+        half_accumulate( r[0], ylz );
 
         // terminate
         return { q, r[0] };

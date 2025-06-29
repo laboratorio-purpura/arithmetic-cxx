@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 23)
 # main
 
 find_package(fmt REQUIRED)
+find_package(gmp REQUIRED)
 find_package(GTest REQUIRED)
 
 add_library(purple-arithmetic)
@@ -39,6 +40,7 @@ target_sources(purple-arithmetic-test
 target_link_libraries(purple-arithmetic-test
     PRIVATE
     fmt::fmt
+    gmp::gmp
     GTest::gtest_main
     purple-arithmetic
 )

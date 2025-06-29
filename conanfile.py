@@ -6,4 +6,5 @@ class PurpleRecipe(ConanFile):
 
     def requirements(self):
         self.requires("fmt/11.2.0")
+        self.requires("gmp/6.3.0")
         self.requires("gtest/1.16.0")

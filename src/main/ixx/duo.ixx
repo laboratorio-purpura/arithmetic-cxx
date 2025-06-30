@@ -135,12 +135,12 @@ export namespace purple
         auto [ r, _1 ] = difference( x[0], qy[0] );
         // if r > t[0] : q = ( q - 1 ) mod B; r = ( r + y ) mod B
         if ( is_greater( r, t[0] ) ) {
-            ignore = difference_accumulate( q, 1 );
+            ignore = difference_accumulate( q, Integer(1) );
             ignore = sum_accumulate( r, y );
         }
         // if r >= y : q = ( q + 1 ) mod B; r = ( r - y ) mod B
         if ( not_smaller( r, y ) ) [[unlikely]] {
-            ignore = sum_accumulate( q, 1 );
+            ignore = sum_accumulate( q, Integer(1) );
             ignore = difference_accumulate( r, y );
         }
         // terminate

@@ -17,11 +17,35 @@ using std::ignore;
 using std::size_t;
 using std::span;
 using std::tie;
+using std::tuple;
 
 // Duo-degree arithmetic.
 
 export namespace purple
 {
+    /// Properties.
+
+    /// 1 if and only if x is smaller than y, else 0.
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto is_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) -> Integer
+    {
+        auto carry = Integer(0);
+        tie( ignore, carry ) = difference( x[0], y[0], carry );
+        tie( ignore, carry ) = difference( x[1], y[1], carry );
+        return carry;
+    }
+
+    /// 1 if and only if x is *not* smaller than y, else 0.
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto not_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) -> Integer
+    {
+        return 1U - is_smaller( x, y );
+    }
+
+    /// Operators.
+
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
@@ -157,5 +181,38 @@ export namespace purple
 
         // terminate
         return { q, r[0] };
+    }
+
+    // Approximate inverse of "normalised" integer.
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto inverse_normalised ( span<Integer const,Degree> y ) -> Integer
+    // requires B/2 <= y[1] < B
+    {
+        auto v = inverse_normalised( y[1] );
+        // p = ( y[1] * v ) mod B
+        auto p = y[1] * v;
+        // p = ( p + y[0] ) mod B
+        p = p + y[0];
+        if (p < y[0]) {
+            v = v - 1;
+            if (p >= y[1]) {
+                v = v - 1;
+                p = p - y[1];
+            }
+            // p = ( p - y[1] ) mod B
+            p = p - y[1];
+        }
+        auto t = product( v, y[0] );
+        // p = ( p + t[1] ) mod B
+        p = p + t[1];
+        if ( p < t[1] ) {
+            v = v - 1;
+            auto tp = array { t[0], p };
+            if ( not_smaller( span<Integer const,2>(tp), y ) ) {
+                v = v - 1;
+            }
+        }
+        return v;
     }
 }

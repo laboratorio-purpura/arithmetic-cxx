@@ -72,7 +72,7 @@ export namespace purple
 
     /// count of "top" zeros.
     constexpr
-    auto top_zeros ( unsigned x )
+    auto top_zeros ( unsigned x ) noexcept
     // requires x != 0
     {
         return __builtin_clzg( x );
@@ -97,13 +97,13 @@ export namespace purple
     }
 
     /// Sum modulo sizeof(x) * 8.
-    auto sum_modulus ( unsigned int x, unsigned int y ) -> unsigned int
+    auto sum_modulus ( unsigned int x, unsigned int y ) noexcept -> unsigned int
     {
         return x + y;
     }
 
     /// Accumulate sum modulo sizeof(x) * 8.
-    void sum_modulus_accumulate ( unsigned int & x, unsigned int y )
+    void sum_modulus_accumulate ( unsigned int & x, unsigned int y ) noexcept
     {
         x += y;
     }
@@ -125,13 +125,13 @@ export namespace purple
     }
 
     /// Difference modulo sizeof(x) * 8.
-    auto difference_modulus ( unsigned int x, unsigned int y ) -> unsigned int
+    auto difference_modulus ( unsigned int x, unsigned int y ) noexcept -> unsigned int
     {
         return x - y;
     }
 
     /// Accumulate difference modulo sizeof(x) * 8.
-    void difference_modulus_accumulate ( unsigned int & x, unsigned int y )
+    void difference_modulus_accumulate ( unsigned int & x, unsigned int y ) noexcept
     {
         x -= y;
     }
@@ -282,7 +282,7 @@ export namespace purple
     }
 
     /// Inverse approximation.
-    auto inverse ( unsigned y ) -> unsigned
+    auto inverse ( unsigned y ) noexcept -> unsigned
     // requires y != 0
     {
         assert( 0U < y );
@@ -291,7 +291,7 @@ export namespace purple
     }
 
     /// Inverse approximation of "normalised" integer.
-    auto inverse_normalised ( unsigned y ) -> unsigned
+    auto inverse_normalised ( unsigned y ) noexcept -> unsigned
     // requires 2^31 <= y < 2^32
     {
         assert( 0x80000000U <= y );

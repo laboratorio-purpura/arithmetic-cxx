@@ -27,7 +27,7 @@ export namespace purple
     /// Quotient and remainder by "normalised" operands.
     template <typename Integer, size_t BiDegree, size_t TriDegree>
     requires requires { BiDegree == 2uz; TriDegree == 3uz; }
-    auto ratio_normalised ( span<Integer const,TriDegree> x, span<Integer const,BiDegree> y, Integer iy )
+    auto ratio_normalised ( span<Integer const,TriDegree> x, span<Integer const,BiDegree> y, Integer iy ) noexcept
         -> tuple< Integer, array<Integer,BiDegree> >
     // requires B/2 <= y[1] < B
     // requires { x[1], x[2] } < y

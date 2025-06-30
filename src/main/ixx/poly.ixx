@@ -321,8 +321,8 @@ export namespace purple
         auto const xz = x.size();
         auto r = Integer(0);
         for (auto i = xz; i != 0; --i) {
-            auto t = array<unsigned,2> { x[i-1], r };
-            tie( q[i-1], r ) = ratio_normalised<Integer>( t, y, iy );
+            auto t = array { x[i-1], r };
+            tie( q[i-1], r ) = ratio_normalised( span<Integer const,2>(t), y, iy );
         }
         return r;
     }

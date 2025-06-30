@@ -23,8 +23,9 @@ using std::tie;
 export namespace purple
 {
     // Accumulate sum, return carry.
-    template <typename Integer>
-    auto sum_accumulate ( span<Integer,2> x, Integer y )
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto sum_accumulate ( span<Integer,Degree> x, Integer y )
     {
         auto carry = Integer(0);
         carry = sum_accumulate( x[0], y, carry );
@@ -33,8 +34,9 @@ export namespace purple
     }
 
     // Accumulate sum, return carry.
-    template <typename Integer>
-    auto sum_accumulate ( span<Integer,2> x, span<Integer const,2> y )
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto sum_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y )
     {
         auto carry = Integer(0);
         carry = sum_accumulate( x[0], y[0], carry );
@@ -43,8 +45,9 @@ export namespace purple
     }
 
     // Accumulate difference, return carry.
-    template <typename Integer>
-    auto difference_accumulate ( span<Integer,2> x, Integer y )
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto difference_accumulate ( span<Integer,Degree> x, Integer y )
     {
         auto carry = Integer(0);
         carry = difference_accumulate( x[0], y, carry );
@@ -53,8 +56,9 @@ export namespace purple
     }
 
     // Accumulate difference, return carry.
-    template <typename Integer>
-    auto difference_accumulate ( span<Integer,2> x, span<Integer const,2> y )
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y )
     {
         auto carry = Integer(0);
         carry = difference_accumulate( x[0], y[0], carry );
@@ -63,8 +67,9 @@ export namespace purple
     }
 
     // Accumulate twice N times, return carry.
-    template <typename Integer>
-    auto twice_accumulate ( span<Integer,2> x, size_t N )
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto twice_accumulate ( span<Integer,Degree> x, size_t N )
     {
         auto carry = Integer(0);
         carry = twice_sum_accumulate( x[0], N, carry );
@@ -73,8 +78,9 @@ export namespace purple
     }
 
     // Accumulate half N times, rounded down.
-    template <typename Integer>
-    auto half_accumulate ( span<Integer,2> r, size_t N ) noexcept
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto half_accumulate ( span<Integer,Degree> r, size_t N ) noexcept
     {
         constexpr auto B = sizeof(Integer) * 8uz;
         r[0] >>= N;
@@ -83,8 +89,9 @@ export namespace purple
     }
 
     /// Quotient and remainder with "normalised" operands.
-    template <typename Integer>
-    auto ratio_normalised ( span<Integer const,2> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto ratio_normalised ( span<Integer const,Degree> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
     // requires B/2 <= y < B
     // requires x[1] < y
     // requires iy = ( (B^2 - 1) / y ) - B
@@ -96,7 +103,7 @@ export namespace purple
 
         // t = ( r[1] * iy ) + x
         auto t = product( x[1], iy );
-        ignore = sum_accumulate<Integer>( t, x );
+        ignore = sum_accumulate( span(t), x );
         // q = ( t[1] + 1 ) mod B
         auto q = sum_modulus( t[1], Integer(1) );
         // r = ( x - ( q * y ) ) mod B
@@ -117,14 +124,15 @@ export namespace purple
     }
 
     /// Quotient and remainder.
-    template <typename Integer>
-    auto ratio ( span<Integer const,2> x, Integer y ) -> tuple< array<Integer,2>, Integer >
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto ratio ( span<Integer const,Degree> x, Integer y ) -> tuple< array<Integer,2>, Integer >
     // requires y != 0
     {
         assert( 0 < y );
 
-        auto q = array<Integer,2> { Integer(0), Integer(0) };
-        auto r = array<Integer,2> { x[0], x[1] };
+        auto q = array { Integer(0), Integer(0) };
+        auto r = array { x[0], x[1] };
 
         // "normalise" dividend
         if ( r[1] >= y )
@@ -134,7 +142,7 @@ export namespace purple
         // "normalise" divisor and remainder
         auto ylz = top_zeros( y );
         ignore = twice_accumulate( y, ylz );
-        ignore = twice_accumulate<Integer>( r, ylz );
+        ignore = twice_accumulate( span(r), ylz );
         assert( 0x80000000U <= y );
         assert( y <= 0xFFFFFFFFU );
 
@@ -142,7 +150,7 @@ export namespace purple
         auto iy = inverse_normalised( y );
 
         // compute "normalised" ratio
-        tie( q[0], r[0] ) = ratio_normalised<Integer>( r, y, iy );
+        tie( q[0], r[0] ) = ratio_normalised( span<Integer const,2>(r), y, iy );
 
         // "denormalise" remainder
         half_accumulate( r[0], ylz );

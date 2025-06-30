@@ -48,7 +48,7 @@ export namespace purple
         ignore = difference_accumulate( span(r), span(t) );
         ignore = difference_accumulate( span(r), y );
         // 6. q1 <- (q1 + 1) mod B
-        tie( q[1], ignore ) = sum( q[1], Integer(1) );
+        ignore = sum_accumulate( q[1], Integer(1) );
         // 7. if r1 >= q0
         if ( not_smaller( r[1], q[0] ) ) {
             // 8. q1 <- (q1 - 1) mod B

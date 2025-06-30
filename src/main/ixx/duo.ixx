@@ -66,24 +66,24 @@ export namespace purple
         return carry;
     }
 
-    // Accumulate difference, return carry.
+    // Accumulate difference, return borrow.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( span<Integer,Degree> x, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
+    auto difference_accumulate ( span<Integer,Degree> x, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
     {
-        carry = difference_accumulate( x[0], y, carry );
-        carry = difference_accumulate( x[1], Integer(0), carry );
-        return carry;
+        borrow = difference_accumulate( x[0], y, borrow );
+        borrow = difference_accumulate( x[1], Integer(0), borrow );
+        return borrow;
     }
 
-    // Accumulate difference, return carry.
+    // Accumulate difference, return borrow.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer carry = Integer(0) ) noexcept -> Integer
+    auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer borrow = Integer(0) ) noexcept -> Integer
     {
-        carry = difference_accumulate( x[0], y[0], carry );
-        carry = difference_accumulate( x[1], y[1], carry );
-        return carry;
+        borrow = difference_accumulate( x[0], y[0], borrow );
+        borrow = difference_accumulate( x[1], y[1], borrow );
+        return borrow;
     }
 
     // Accumulate twice N times, return carry.

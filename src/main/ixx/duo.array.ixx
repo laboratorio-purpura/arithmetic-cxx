@@ -51,20 +51,20 @@ export namespace purple
         return sum_accumulate( span(x), span(y), carry );
     }
 
-    // Accumulate difference, return carry.
+    // Accumulate difference, return borrow.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( array<Integer,Degree> & x, Integer y, Integer carry = Integer(0) )
+    auto difference_accumulate ( array<Integer,Degree> & x, Integer y, Integer borrow = Integer(0) )
     {
-        return difference_accumulate( span(x), y, carry );
+        return difference_accumulate( span(x), y, borrow );
     }
 
-    // Accumulate difference, return carry.
+    // Accumulate difference, return borrow.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( array<Integer,Degree> & x, array<Integer,Degree> const & y, Integer carry = Integer(0) )
+    auto difference_accumulate ( array<Integer,Degree> & x, array<Integer,Degree> const & y, Integer borrow = Integer(0) )
     {
-        return difference_accumulate( span(x), span(y), carry );
+        return difference_accumulate( span(x), span(y), borrow );
     }
 
     // Accumulate twice N times, return carry.

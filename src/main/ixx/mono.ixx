@@ -13,7 +13,7 @@ using std::array;
 using std::size_t;
 using std::tuple;
 
-// Mono-degree arithmetic.
+// Uni-degree arithmetic.
 
 export namespace purple
 {
@@ -96,20 +96,20 @@ export namespace purple
         return carry;
     }
 
-    /// Difference with carry.
+    /// Difference with borrow.
     constexpr
-    auto difference ( unsigned int x, unsigned int y, unsigned int carry = 0 ) noexcept -> tuple< unsigned int, unsigned int >
+    auto difference ( unsigned int x, unsigned int y, unsigned int borrow = 0 ) noexcept -> tuple< unsigned int, unsigned int >
     {
-        auto r = __builtin_subc(x,y,carry,&carry);
-        return { r, carry };
+        auto r = __builtin_subc(x,y,borrow,&borrow);
+        return { r, borrow };
     }
 
-    /// Accumulate difference, return carry.
+    /// Accumulate difference, return borrow.
     constexpr
-    auto difference_accumulate ( unsigned int & x, unsigned int y, unsigned int carry = 0 ) noexcept -> unsigned int
+    auto difference_accumulate ( unsigned int & x, unsigned int y, unsigned int borrow = 0 ) noexcept -> unsigned int
     {
-        x = __builtin_subc(x,y,carry,&carry);
-        return carry;
+        x = __builtin_subc(x,y,borrow,&borrow);
+        return borrow;
     }
 
     /// Product, low & high.

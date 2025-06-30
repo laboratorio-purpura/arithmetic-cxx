@@ -52,14 +52,14 @@ export namespace purple
         // 7. if r1 >= q0
         if ( not_smaller( r[1], q[0] ) ) {
             // 8. q1 <- (q1 - 1) mod B
-            tie( q[1], ignore ) = difference( q[1], Integer(1) );
+            ignore = difference_accumulate( q[1], Integer(1) );
             // 9. <r1,r0> <- (<r1,r0> + <d1,d0>) mod B^2
             ignore = sum_accumulate( span(r), y );
         }
         // 10. if <r1,r0> >= <d1,d0>
         if ( not_smaller( span(r), y ) ) [[unlikely]] {
             // 11. q1 <- q1 + 1
-            tie( q[1], ignore ) = sum( q[1], 1 );
+            ignore = sum_accumulate( q[1], 1 );
             // 12. <r1,r0> <- <r1,r0> - <d1,d0>
             ignore = difference_accumulate( span(r), y );
         }

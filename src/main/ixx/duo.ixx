@@ -216,3 +216,52 @@ export namespace purple
         return v;
     }
 }
+
+// Fix non-const parameter conversion.
+
+export namespace purple
+{
+    /// Properties.
+
+    /// 1 if and only if x is *not* smaller than y, else 0.
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto not_smaller ( span<Integer const,Degree> x, span<Integer,Degree> y ) noexcept
+    {
+        return not_smaller<Integer,Degree>( x, span<Integer const,Degree>(y) );
+    }
+
+    /// 1 if and only if x is *not* smaller than y, else 0.
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto not_smaller ( span<Integer,Degree> x, span<Integer const,Degree> y ) noexcept
+    {
+        return not_smaller<Integer,Degree>( span<Integer const,Degree>(x), y );
+    }
+
+    /// 1 if and only if x is *not* smaller than y, else 0.
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto not_smaller ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
+    {
+        return not_smaller<Integer,Degree>( span<Integer const,Degree>(x), span<Integer const,Degree>(y) );
+    }
+
+    // Operators.
+
+    // Accumulate sum, return carry.
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto sum_accumulate ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
+    {
+        return sum_accumulate<Integer,Degree>( x, span<Integer const,Degree>(y) );
+    }
+
+    // Accumulate difference, return carry.
+    template <typename Integer, size_t Degree>
+    requires requires { Degree == 2uz; }
+    auto difference_accumulate ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
+    {
+        return difference_accumulate<Integer,Degree>( x, span<Integer const,Degree>(y) );
+    }
+}

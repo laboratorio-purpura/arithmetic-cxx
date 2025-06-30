@@ -28,7 +28,7 @@ export namespace purple
     /// 1 if and only if x is smaller than y, else 0.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto is_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) -> Integer
+    auto is_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
     {
         auto carry = Integer(0);
         tie( ignore, carry ) = difference( x[0], y[0], carry );
@@ -39,7 +39,7 @@ export namespace purple
     /// 1 if and only if x is *not* smaller than y, else 0.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto not_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) -> Integer
+    auto not_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
     {
         return 1U - is_smaller( x, y );
     }
@@ -49,7 +49,7 @@ export namespace purple
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto sum_accumulate ( span<Integer,Degree> x, Integer y )
+    auto sum_accumulate ( span<Integer,Degree> x, Integer y ) noexcept -> Integer
     {
         auto carry = Integer(0);
         carry = sum_accumulate( x[0], y, carry );
@@ -60,7 +60,7 @@ export namespace purple
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto sum_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y )
+    auto sum_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
     {
         auto carry = Integer(0);
         carry = sum_accumulate( x[0], y[0], carry );
@@ -71,7 +71,7 @@ export namespace purple
     // Accumulate difference, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( span<Integer,Degree> x, Integer y )
+    auto difference_accumulate ( span<Integer,Degree> x, Integer y ) noexcept -> Integer
     {
         auto carry = Integer(0);
         carry = difference_accumulate( x[0], y, carry );
@@ -82,7 +82,7 @@ export namespace purple
     // Accumulate difference, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y )
+    auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
     {
         auto carry = Integer(0);
         carry = difference_accumulate( x[0], y[0], carry );
@@ -93,7 +93,7 @@ export namespace purple
     // Accumulate twice N times, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto twice_accumulate ( span<Integer,Degree> x, size_t N )
+    auto twice_accumulate ( span<Integer,Degree> x, size_t N ) noexcept -> Integer
     {
         auto carry = Integer(0);
         carry = twice_sum_accumulate( x[0], N, carry );
@@ -104,7 +104,7 @@ export namespace purple
     // Accumulate half N times, rounded down.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto half_accumulate ( span<Integer,Degree> r, size_t N ) noexcept
+    auto half_accumulate ( span<Integer,Degree> r, size_t N ) noexcept -> Integer
     {
         constexpr auto B = sizeof(Integer) * 8uz;
         r[0] >>= N;
@@ -115,7 +115,7 @@ export namespace purple
     /// Quotient and remainder with "normalised" operands.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto ratio_normalised ( span<Integer const,Degree> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
+    auto ratio_normalised ( span<Integer const,Degree> x, Integer y, Integer iy ) noexcept -> tuple< Integer, Integer >
     // requires B/2 <= y < B
     // requires x[1] < y
     // requires iy = ( (B^2 - 1) / y ) - B
@@ -150,7 +150,7 @@ export namespace purple
     /// Quotient and remainder.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto ratio ( span<Integer const,Degree> x, Integer y ) -> tuple< array<Integer,2>, Integer >
+    auto ratio ( span<Integer const,Degree> x, Integer y ) noexcept -> tuple< array<Integer,2>, Integer >
     // requires y != 0
     {
         assert( 0 < y );
@@ -186,7 +186,7 @@ export namespace purple
     // Approximate inverse of "normalised" integer.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto inverse_normalised ( span<Integer const,Degree> y ) -> Integer
+    auto inverse_normalised ( span<Integer const,Degree> y ) noexcept -> Integer
     // requires B/2 <= y[1] < B
     {
         auto v = inverse_normalised( y[1] );

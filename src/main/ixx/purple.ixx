@@ -6,4 +6,6 @@ export module purple.arithmetic;
 export import :mono;
 export import :duo;
 export import :poly;
+
+export import :duo.array;
 export import :poly.vector;

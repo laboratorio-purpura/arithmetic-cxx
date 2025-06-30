@@ -4,6 +4,7 @@
 module;
 
 #include <array>
+#include <span>
 #include <vector>
 
 #include <fmt/format.h>
@@ -34,6 +35,30 @@ export namespace purple::test
     auto format (unsigned integer)
     {
         return fmt::format("{:08X}",integer);
+    }
+
+    template <size_t SZ, typename AT, size_t AZ>
+    auto to_cspan ( array<AT,AZ> const & integer, size_t offset = 0uz ) -> span<AT const,SZ>
+    {
+        return span<AT const,SZ>( integer.begin() + offset, SZ );
+    }
+
+    template <size_t SZ, typename AT>
+    auto to_cspan ( vector<AT> const & integer, size_t offset = 0uz ) -> span<AT const,SZ>
+    {
+        return span<AT const,SZ>( integer.begin() + offset, SZ );
+    }
+
+    template <size_t SZ, typename AT, size_t AZ>
+    auto to_span ( array<AT,AZ> & integer, size_t offset = 0uz ) -> span<AT,SZ>
+    {
+        return span<AT,SZ>( integer.begin() + offset, SZ );
+    }
+
+    template <size_t SZ, typename AT>
+    auto to_span ( vector<AT> & integer, size_t offset = 0uz ) -> span<AT,SZ>
+    {
+        return span<AT,SZ>( integer.begin() + offset, SZ );
     }
 
     constexpr unsigned L = 0x80000000U;

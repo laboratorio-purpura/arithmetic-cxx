@@ -129,19 +129,19 @@ export namespace purple
         auto t = product( x[1], iy );
         ignore = sum_accumulate( span(t), x );
         // q = ( t[1] + 1 ) mod B
-        auto q = sum_modulus( t[1], Integer(1) );
+        auto [ q, _0 ] = sum( t[1], Integer(1) );
         // r = ( x - ( q * y ) ) mod B
         auto qy = product( q, y );
-        auto r = difference_modulus( x[0], qy[0] );
+        auto [ r, _1 ] = difference( x[0], qy[0] );
         // if r > t[0] : q = ( q - 1 ) mod B; r = ( r + y ) mod B
         if ( is_greater( r, t[0] ) ) {
-            q = difference_modulus( q, 1 );
-            r = sum_modulus( r, y );
+            ignore = difference_accumulate( q, 1 );
+            ignore = sum_accumulate( r, y );
         }
         // if r >= y : q = ( q + 1 ) mod B; r = ( r - y ) mod B
         if ( not_smaller( r, y ) ) [[unlikely]] {
-            q = sum_modulus( q, 1 );
-            r = difference_modulus( r, y );
+            ignore = sum_accumulate( q, 1 );
+            ignore = difference_accumulate( r, y );
         }
         // terminate
         return { q, r };

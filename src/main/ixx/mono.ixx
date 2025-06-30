@@ -96,18 +96,6 @@ export namespace purple
         return carry;
     }
 
-    /// Sum modulo sizeof(x) * 8.
-    auto sum_modulus ( unsigned int x, unsigned int y ) noexcept -> unsigned int
-    {
-        return x + y;
-    }
-
-    /// Accumulate sum modulo sizeof(x) * 8.
-    void sum_modulus_accumulate ( unsigned int & x, unsigned int y ) noexcept
-    {
-        x += y;
-    }
-
     /// Difference with carry.
     constexpr
     auto difference ( unsigned int x, unsigned int y, unsigned int carry = 0 ) noexcept -> tuple< unsigned int, unsigned int >
@@ -122,18 +110,6 @@ export namespace purple
     {
         x = __builtin_subc(x,y,carry,&carry);
         return carry;
-    }
-
-    /// Difference modulo sizeof(x) * 8.
-    auto difference_modulus ( unsigned int x, unsigned int y ) noexcept -> unsigned int
-    {
-        return x - y;
-    }
-
-    /// Accumulate difference modulo sizeof(x) * 8.
-    void difference_modulus_accumulate ( unsigned int & x, unsigned int y ) noexcept
-    {
-        x -= y;
     }
 
     /// Product, low & high.

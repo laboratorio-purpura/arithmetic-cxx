@@ -49,9 +49,8 @@ export namespace purple
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto sum_accumulate ( span<Integer,Degree> x, Integer y ) noexcept -> Integer
+    auto sum_accumulate ( span<Integer,Degree> x, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
     {
-        auto carry = Integer(0);
         carry = sum_accumulate( x[0], y, carry );
         carry = sum_accumulate( x[1], Integer(0), carry );
         return carry;
@@ -60,9 +59,8 @@ export namespace purple
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto sum_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
+    auto sum_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer carry = Integer(0) ) noexcept -> Integer
     {
-        auto carry = Integer(0);
         carry = sum_accumulate( x[0], y[0], carry );
         carry = sum_accumulate( x[1], y[1], carry );
         return carry;
@@ -71,9 +69,8 @@ export namespace purple
     // Accumulate difference, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( span<Integer,Degree> x, Integer y ) noexcept -> Integer
+    auto difference_accumulate ( span<Integer,Degree> x, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
     {
-        auto carry = Integer(0);
         carry = difference_accumulate( x[0], y, carry );
         carry = difference_accumulate( x[1], Integer(0), carry );
         return carry;
@@ -82,9 +79,8 @@ export namespace purple
     // Accumulate difference, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
+    auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer carry = Integer(0) ) noexcept -> Integer
     {
-        auto carry = Integer(0);
         carry = difference_accumulate( x[0], y[0], carry );
         carry = difference_accumulate( x[1], y[1], carry );
         return carry;
@@ -93,9 +89,8 @@ export namespace purple
     // Accumulate twice N times, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto twice_accumulate ( span<Integer,Degree> x, size_t N ) noexcept -> Integer
+    auto twice_accumulate ( span<Integer,Degree> x, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
     {
-        auto carry = Integer(0);
         carry = twice_sum_accumulate( x[0], N, carry );
         carry = twice_sum_accumulate( x[1], N, carry );
         return carry;

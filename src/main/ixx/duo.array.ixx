@@ -38,41 +38,41 @@ export namespace purple
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto sum_accumulate ( array<Integer,Degree> & x, Integer y )
+    auto sum_accumulate ( array<Integer,Degree> & x, Integer y, Integer carry = Integer(0) )
     {
-        return sum_accumulate( span(x), y );
+        return sum_accumulate( span(x), y, carry );
     }
 
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto sum_accumulate ( array<Integer,Degree> & x, array<Integer,Degree> const & y )
+    auto sum_accumulate ( array<Integer,Degree> & x, array<Integer,Degree> const & y, Integer carry = Integer(0) )
     {
-        return sum_accumulate( span(x), span(y) );
+        return sum_accumulate( span(x), span(y), carry );
     }
 
     // Accumulate difference, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( array<Integer,Degree> & x, Integer y )
+    auto difference_accumulate ( array<Integer,Degree> & x, Integer y, Integer carry = Integer(0) )
     {
-        return difference_accumulate( span(x), y );
+        return difference_accumulate( span(x), y, carry );
     }
 
     // Accumulate difference, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto difference_accumulate ( array<Integer,Degree> & x, array<Integer,Degree> const & y )
+    auto difference_accumulate ( array<Integer,Degree> & x, array<Integer,Degree> const & y, Integer carry = Integer(0) )
     {
-        return difference_accumulate( span(x), span(y) );
+        return difference_accumulate( span(x), span(y), carry );
     }
 
     // Accumulate twice N times, return carry.
     template <typename Integer, size_t Degree>
     requires requires { Degree == 2uz; }
-    auto twice_accumulate ( array<Integer,Degree> & x, size_t N )
+    auto twice_accumulate ( array<Integer,Degree> & x, size_t N, Integer carry = Integer(0) )
     {
-        return twice_accumulate( span(x), N );
+        return twice_accumulate( span(x), N, carry );
     }
 
     // Accumulate half N times, rounded down.

@@ -27,7 +27,7 @@ export namespace purple
 
     /// 1 if and only if x is smaller than y, else 0.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto is_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
     {
         auto carry = Integer(0);
@@ -38,7 +38,7 @@ export namespace purple
 
     /// 1 if and only if x is *not* smaller than y, else 0.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto not_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
     {
         return 1U - is_smaller( x, y );
@@ -48,7 +48,7 @@ export namespace purple
 
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto sum_accumulate ( span<Integer,Degree> x, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
     {
         carry = sum_accumulate( x[0], y, carry );
@@ -58,7 +58,7 @@ export namespace purple
 
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto sum_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer carry = Integer(0) ) noexcept -> Integer
     {
         carry = sum_accumulate( x[0], y[0], carry );
@@ -68,7 +68,7 @@ export namespace purple
 
     // Accumulate difference, return borrow.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto difference_accumulate ( span<Integer,Degree> x, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
     {
         borrow = difference_accumulate( x[0], y, borrow );
@@ -78,7 +78,7 @@ export namespace purple
 
     // Accumulate difference, return borrow.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer borrow = Integer(0) ) noexcept -> Integer
     {
         borrow = difference_accumulate( x[0], y[0], borrow );
@@ -88,7 +88,7 @@ export namespace purple
 
     // Accumulate twice N times, return carry.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto twice_accumulate ( span<Integer,Degree> x, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
     {
         carry = twice_sum_accumulate( x[0], N, carry );
@@ -98,7 +98,7 @@ export namespace purple
 
     // Accumulate half N times, rounded down.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto half_accumulate ( span<Integer,Degree> r, size_t N ) noexcept -> Integer
     {
         constexpr auto B = sizeof(Integer) * 8uz;
@@ -109,7 +109,7 @@ export namespace purple
 
     /// Quotient and remainder with "normalised" operands.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto ratio_normalised ( span<Integer const,Degree> x, Integer y, Integer iy ) noexcept -> tuple< Integer, Integer >
     // requires B/2 <= y < B
     // requires x[1] < y
@@ -144,7 +144,7 @@ export namespace purple
 
     /// Quotient and remainder.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto ratio ( span<Integer const,Degree> x, Integer y ) noexcept -> tuple< array<Integer,2>, Integer >
     // requires y != 0
     {
@@ -180,7 +180,7 @@ export namespace purple
 
     // Approximate inverse of "normalised" integer.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto inverse_normalised ( span<Integer const,Degree> y ) noexcept -> Integer
     // requires B/2 <= y[1] < B
     {
@@ -220,7 +220,7 @@ export namespace purple
 
     /// 1 if and only if x is *not* smaller than y, else 0.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto not_smaller ( span<Integer const,Degree> x, span<Integer,Degree> y ) noexcept
     {
         return not_smaller<Integer,Degree>( x, span<Integer const,Degree>(y) );
@@ -228,7 +228,7 @@ export namespace purple
 
     /// 1 if and only if x is *not* smaller than y, else 0.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto not_smaller ( span<Integer,Degree> x, span<Integer const,Degree> y ) noexcept
     {
         return not_smaller<Integer,Degree>( span<Integer const,Degree>(x), y );
@@ -236,7 +236,7 @@ export namespace purple
 
     /// 1 if and only if x is *not* smaller than y, else 0.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto not_smaller ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
     {
         return not_smaller<Integer,Degree>( span<Integer const,Degree>(x), span<Integer const,Degree>(y) );
@@ -246,7 +246,7 @@ export namespace purple
 
     // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto sum_accumulate ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
     {
         return sum_accumulate<Integer,Degree>( x, span<Integer const,Degree>(y) );
@@ -254,7 +254,7 @@ export namespace purple
 
     // Accumulate difference, return carry.
     template <typename Integer, size_t Degree>
-    requires requires { Degree == 2uz; }
+    requires ( Degree == 2uz )
     auto difference_accumulate ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
     {
         return difference_accumulate<Integer,Degree>( x, span<Integer const,Degree>(y) );

@@ -58,86 +58,105 @@ export namespace purple
         return r;
     }
 
+    /// Relations.
+
     /// 1 if and only if x is smaller than y, else 0.
     template <typename Integer>
-    auto is_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer
+    auto is_smaller_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
+    // requires x.size() == y.size()
     {
-        assert( is_compact(x) );
-        assert( is_compact(y) );
-        auto const xz = x.size();
-        auto const yz = y.size();
-        if (xz < yz) return 1;
-        Integer r {};
-        Integer carry { 0 };
-        for (auto i = 0uz; i != xz; ++i) {
-            tie( r, carry ) = difference( x[i], y[i], carry );
-        }
-        return ( is_zero(r) & carry ) | ( not_zero(r) & not_zero(carry) );
+        auto const z = y.size();
+        auto c = Integer(0);
+        for (auto i = 0uz; i != z; ++i)
+            tie( ignore, c ) = difference( x[i], y[i], c );
+        return c;
+    }
+
+    /// 1 if and only if x is smaller than y, else 0.
+    template <typename Integer>
+    auto is_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer;
+
+    /// 1 if and only if x is not smaller than y, else 0.
+    template <typename Integer>
+    auto not_smaller_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
+    // requires x.size() == y.size()
+    {
+        return Integer(1) - is_smaller_isodegree( x, y );
     }
 
     /// 1 if and only if x is not smaller than y, else 0.
     template <typename Integer>
     auto not_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
-        assert( is_compact(x) );
-        assert( is_compact(y) );
-        auto const xz = x.size();
-        auto const yz = y.size();
-        if (xz < yz) return 0;
-        Integer difference {};
-        Integer carry {};
-        auto const z = x.size();
-        for (auto i = 0uz; i != z; ++i) {
-            tie( difference, carry ) = difference( x[i], y[i], carry );
-        }
-        return carry;
+        return Integer(1) - is_smaller( x, y );
     }
 
     /// 1 if and only if x is greater than y, else 0.
     template <typename Integer>
-    auto is_greater ( span<Integer const> x, span<Integer const> y ) -> Integer
+    auto is_greater_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
+    // require x.size() == y.size()
     {
-        return 1U - is_smaller(y,x);
+        return is_smaller_isodegree( y, x );
+    }
+
+    /// 1 if and only if x is greater than y, else 0.
+    template <typename Integer>
+    auto is_greater ( span<Integer const> x, span<Integer const> y ) -> Integer;
+
+    /// 1 if and only if x is not greater than y, else 0.
+    template <typename Integer>
+    auto not_greater_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
+    // require x.size() == y.size()
+    {
+        return Integer(1) - is_smaller_isodegree( y, x );
     }
 
     /// 1 if and only if x is not greater than y, else 0.
     template <typename Integer>
     auto not_greater ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
-        return 1U - not_smaller(y,x);
+        return Integer(1) - is_smaller( y, x );
+    }
+
+    /// 1 if and only if x is equal than y, else 0.
+    template <typename Integer>
+    auto is_equal_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
+    // requires x.size() == y.size()
+    {
+        auto const z = y.size();
+        Integer r {};
+        Integer c {};
+        for (auto i = 0uz; i != z; ++i)
+            tie( r, c ) = difference( x[i], y[i], c );
+        return is_zero(r) & (1U - c);
     }
 
     /// 1 if and only if x is equal than y, else 0.
     template <typename Integer>
     auto is_equal ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
-        assert( is_compact(x) );
-        assert( is_compact(y) );
         auto const xz = x.size();
         auto const yz = y.size();
-        if (xz != yz) return 0;
-        Integer difference {};
-        Integer carry {};
-        for (auto i = 0uz; i != xz; ++i) {
-            tie( difference, carry ) = difference( x[i], y[i], carry );
-        }
-        return is_zero(difference) & is_zero(carry);
+        if (xz < yz) return is_equal(y,x);
+        auto r = is_equal_isodegree( x, y );
+        for (auto i = yz; i != xz; ++i)
+            r &= is_zero( x[i] );
+        return r;
+    }
+
+    /// 1 if and only if x is equal than y, else 0.
+    template <typename Integer>
+    auto not_equal_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
+    // requires x.size() == y.size()
+    {
+        return Integer(1) - is_equal_isodegree( x, y );
     }
 
     /// 1 if and only if x is equal than y, else 0.
     template <typename Integer>
     auto not_equal ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
-        assert( is_compact(x) );
-        assert( is_compact(y) );
-        assert( x.size() == y.size() );
-        Integer difference {};
-        Integer carry {};
-        auto const z = x.size();
-        for (auto i = 0uz; i != z; ++i) {
-            tie( difference, carry ) = difference( x[i], y[i], carry );
-        }
-        return not_zero(difference) | carry;
+        return Integer(1) - is_equal( x, y );
     }
 
     /// Operators.
@@ -346,5 +365,31 @@ namespace purple
             case 1: return 1;
             default: return not_zero( x[ x.size() - 1 ]);
         }
+    }
+
+    /// 1 if and only if x is smaller than y, else 0.
+    template <typename Integer>
+    auto is_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer
+    {
+        auto const xz = x.size();
+        auto const yz = y.size();
+        if (xz < yz) return is_greater( y, x );
+        auto c = is_smaller_isodegree( x, y );
+        for (auto i = yz; i != xz; ++i)
+            c &= is_zero( x[i] );
+        return c;
+    }
+
+    /// 1 if and only if x is greater than y, else 0.
+    template <typename Integer>
+    auto is_greater ( span<Integer const> x, span<Integer const> y ) -> Integer
+    {
+        auto const xz = x.size();
+        auto const yz = y.size();
+        if (xz < yz) return is_smaller( y, x );
+        auto c = is_greater_isodegree( x, y );
+        for (auto i = yz; i != xz; ++i)
+            c |= not_zero( x[i] );
+        return c;
     }
 }

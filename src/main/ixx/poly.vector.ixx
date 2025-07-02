@@ -109,14 +109,14 @@ export namespace purple
 
     template <typename Integer>
     auto difference (vector<Integer> const & x, vector<Integer> const & y) -> vector<Integer>
+    // requires x > y
     {
         auto const xz = x.size();
         auto r = vector<Integer>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
         auto ys = span( y.begin(), y.end() );
-        auto carry = difference_accumulate<Integer>(rs,ys);
-        // TODO: if carry...
+        ignore = difference_accumulate<Integer>(rs,ys);
         return std::move(r);
     }
 }

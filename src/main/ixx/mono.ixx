@@ -53,21 +53,21 @@ export namespace purple
     constexpr
     auto not_smaller ( unsigned int x, unsigned int y ) noexcept -> unsigned int
     {
-        return 1U - is_smaller(x,y);
+        return 1U - is_smaller( x, y );
     }
 
     /// 1 if and only f x is greater than y, else 0.
     constexpr
     auto is_greater ( unsigned int x, unsigned int y ) noexcept -> unsigned int
     {
-        return 1U - not_smaller(y,x);
+        return is_smaller( y, x );
     }
 
     /// 1 if and only f x is *not* greater than y, else 0.
     constexpr
     auto not_greater ( unsigned int x, unsigned int y ) noexcept -> unsigned int
     {
-        return 1U - is_smaller(y,x);
+        return 1U - is_smaller( y, x );
     }
 
     /// count of "top" zeros.

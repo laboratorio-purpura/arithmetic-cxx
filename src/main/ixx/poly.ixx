@@ -193,7 +193,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulate twice N times, return carry.
+    // Accumulate Nth twice, return carry.
     template <typename Integer>
     auto twice_accumulate ( span<Integer> r, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
     {
@@ -247,21 +247,25 @@ export namespace purple
         return borrow;
     }
 
-    // Accumulate half N times, rounded down.
+    // Accumulate Nth half, return remainder.
     template <typename Integer>
-    auto half_accumulate ( span<Integer> r, size_t N ) noexcept
+    auto half_accumulate ( span<Integer> r, size_t N ) noexcept -> Integer
     {
         constexpr auto B = sizeof(Integer) * 8uz;
-        auto const rz = r.size();
-        if (rz == 0) return;
+        auto const z = r.size();
+        if (z == 0) return Integer(0);
+        auto r_ = r[0] & ((1 << N) - 1);
         r[0] >>= N;
-        for (auto i = 1uz; i != rz; ++i) {
+        for (auto i = 1uz; i != z; ++i) {
             r[i-1] |= r[i] << (B - N);
             r[i] >>= N;
         }
+        return r_;
     }
 
-    // Accumulate product and sum, return carry.
+    // TODO: remove "compact" constraint? reorganize
+
+    // Accumulate sum with product, return carry.
     template <typename Integer>
     auto product_sum_accumulate ( span<Integer> r, span<Integer const> x, span<Integer const> y ) noexcept -> Integer
     {

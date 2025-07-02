@@ -22,52 +22,7 @@ using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2
 using std::span;
 using std::vector;
 
-TEST(poly,twice_v0)
-{
-    ASSERT_EQ( format( twice(v0) ), "0000000000000000" );
-}
-
-TEST(poly,twice_v1)
-{
-    ASSERT_EQ( format( twice(v1) ), "0000000000000002" );
-}
-
-TEST(poly,twice_v2)
-{
-    ASSERT_EQ( format( twice(v2) ), "0000000000000004" );
-}
-
-TEST(poly,twice_vL)
-{
-    ASSERT_EQ( format( twice(vL) ), "0000000100000000" );
-}
-
-TEST(poly,twice_vM)
-{
-    ASSERT_EQ( format( twice(vM) ), "00000001FFFFFFFE" );
-}
-
-TEST(poly,twice_v01)
-{
-    ASSERT_EQ( format( twice(v01) ), "000000000000000200000000" );
-}
-
-TEST(poly,twice_v02)
-{
-    ASSERT_EQ( format( twice(v02) ), "000000000000000400000000" );
-}
-
-TEST(poly,twice_v0L)
-{
-    ASSERT_EQ( format( twice(v0L) ), "000000010000000000000000" );
-}
-
-TEST(poly,twice_v0M)
-{
-    ASSERT_EQ( format( twice(v0M) ), "00000001FFFFFFFE00000000" );
-}
-
-TEST(poly,twice_4_random)
+TEST(poly,half_4_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -75,20 +30,26 @@ TEST(poly,twice_4_random)
     for (auto i = 0uz; i != 10; ++i)
     {
         auto x = vector { generator(), generator(), generator(), generator() };
-        auto r = twice<unsigned>( x );
+
+        auto r = x;
+        auto r_ = half_accumulate<unsigned>( span(r), 1 );
 
         auto gx = mpz_class( format(x), 16 );
-        mpz_class gr = gx * 2;
+        mpz_class gr = gx / 2;
+        mpz_class gr_ = gx % 2;
 
         SCOPED_TRACE( std::string() +
             "purple:\n" +
             "x = " + format(x) + "\n" +
             "x * 2 = " + format(r) + "\n" +
+            "x % 2 = " + format(r_) + "\n" +
             "gmp:\n" +
             "x = " + gx.get_str(16) + "\n" +
-            "x * 2 = " + gr.get_str(16) + "\n"
+            "x * 2 = " + gr.get_str(16) + "\n" +
+            "x % 2 = " + gr_.get_str(16) + "\n"
         );
 
         ASSERT_EQ( cmp( gr, mpz_class( format(r), 16 ) ), 0 );
+        ASSERT_EQ( cmp( gr_, mpz_class( format(r_), 16 ) ), 0 );
     }
 }

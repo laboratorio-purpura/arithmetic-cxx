@@ -214,37 +214,37 @@ export namespace purple
 
     /// Reduction operators.
 
-    /// Accumulate difference, return carry.
+    /// Accumulate difference, return borrow.
     template <typename Integer>
-    auto difference_accumulate ( span<Integer> r, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
+    auto difference_accumulate ( span<Integer> r, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
     // requires r.size() != 0
     {
-        carry = difference_accumulate( r[0], y, carry );
+        borrow = difference_accumulate( r[0], y, borrow );
         for (auto i = 1uz; i != r.size(); ++i) {
-            carry = difference_accumulate( r[i], Integer(0), carry );
+            borrow = difference_accumulate( r[i], Integer(0), borrow );
         }
-        return carry;
+        return borrow;
     }
 
-    // Accumulate difference, return carry.
+    // Accumulate difference, return borrow.
     template <typename Integer>
-    auto difference_accumulate_isodegree ( span<Integer> r, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
+    auto difference_accumulate_isodegree ( span<Integer> r, span<Integer const> y, Integer borrow = Integer(0) ) noexcept -> Integer
     // requires r.size() == y.size()
     {
         for (auto i = 0uz; i != y.size(); ++i)
-            carry = difference_accumulate( r[i], y[i], carry );
-        return carry;
+            borrow = difference_accumulate( r[i], y[i], borrow );
+        return borrow;
     }
 
-    // Accumulate difference, return carry.
+    // Accumulate difference, return borrow.
     template <typename Integer>
-    auto difference_accumulate ( span<Integer> r, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
+    auto difference_accumulate ( span<Integer> r, span<Integer const> y, Integer borrow = Integer(0) ) noexcept -> Integer
     // requires r.size() >= y.size()
     {
-        carry = difference_accumulate_isodegree( r, y, carry );
+        borrow = difference_accumulate_isodegree( r, y, borrow );
         for (auto i = y.size(); i != r.size(); ++i)
-            carry = difference_accumulate( r[i], Integer(0), carry );
-        return carry;
+            borrow = difference_accumulate( r[i], Integer(0), borrow );
+        return borrow;
     }
 
     // Accumulate half N times, rounded down.

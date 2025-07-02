@@ -212,6 +212,32 @@ export namespace purple
         return carry;
     }
 
+    // Accumulate sum of product, return carry.
+    template <typename Integer>
+    auto product_sum_accumulate ( span<Integer> r, span<Integer const> x, span<Integer const> y ) noexcept -> Integer
+    // requires r.size() >= x.size() + y.size() + 1
+    {
+        auto carry = Integer(0);
+        auto const xz = x.size();
+        auto const yz = y.size();
+        for (auto xi = 0uz; xi != xz; ++xi)
+        {
+            for (auto yi = 0uz; yi != yz; ++yi)
+            {
+                auto ri = xi+yi;
+                // xi * yi + carry
+                auto [ p0, p1 ] = product_sum( x[xi], y[yi], carry );
+                // store
+                auto c = sum_accumulate( r[ri], p0 );
+                carry = p1 + c;
+            }
+            // store
+            carry = sum_accumulate( r[xi+yz], carry );
+        }
+        // store
+        return sum_accumulate( r[xz+yz], carry );
+    }
+
     /// Reduction operators.
 
     /// Accumulate difference, return borrow.
@@ -264,33 +290,6 @@ export namespace purple
     }
 
     // TODO: remove "compact" constraint? reorganize
-
-    // Accumulate sum with product, return carry.
-    template <typename Integer>
-    auto product_sum_accumulate ( span<Integer> r, span<Integer const> x, span<Integer const> y ) noexcept -> Integer
-    {
-        assert( is_compact(x) );
-        assert( is_compact(y) );
-        assert( r.size() >= x.size() + y.size() );
-        Integer carry {};
-        auto const xz = x.size();
-        auto const yz = y.size();
-        for (auto xi = 0uz; xi != xz; ++xi)
-        {
-            for (auto yi = 0uz; yi != yz; ++yi)
-            {
-                auto ri = xi+yi;
-                // xi * yi + carry
-                auto [ p0, p1 ] = product_sum( x[xi], y[yi], carry );
-                // store
-                auto c = sum_accumulate( r[ri], p0 );
-                carry = p1 + c;
-            }
-            // store
-            carry = sum_accumulate( r[xi+yz], carry );
-        }
-        return carry;
-    }
 
     // Accumulate square, return carry.
     template <typename Integer>

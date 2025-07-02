@@ -331,6 +331,16 @@ TEST(poly,product_9A6CD724F1136FB6_D4B89A2A8487D33B)
     ASSERT_EQ( format( product(x,y) ), "0000000080517D64596AF1500E65FEEC5587C0F2" );
 }
 
+TEST(poly,product_sum_accumulate_carry)
+{
+    auto r = vector { 0U, 0xFFFFFFFFU, 0xFFFFFFFFU };
+    auto const x = vector { 0x80000000U };
+    auto const y = vector { 2U };
+    auto const r_ = product_sum_accumulate<unsigned>( span(r), span(x), span(y) );
+    ASSERT_EQ( format(r), "000000000000000000000000" );
+    ASSERT_EQ( r_, 1U );
+}
+
 TEST(poly,product_4_random)
 {
     random_device random;

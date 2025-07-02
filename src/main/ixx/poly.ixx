@@ -159,7 +159,7 @@ export namespace purple
         return Integer(1) - is_equal( x, y );
     }
 
-    /// Operators.
+    /// Expansion operators.
 
     /// Accumulate sum, return carry.
     template <typename Integer>
@@ -193,6 +193,17 @@ export namespace purple
         return carry;
     }
 
+    // Accumulate twice N times, return carry.
+    template <typename Integer>
+    auto twice_accumulate ( span<Integer> r, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
+    {
+        for (auto i = 0uz; i != r.size(); ++i)
+            carry = twice_sum_accumulate( r[i], N, carry );
+        return carry;
+    }
+
+    /// Reduction operators.
+
     /// Accumulate difference, return carry.
     template <typename Integer>
     auto difference_accumulate ( span<Integer> r, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
@@ -224,6 +235,20 @@ export namespace purple
         for (auto i = y.size(); i != r.size(); ++i)
             carry = difference_accumulate( r[i], Integer(0), carry );
         return carry;
+    }
+
+    // Accumulate half N times, rounded down.
+    template <typename Integer>
+    auto half_accumulate ( span<Integer> r, size_t N ) noexcept
+    {
+        constexpr auto B = sizeof(Integer) * 8uz;
+        auto const rz = r.size();
+        if (rz == 0) return;
+        r[0] >>= N;
+        for (auto i = 1uz; i != rz; ++i) {
+            r[i-1] |= r[i] << (B - N);
+            r[i] >>= N;
+        }
     }
 
     // Accumulate product, return carry.
@@ -262,18 +287,6 @@ export namespace purple
             }
             // store
             carry = sum_accumulate( r[xi+yz], carry );
-        }
-        return carry;
-    }
-
-    // Accumulate twice N times, return carry.
-    template <typename Integer>
-    auto twice_accumulate ( span<Integer> r, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
-    {
-        assert( is_compact(r) );
-        auto const rz = r.size();
-        for (auto i = 0uz; i != rz; ++i) {
-            carry = twice_sum_accumulate( r[i], N, carry );
         }
         return carry;
     }
@@ -317,21 +330,6 @@ export namespace purple
             carry = sum_accumulate( r[xi+xz], carry );
         }
         return carry;
-    }
-
-    // Accumulate half N times, rounded down.
-    template <typename Integer>
-    auto half_accumulate ( span<Integer> r, size_t N ) noexcept
-    {
-        constexpr auto B = sizeof(Integer) * 8uz;
-        assert( is_compact(r) );
-        auto const rz = r.size();
-        if (rz == 0) return;
-        r[0] >>= N;
-        for (auto i = 1uz; i != rz; ++i) {
-            r[i-1] |= r[i] << (B - N);
-            r[i] >>= N;
-        }
     }
 
     /// Store quotient, return remainder, with "normalised" operands.

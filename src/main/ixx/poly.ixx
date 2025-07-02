@@ -202,6 +202,16 @@ export namespace purple
         return carry;
     }
 
+    // Accumulate product, return carry.
+    template <typename Integer>
+    auto product_accumulate ( span<Integer> r, Integer y ) noexcept -> Integer
+    {
+        auto carry = Integer(0);
+        for (auto i = 0uz; i != r.size(); ++i)
+            carry = product_sum_accumulate( r[i], y, carry );
+        return carry;
+    }
+
     /// Reduction operators.
 
     /// Accumulate difference, return carry.
@@ -249,19 +259,6 @@ export namespace purple
             r[i-1] |= r[i] << (B - N);
             r[i] >>= N;
         }
-    }
-
-    // Accumulate product, return carry.
-    template <typename Integer>
-    auto product_accumulate ( span<Integer> r, Integer y ) noexcept -> Integer
-    {
-        assert( is_compact(r) );
-        Integer carry {};
-        auto const rz = r.size();
-        for (auto i = 0uz; i != rz; ++i) {
-            carry = product_sum_accumulate( r[i], y, carry );
-        }
-        return carry;
     }
 
     // Accumulate product and sum, return carry.

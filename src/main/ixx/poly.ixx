@@ -19,7 +19,7 @@ using std::size_t;
 using std::span;
 using std::tie;
 
-/// Poly-degree arithmetic.
+/// Multi-degree arithmetic.
 
 export namespace purple
 {
@@ -153,7 +153,7 @@ export namespace purple
     /// Accumulate sum, return carry.
     template <typename Integer>
     auto sum_accumulate ( span<Integer> r, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
-    // requires r.size() != 0
+    // requires r.size() >= 1
     {
         carry = sum_accumulate( r[0], y, carry );
         for (auto i = 1uz; i != r.size(); ++i)
@@ -273,7 +273,7 @@ export namespace purple
     /// Accumulate difference, return borrow.
     template <typename Integer>
     auto difference_accumulate ( span<Integer> r, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
-    // requires r.size() != 0
+    // requires r.size() >= 1
     {
         borrow = difference_accumulate( r[0], y, borrow );
         for (auto i = 1uz; i != r.size(); ++i) {

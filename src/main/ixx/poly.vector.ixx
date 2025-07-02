@@ -19,14 +19,6 @@ export namespace purple
 {
     /// poly integer properties
 
-    /// 1 if and only if every term of x is significant, else 0.
-    template <typename Integer>
-    auto is_compact (vector<Integer> const & x) -> Integer
-    {
-        auto xs = span( x.begin(), x.end() );
-        return is_compact(xs);
-    }
-
     /// 1 if and only if x is the additive identity, else 0.
     template <typename Integer>
     auto is_zero (vector<Integer> const & x) noexcept

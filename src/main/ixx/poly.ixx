@@ -25,17 +25,6 @@ export namespace purple
 {
     /// Properties.
 
-    /// 1 if and only if every term of x is significant, else 0.
-    template <typename Integer>
-    auto is_compact ( span<Integer const> x ) noexcept -> Integer;
-
-    /// 1 if and only if every term of x is significant, else 0.
-    template <typename Integer>
-    auto is_compact ( span<Integer> x ) noexcept -> Integer
-    {
-        return is_compact(span<Integer const>(x));
-    }
-
     /// 1 if and only if x is the additive identity, else 0.
     template <typename Integer>
     auto is_zero ( span<Integer const> x ) noexcept -> Integer
@@ -238,6 +227,47 @@ export namespace purple
         return sum_accumulate( r[xz+yz], carry );
     }
 
+    // Accumulate sum of square, return carry.
+    template <typename Integer>
+    auto square_sum_accumulate ( span<Integer> r, span<Integer const> x ) noexcept -> Integer
+    // requires r.size() >= x.size() * 2 + 1
+    {
+        auto carry = Integer(0);
+        auto const xz = x.size();
+        for (auto xi = 0uz; xi != xz; ++xi)
+        {
+            // xi ^ 2
+            {
+                auto ri = xi+xi;
+                // xi ^ 2 + carry
+                auto [ p0, p1 ] = square_sum( x[xi], carry );
+                // store
+                auto c = sum_accumulate( r[ri], p0 );
+                carry = p1 + c;
+            }
+            // 2 * xi * xj
+            for (auto xj = xi + 1uz; xj != xz; ++xj)
+            {
+                auto ri = xi+xj;
+                // xi * xj
+                auto [ p0, p1 ] = product( x[xi], x[xj] );
+                // 2 * xi * xj + carry
+                auto [ t00, t01 ] = twice_sum( p0, 1, carry );
+                auto [ t10, t11 ] = twice( p1, 1 );
+                // store
+                auto c0 = sum_accumulate( r[ri+0], t00 );
+                auto c1 = sum_accumulate( r[ri+1], t01, c0 );
+                auto c2 = sum_accumulate( r[ri+1], t10, c1 );
+                auto c3 = sum_accumulate( r[ri+2], t11, c2 );
+                carry = c3;
+            }
+            // store
+            carry = sum_accumulate( r[xi+xz], carry );
+        }
+        // store
+        return sum_accumulate( r[xz+xz], carry );
+    }
+
     /// Reduction operators.
 
     /// Accumulate difference, return borrow.
@@ -289,49 +319,6 @@ export namespace purple
         return r_;
     }
 
-    // TODO: remove "compact" constraint? reorganize
-
-    // Accumulate square, return carry.
-    template <typename Integer>
-    auto square_sum_accumulate ( span<Integer> r, span<Integer const> x ) noexcept -> Integer
-    {
-        assert( is_compact(x) );
-        assert( r.size() >= 2 * x.size() );
-        Integer carry {};
-        auto const xz = x.size();
-        for (auto xi = 0uz; xi != xz; ++xi)
-        {
-            // xi ^ 2
-            {
-                auto ri = xi+xi;
-                // xi ^ 2 + carry
-                auto [ p0, p1 ] = square_sum( x[xi], carry );
-                // store
-                auto c = sum_accumulate( r[ri], p0 );
-                carry = p1 + c;
-            }
-            // 2 * xi * xj
-            for (auto xj = xi + 1uz; xj != xz; ++xj)
-            {
-                auto ri = xi+xj;
-                // xi * xj
-                auto [ p0, p1 ] = product( x[xi], x[xj] );
-                // 2 * xi * xj + carry
-                auto [ t00, t01 ] = twice_sum( p0, 1, carry );
-                auto [ t10, t11 ] = twice( p1, 1 );
-                // store
-                auto c0 = sum_accumulate( r[ri+0], t00 );
-                auto c1 = sum_accumulate( r[ri+1], t01, c0 );
-                auto c2 = sum_accumulate( r[ri+1], t10, c1 );
-                auto c3 = sum_accumulate( r[ri+2], t11, c2 );
-                carry = c3;
-            }
-            // store
-            carry = sum_accumulate( r[xi+xz], carry );
-        }
-        return carry;
-    }
-
     /// Store quotient, return remainder, with "normalised" operands.
     template <typename Integer>
     auto ratio_normalised ( span<Integer> q, span<Integer const> x, Integer y, Integer iy ) -> Integer
@@ -363,17 +350,6 @@ export namespace purple
 
 namespace purple
 {
-    template <typename Integer>
-    auto is_compact (span<const Integer> x) noexcept -> Integer
-    {
-        switch (x.size())
-        {
-            case 0: return 0;
-            case 1: return 1;
-            default: return not_zero( x[ x.size() - 1 ]);
-        }
-    }
-
     /// 1 if and only if x is smaller than y, else 0.
     template <typename Integer>
     auto is_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer

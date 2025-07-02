@@ -85,6 +85,15 @@ TEST(poly,square_46B67C81FC10D1A7A6B76CE6)
     ASSERT_EQ( format( square(x) ), "0000000013884E2C5B39C8C215CC2EB14643B120DC7204BB2726DEA4" );
 }
 
+TEST(poly,square_sum_accumulate_carry)
+{
+    auto r = vector { 0U, 0xFFFFFFFFU, 0xFFFFFFFFU };
+    auto const x = vector { 0x00010000U };
+    auto const r_ = square_sum_accumulate<unsigned>( span(r), span(x) );
+    ASSERT_EQ( format(r), "000000000000000000000000" );
+    ASSERT_EQ( r_, 1U );
+}
+
 TEST(poly,square_4_random)
 {
     random_device random;
@@ -92,7 +101,7 @@ TEST(poly,square_4_random)
 
     for (auto i = 0uz; i != 10; ++i)
     {
-        auto x = vector { generator(), generator(), generator(), generator() };
+        auto x = vector { 0U, generator(), generator(), generator(), generator() };
         auto r = square<unsigned>( x );
 
         auto gx = mpz_class( format(x), 16 );

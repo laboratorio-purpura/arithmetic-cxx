@@ -164,56 +164,65 @@ export namespace purple
     /// Accumulate sum, return carry.
     template <typename Integer>
     auto sum_accumulate ( span<Integer> r, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
+    // requires r.size() != 0
     {
-        assert( is_compact(r) );
-        auto const rz = r.size();
-        if (rz == 0) return carry;
         carry = sum_accumulate( r[0], y, carry );
-        for (auto i = 1uz; i != rz; ++i) {
-            carry = sum_accumulate( r[i], 0, carry );
-        }
+        for (auto i = 1uz; i != r.size(); ++i)
+            carry = sum_accumulate( r[i], Integer(0), carry );
+        return carry;
+    }
+
+    // Accumulate sum, return carry.
+    template <typename Integer>
+    auto sum_accumulate_isodegree ( span<Integer> r, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
+    // requires r.size() == y.size()
+    {
+        for (auto i = 0uz; i != y.size(); ++i)
+            carry = sum_accumulate( r[i], y[i], carry );
         return carry;
     }
 
     // Accumulate sum, return carry.
     template <typename Integer>
     auto sum_accumulate ( span<Integer> r, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
+    // requires r.size() >= y.size()
     {
-        assert( is_compact(r) );
-        assert( is_compact(y) );
-        assert( r.size() >= y.size() );
-        auto const rz = r.size();
-        for (auto i = 0uz; i != rz; ++i) {
-            carry = sum_accumulate( r[i], y[i], carry );
-        }
+        carry = sum_accumulate_isodegree( r, y, carry );
+        for (auto i = y.size(); i != r.size(); ++i)
+            carry = sum_accumulate( r[i], Integer(0), carry );
         return carry;
     }
 
     /// Accumulate difference, return carry.
     template <typename Integer>
     auto difference_accumulate ( span<Integer> r, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
+    // requires r.size() != 0
     {
-        assert( is_compact(r) );
-        auto const z = r.size();
-        if (z == 0) return carry;
         carry = difference_accumulate( r[0], y, carry );
-        for (auto i = 1uz; i != z; ++i) {
-            carry = difference_accumulate( r[i], 0, carry );
+        for (auto i = 1uz; i != r.size(); ++i) {
+            carry = difference_accumulate( r[i], Integer(0), carry );
         }
         return carry;
     }
 
     // Accumulate difference, return carry.
     template <typename Integer>
-    auto difference_accumulate ( span<Integer> r, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
+    auto difference_accumulate_isodegree ( span<Integer> r, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
+    // requires r.size() == y.size()
     {
-        assert( is_compact(r) );
-        assert( is_compact(y) );
-        assert( r.size() >= y.size() );
-        auto const z = r.size();
-        for (auto i = 0uz; i != z; ++i) {
+        for (auto i = 0uz; i != y.size(); ++i)
             carry = difference_accumulate( r[i], y[i], carry );
-        }
+        return carry;
+    }
+
+    // Accumulate difference, return carry.
+    template <typename Integer>
+    auto difference_accumulate ( span<Integer> r, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
+    // requires r.size() >= y.size()
+    {
+        carry = difference_accumulate_isodegree( r, y, carry );
+        for (auto i = y.size(); i != r.size(); ++i)
+            carry = difference_accumulate( r[i], Integer(0), carry );
         return carry;
     }
 

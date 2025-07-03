@@ -8,6 +8,4 @@ export import :duo;
 export import :tri;
 export import :poly;
 
-export import :duo.array;
-export import :tri.array;
 export import :poly.vector;

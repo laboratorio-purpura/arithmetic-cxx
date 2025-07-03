@@ -4,7 +4,6 @@
 module;
 
 #include <array>
-#include <cassert>
 #include <span>
 #include <tuple>
 
@@ -19,11 +18,19 @@ using std::span;
 using std::tie;
 using std::tuple;
 
-// Duo-degree arithmetic.
+/// Bi-degree arithmetic.
 
 export namespace purple
 {
     /// Properties.
+
+    // Approximate inverse of "normalised" integer.
+    template <typename Integer, size_t Degree>
+    requires ( Degree == 2uz )
+    auto inverse_normalised ( span<Integer const,Degree> y ) noexcept -> Integer;
+    // requires B/2 <= y[1] < B
+
+    /// Relations.
 
     /// 1 if and only if x is smaller than y, else 0.
     template <typename Integer, size_t Degree>
@@ -44,9 +51,9 @@ export namespace purple
         return 1U - is_smaller( x, y );
     }
 
-    /// Operators.
+    /// Expansion operators.
 
-    // Accumulate sum, return carry.
+    /// Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto sum_accumulate ( span<Integer,Degree> x, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
@@ -56,7 +63,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulate sum, return carry.
+    /// Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto sum_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer carry = Integer(0) ) noexcept -> Integer
@@ -66,27 +73,7 @@ export namespace purple
         return carry;
     }
 
-    // Accumulate difference, return borrow.
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto difference_accumulate ( span<Integer,Degree> x, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
-    {
-        borrow = difference_accumulate( x[0], y, borrow );
-        borrow = difference_accumulate( x[1], Integer(0), borrow );
-        return borrow;
-    }
-
-    // Accumulate difference, return borrow.
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer borrow = Integer(0) ) noexcept -> Integer
-    {
-        borrow = difference_accumulate( x[0], y[0], borrow );
-        borrow = difference_accumulate( x[1], y[1], borrow );
-        return borrow;
-    }
-
-    // Accumulate twice N times, return carry.
+    // Accumulate Nth twice, return carry.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto twice_accumulate ( span<Integer,Degree> x, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
@@ -96,15 +83,39 @@ export namespace purple
         return carry;
     }
 
-    // Accumulate half N times, rounded down.
+    /// Reduction operators.
+
+    /// Accumulate difference, return borrow.
+    template <typename Integer, size_t Degree>
+    requires ( Degree == 2uz )
+    auto difference_accumulate ( span<Integer,Degree> x, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
+    {
+        borrow = difference_accumulate( x[0], y, borrow );
+        borrow = difference_accumulate( x[1], Integer(0), borrow );
+        return borrow;
+    }
+
+    /// Accumulate difference, return borrow.
+    template <typename Integer, size_t Degree>
+    requires ( Degree == 2uz )
+    auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer borrow = Integer(0) ) noexcept -> Integer
+    {
+        borrow = difference_accumulate( x[0], y[0], borrow );
+        borrow = difference_accumulate( x[1], y[1], borrow );
+        return borrow;
+    }
+
+    /// Accumulate Nth half, return remainder.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto half_accumulate ( span<Integer,Degree> r, size_t N ) noexcept -> Integer
     {
         constexpr auto B = sizeof(Integer) * 8uz;
+        auto r_ = r[0] & ((1 << N) - 1);
         r[0] >>= N;
         r[0] |= r[1] << (B - N);
         r[1] >>= N;
+        return r_;
     }
 
     /// Quotient and remainder with "normalised" operands.
@@ -115,11 +126,6 @@ export namespace purple
     // requires x[1] < y
     // requires iy = ( (B^2 - 1) / y ) - B
     {
-        assert( 0x80000000U <= y );
-        assert( y <= 0xFFFFFFFFU );
-        assert( x[1] < y );
-        assert( iy == inverse_normalised(y) );
-
         // t = ( r[1] * iy ) + x
         auto t = product( x[1], iy );
         ignore = sum_accumulate( span(t), x );
@@ -148,22 +154,19 @@ export namespace purple
     auto ratio ( span<Integer const,Degree> x, Integer y ) noexcept -> tuple< array<Integer,2>, Integer >
     // requires y != 0
     {
-        assert( 0 < y );
-
         auto q = array { Integer(0), Integer(0) };
         auto r = array { x[0], x[1] };
 
         // "normalise" dividend
         if ( r[1] >= y )
             tie( q[1], r[1] ) = ratio( r[1], y ); // TODO: ...with inverse
-        assert( r[1] < y );
+        // invariant: r[1] < y
 
         // "normalise" divisor and remainder
         auto ylz = top_zeros( y );
         ignore = twice_accumulate( y, ylz );
         ignore = twice_accumulate( span(r), ylz );
-        assert( 0x80000000U <= y );
-        assert( y <= 0xFFFFFFFFU );
+        // invariant: y is normalised
 
         // compute dividend inverse
         auto iy = inverse_normalised( y );
@@ -176,39 +179,6 @@ export namespace purple
 
         // terminate
         return { q, r[0] };
-    }
-
-    // Approximate inverse of "normalised" integer.
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto inverse_normalised ( span<Integer const,Degree> y ) noexcept -> Integer
-    // requires B/2 <= y[1] < B
-    {
-        auto v = inverse_normalised( y[1] );
-        // p = ( y[1] * v ) mod B
-        auto p = y[1] * v;
-        // p = ( p + y[0] ) mod B
-        p = p + y[0];
-        if (p < y[0]) {
-            v = v - 1;
-            if (p >= y[1]) {
-                v = v - 1;
-                p = p - y[1];
-            }
-            // p = ( p - y[1] ) mod B
-            p = p - y[1];
-        }
-        auto t = product( v, y[0] );
-        // p = ( p + t[1] ) mod B
-        p = p + t[1];
-        if ( p < t[1] ) {
-            v = v - 1;
-            auto tp = array { t[0], p };
-            if ( not_smaller( span<Integer const,2>(tp), y ) ) {
-                v = v - 1;
-            }
-        }
-        return v;
     }
 }
 
@@ -258,5 +228,42 @@ export namespace purple
     auto difference_accumulate ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
     {
         return difference_accumulate<Integer,Degree>( x, span<Integer const,Degree>(y) );
+    }
+}
+
+// Deferred definitions.
+
+namespace purple
+{
+    template <typename Integer, size_t Degree>
+    requires ( Degree == 2uz )
+    auto inverse_normalised ( span<Integer const,Degree> y ) noexcept -> Integer
+    // requires B/2 <= y[1] < B
+    {
+        auto v = inverse_normalised( y[1] );
+        // p = ( y[1] * v ) mod B
+        auto p = y[1] * v;
+        // p = ( p + y[0] ) mod B
+        p = p + y[0];
+        if (p < y[0]) {
+            v = v - 1;
+            if (p >= y[1]) {
+                v = v - 1;
+                p = p - y[1];
+            }
+            // p = ( p - y[1] ) mod B
+            p = p - y[1];
+        }
+        auto t = product( v, y[0] );
+        // p = ( p + t[1] ) mod B
+        p = p + t[1];
+        if ( p < t[1] ) {
+            v = v - 1;
+            auto tp = array { t[0], p };
+            if ( not_smaller( span<Integer const,2>(tp), y ) ) {
+                v = v - 1;
+            }
+        }
+        return v;
     }
 }

@@ -4,7 +4,6 @@
 module;
 
 #include <array>
-#include <cassert>
 #include <span>
 #include <tuple>
 
@@ -240,7 +239,7 @@ export namespace purple
             {
                 auto ri = xi+xi;
                 // xi ^ 2 + carry
-                auto [ p0, p1 ] = square_sum( x[xi], carry );
+                auto [ p0, p1 ] = product_sum( x[xi], x[xi], carry );
                 // store
                 auto c = sum_accumulate( r[ri], p0 );
                 carry = p1 + c;

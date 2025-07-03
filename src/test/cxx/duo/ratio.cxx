@@ -42,7 +42,7 @@ TEST(duo,ratio_0F703AE14EC018B1_0AEE366D)
 {
     auto x = array { 0x4EC018B1U, 0x0F703AE1U };
     auto y = 0x0AEE366DU;
-    auto [ q, r ] = ratio<unsigned>( x, y );
+    auto [ q, r ] = ratio<unsigned,2>( x, y );
     ASSERT_EQ( format(q), "000000016993DADE" );
     ASSERT_EQ( format(r), "043D142B" );
 }
@@ -64,7 +64,7 @@ TEST(duo,ratio_random)
         y = generator();
         while (y == 0) y = generator();
 
-        auto [ q, r ] = ratio<unsigned>( x, y );
+        auto [ q, r ] = ratio<unsigned,2>( x, y );
 
         gx.set_str( format(x), 16 );
         gy.set_str( format(y), 16 );

@@ -23,7 +23,7 @@ using std::span;
 TEST(duo,inverse_normalised_9C8739F05AA157B2)
 {
     auto y = array { 0x5AA157B2U, 0x9C8739F0U };
-    auto iy = inverse_normalised( y );
+    auto iy = inverse_normalised<unsigned,2>( y );
     ASSERT_EQ( format(iy), "A2AF5356" );
 }
 
@@ -37,7 +37,7 @@ TEST(duo,inverse_normalised_random)
         auto y = array { generator(), generator() };
         while (y[1] == 0) y[1] = generator();
         y[1] |= 0x80000000U;
-        auto iy = inverse_normalised( y );
+        auto iy = inverse_normalised<unsigned,2>( y );
 
         auto gy = mpz_class( format(y), 16 );
         mpz_class giy = ( mpz_class("FFFFFFFFFFFFFFFFFFFFFFFF",16) / gy ) - mpz_class("100000000",16);

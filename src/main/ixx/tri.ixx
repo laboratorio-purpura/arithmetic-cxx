@@ -4,7 +4,6 @@
 module;
 
 #include <array>
-#include <cassert>
 #include <span>
 #include <tuple>
 
@@ -20,7 +19,7 @@ using std::span;
 using std::tie;
 using std::tuple;
 
-// Tri-degree arithmetic.
+/// Tri-degree arithmetic.
 
 export namespace purple
 {

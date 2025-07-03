@@ -4,7 +4,6 @@
 module;
 
 #include <array>
-#include <cassert>
 #include <tuple>
 
 export module purple.arithmetic:mono;
@@ -13,7 +12,7 @@ using std::array;
 using std::size_t;
 using std::tuple;
 
-// Uni-degree arithmetic.
+// Scalar arithmetic.
 
 export namespace purple
 {
@@ -21,6 +20,24 @@ export namespace purple
     static_assert( sizeof(unsigned long long) == 8, "oops");
 
     /// Properties.
+
+    /// Inverse approximation.
+    auto inverse ( unsigned y ) noexcept -> unsigned
+    // requires y != 0
+    {
+        // 2^32 / y
+        return 0xFFFFFFFFu / y;
+    }
+
+    /// Inverse approximation of "normalised" integer.
+    auto inverse_normalised ( unsigned y ) noexcept -> unsigned
+    // requires 2^31 <= y < 2^32
+    {
+        // ( ( ( 2^64 - 1 ) / y ) / 2^32 ) - 2^32
+        auto x = static_cast< unsigned long long >( 0xFFFFFFFFU - y ) << 32 | 0xFFFFFFFFU;
+        auto q = x / y;
+        return q;
+    }
 
     /// 1 if and only if x is zero, else 0.
     constexpr
@@ -38,6 +55,8 @@ export namespace purple
         x |= -x;
         return x >> 31U;
     }
+
+    /// Relations.
 
     /// 1 if and only f x is smaller than y, else 0.
     constexpr
@@ -78,7 +97,7 @@ export namespace purple
         return __builtin_clzg( x );
     }
 
-    /// Operators.
+    /// Expansion operators.
 
     /// Sum with carry.
     constexpr
@@ -96,6 +115,88 @@ export namespace purple
         return carry;
     }
 
+    /// Nth twice with carry.
+    constexpr
+    auto twice ( unsigned int x, size_t N ) noexcept -> array< unsigned int, 2 >
+    {
+        auto r = static_cast<unsigned long long>(x) << N;
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
+    }
+
+    /// Accumulate Nth twice, return carry.
+    constexpr
+    auto twice_accumulate ( unsigned int & x, size_t N ) noexcept -> unsigned int
+    {
+        auto r = static_cast<unsigned long long>(x) << N;
+        x = r;
+        return r >> 32;
+    }
+
+    /// Sum of Nth twice with carry.
+    constexpr
+    auto twice_sum ( unsigned int x, size_t N, unsigned int y ) noexcept -> array< unsigned int, 2 >
+    {
+        auto r = ( static_cast<unsigned long long>(x) << N ) + y;
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
+    }
+
+    /// Accumulate sum of Nth twice, return carry.
+    constexpr
+    auto twice_sum_accumulate ( unsigned int & x, size_t N, unsigned int y ) noexcept -> unsigned int
+    {
+        auto r = ( static_cast<unsigned long long>(x) << N ) + y;
+        x = r;
+        return r >> 32;
+    }
+
+    /// Product with carry.
+    constexpr
+    auto product ( unsigned int x, unsigned int y ) noexcept -> array< unsigned int, 2 >
+    {
+        auto r = ( static_cast<unsigned long long>(x) * y );
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
+    }
+
+    /// Accumulate product, return carry.
+    constexpr
+    auto product_accumulate ( unsigned int & x, unsigned int y ) noexcept -> unsigned int
+    {
+        auto r = ( static_cast<unsigned long long>(x) * y );
+        x = r;
+        return r >> 32;
+    }
+
+    /// Product and sum with carry.
+    constexpr
+    auto product_sum ( unsigned int x, unsigned int y, unsigned int z ) noexcept -> array< unsigned int, 2 >
+    {
+        auto r = ( static_cast<unsigned long long>(x) * y ) + z;
+        return {
+            static_cast<unsigned>( r ),
+            static_cast<unsigned>( r >> 32 )
+        };
+    }
+
+    /// Accumulate product and sum, return carry.
+    constexpr
+    auto product_sum_accumulate ( unsigned int & x, unsigned int y, unsigned int z ) noexcept -> unsigned int
+    {
+        auto r = ( static_cast<unsigned long long>(x) * y ) + z;
+        x = r;
+        return r >> 32;
+    }
+
+    /// Reduction operators.
+
     /// Difference with borrow.
     constexpr
     auto difference ( unsigned int x, unsigned int y, unsigned int borrow = 0 ) noexcept -> tuple< unsigned int, unsigned int >
@@ -112,138 +213,18 @@ export namespace purple
         return borrow;
     }
 
-    /// Product, low & high.
-    constexpr
-    auto product ( unsigned int x, unsigned int y ) noexcept -> array< unsigned int, 2 >
-    {
-        auto r = ( static_cast<unsigned long long>(x) * y );
-        return {
-            static_cast<unsigned>( r ),
-            static_cast<unsigned>( r >> 32 )
-        };
-    }
-
-    /// Product, accumulate low, return high.
-    constexpr
-    auto product_accumulate ( unsigned int & x, unsigned int y ) noexcept -> unsigned int
-    {
-        auto r = ( static_cast<unsigned long long>(x) * y );
-        x = r;
-        return r >> 32;
-    }
-
-    /// Product and sum, low & high.
-    constexpr
-    auto product_sum ( unsigned int x, unsigned int y, unsigned int z ) noexcept -> array< unsigned int, 2 >
-    {
-        auto r = ( static_cast<unsigned long long>(x) * y ) + z;
-        return {
-            static_cast<unsigned>( r ),
-            static_cast<unsigned>( r >> 32 )
-        };
-    }
-
-    /// Product and sum, accumulate low, return high.
-    constexpr
-    auto product_sum_accumulate ( unsigned int & x, unsigned int y, unsigned int z ) noexcept -> unsigned int
-    {
-        auto r = ( static_cast<unsigned long long>(x) * y ) + z;
-        x = r;
-        return r >> 32;
-    }
-
-    /// Twice N times, low and high.
-    constexpr
-    auto twice ( unsigned int x, size_t N ) noexcept -> array< unsigned int, 2 >
-    {
-        auto r = static_cast<unsigned long long>(x) << N;
-        return {
-            static_cast<unsigned>( r ),
-            static_cast<unsigned>( r >> 32 )
-        };
-    }
-
-    /// Twice N times, accumulate low, return high.
-    constexpr
-    auto twice_accumulate ( unsigned int & x, size_t N ) noexcept -> unsigned int
-    {
-        auto r = static_cast<unsigned long long>(x) << N;
-        x = r;
-        return r >> 32;
-    }
-
-    /// Twice N times and sum, low and high.
-    constexpr
-    auto twice_sum ( unsigned int x, size_t N, unsigned int y ) noexcept -> array< unsigned int, 2 >
-    {
-        auto r = ( static_cast<unsigned long long>(x) << N ) + y;
-        return {
-            static_cast<unsigned>( r ),
-            static_cast<unsigned>( r >> 32 )
-        };
-    }
-
-    /// Twice N times and sum, accumulate low, return high.
-    constexpr
-    auto twice_sum_accumulate ( unsigned int & x, size_t N, unsigned int y ) noexcept -> unsigned int
-    {
-        auto r = ( static_cast<unsigned long long>(x) << N ) + y;
-        x = r;
-        return r >> 32;
-    }
-
-    /// Half N times, rounded down.
+    /// Nth half rounded down.
     constexpr
     auto half ( unsigned int & x, size_t N ) noexcept -> unsigned int
     {
         return x >> N;
     }
 
-    /// Accumulate half N times rounded down.
+    /// Accumulate Nth half rounded down.
     constexpr
     void half_accumulate ( unsigned int & x, size_t N ) noexcept
     {
         x >>= N;
-    }
-
-    /// Square, low and high.
-    constexpr
-    auto square ( unsigned int x ) noexcept -> array< unsigned int, 2 >
-    {
-        auto r = static_cast<unsigned long long>(x) * x;
-        return {
-            static_cast<unsigned>( r ),
-            static_cast<unsigned>( r >> 32 )
-        };
-    }
-
-    /// Square, accumulate low,return high.
-    constexpr
-    auto square_accumulate ( unsigned int & x ) noexcept -> unsigned int
-    {
-        auto r = static_cast<unsigned long long>(x) * x;
-        x = r;
-        return r >> 32;
-    }
-
-    /// Square and sum, low and high.
-    constexpr
-    auto square_sum ( unsigned int x, unsigned int y ) noexcept -> array< unsigned int, 2 >
-    {
-        auto r = ( static_cast<unsigned long long>(x) * x ) + y;
-        return {
-            static_cast<unsigned>( r ),
-            static_cast<unsigned>( r >> 32 )
-        };
-    }
-
-    /// Square and sum, accumulate low, return high.
-    constexpr
-    auto square_sum_accumulate ( unsigned int & x, unsigned int y ) noexcept -> unsigned int
-    {
-        auto r = ( static_cast<unsigned long long>(x) * x ) + y;
-        x = r;
-        return r >> 32;
     }
 
     /// Quotient and remainder.
@@ -251,30 +232,8 @@ export namespace purple
     auto ratio ( unsigned int x, unsigned int y ) noexcept -> tuple< unsigned int, unsigned int >
     // requires y != 0
     {
-        assert( 0 < y );
         auto q = x / y;
         auto r = x % y;
         return { q, r };
-    }
-
-    /// Inverse approximation.
-    auto inverse ( unsigned y ) noexcept -> unsigned
-    // requires y != 0
-    {
-        assert( 0U < y );
-        // 2^32 / y
-        return 0xFFFFFFFFu / y;
-    }
-
-    /// Inverse approximation of "normalised" integer.
-    auto inverse_normalised ( unsigned y ) noexcept -> unsigned
-    // requires 2^31 <= y < 2^32
-    {
-        assert( 0x80000000U <= y );
-        assert( y <= 0xFFFFFFFFU );
-        // ( ( ( 2^64 - 1 ) / y ) / 2^32 ) - 2^32
-        auto x = static_cast< unsigned long long >( 0xFFFFFFFFU - y ) << 32 | 0xFFFFFFFFU;
-        auto q = x / y;
-        return q;
     }
 }

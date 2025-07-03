@@ -36,8 +36,8 @@ TEST(tri,ratio_random)
         y[1] |= 0x80000000U;
         while ( not_smaller( to_cspan<2>(x,1), to_cspan<2>(y) ) )
             x[2] = random();
-        auto iy = inverse_normalised( y );
-        auto [ q, r ] = ratio_normalised( x, y, iy );
+        auto iy = inverse_normalised<unsigned,2>( y );
+        auto [ q, r ] = ratio_normalised<unsigned,2,3>( to_cspan<3>(x), to_cspan<2>(y), iy );
 
         gx.set_str( format(x), 16 );
         gy.set_str( format(y), 16 );

@@ -4,7 +4,6 @@
 module;
 
 #include <array>
-#include <cassert>
 #include <span>
 #include <tuple>
 
@@ -17,22 +16,20 @@ using std::array;
 using std::ignore;
 using std::span;
 
-// Duo-degree arithmetic.
+/// Duo-degree arithmetic.
 
 export namespace purple
 {
+    /// Reduction operators.
+
     /// Quotient and remainder by "normalised" divisor with inverse.
-    template <typename Integer>
-    auto ratio_normalised_v0 ( span<Integer,2> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
+    template <typename Integer, size_t Degree>
+    requires ( Degree == 2uz )
+    auto ratio_normalised_v0 ( span<Integer,Degree> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
     // requires B/2 <= y < B
     // requires x[1] < y
     // requires iy = ( (B^2 - 1) / y ) - B
     {
-        assert( 0x80000000U <= y );
-        assert( y <= 0xFFFFFFFFU );
-        assert( x[1] < y );
-        assert( iy == inverse_normalised(y) );
-
         auto [q,q0] = product( x[1], iy );
         ignore = sum_accumulate( q, x[1] );
         auto pp = product( q, y );

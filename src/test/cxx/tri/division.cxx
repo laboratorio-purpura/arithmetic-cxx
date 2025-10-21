@@ -26,13 +26,13 @@ using std::span;
 
 // Type conversion from array.
 
-template <typename Integer, size_t BiDegree, size_t TriDegree>
-requires ( BiDegree == 2uz ) && ( TriDegree == 3uz )
+template <typename Integer, size_t TriDegree, size_t BiDegree>
+requires  ( TriDegree == 3uz ) && ( BiDegree == 2uz )
 auto division_normalized ( array<Integer,TriDegree> const & x, array<Integer,BiDegree> const & y, Integer iy ) noexcept
 {
     auto xx = span<Integer const,TriDegree>( x );
     auto yy = span<Integer const,BiDegree>( y );
-    return division_normalized<Integer,BiDegree,TriDegree>( xx, yy, iy );
+    return division_normalized<Integer,TriDegree,BiDegree>( xx, yy, iy );
 }
 
 template <typename Integer, size_t Degree>

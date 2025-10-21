@@ -40,8 +40,8 @@ export namespace purple
     /// Computes q = x ÷ y and r = x % y.
     ///
     /// Returns { q, r }.
-    template <typename Integer, size_t BiDegree, size_t TriDegree>
-    requires ( BiDegree == 2uz ) && ( TriDegree == 3uz )
+    template <typename Integer, size_t TriDegree, size_t BiDegree>
+    requires  ( TriDegree == 3uz ) && ( BiDegree == 2uz )
     auto division_normalized ( span<Integer const,TriDegree> x, span<Integer const,BiDegree> y, Integer iy ) noexcept
         -> tuple< Integer, array<Integer,BiDegree> >
     // requires is_smaller( { x[1], x[2] }, y )

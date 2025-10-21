@@ -4,8 +4,10 @@
 module;
 
 #include <array>
+#include <cassert>
 #include <span>
 #include <tuple>
+#include <vector>
 
 export module purple.arithmetic:poly;
 
@@ -17,6 +19,7 @@ using std::ignore;
 using std::size_t;
 using std::span;
 using std::tie;
+using std::vector;
 
 /// Multi-degree nonnegative integer arithmetics.
 ///
@@ -28,9 +31,48 @@ using std::tie;
 
 export namespace purple
 {
+    /// Representation.
+
+    /// Assigns a value.
+    ///
+    /// Requirements:
+    /// degree(x) > 1
+    ///
+    /// Effects:
+    /// x = y
+    template <typename Integer>
+    void assign ( span<Integer> x, Integer y )
+    {
+        x[0] = y;
+        for (auto i = 1uz; i != x.size(); ++i) x[i] = Integer(0);
+    }
+
+    /// Assigns a value.
+    ///
+    /// Requirements:
+    /// degree(x) >= degree(y)
+    ///
+    /// Effects:
+    /// x = y
+    template <typename Integer>
+    void assign ( span<Integer> x, span<Integer const> y )
+    {
+        for (auto i = 0uz; i != y.size(); ++i) x[i] = y[i];
+        for (auto i = y.size(); i != x.size(); ++i) x[i] = Integer(0);
+    }
+
     /// Tests.
     ///
     /// These procedures return 1 if the test holds, else return 0.
+
+    /// Tests if normalized.
+    ///
+    /// Normalized means the most significant bit is 1.
+    template <typename Integer>
+    auto is_normalized ( span<Integer const> x ) noexcept -> Integer
+    {
+        return is_normalized( x[ x.size() - 1 ] );
+    }
 
     /// Tests if zero.
     template <typename Integer>
@@ -59,6 +101,8 @@ export namespace purple
     auto is_smaller_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
     // requires degree(x) = degree(y)
     {
+        assert( x.size() == y.size() );
+
         auto const z = y.size();
         auto c = Integer(0);
         for (auto i = 0uz; i != z; ++i)
@@ -158,6 +202,17 @@ export namespace purple
     /// Increase procedures.
     ///
     /// These procedures increase values, maybe with a "carry" or an "excess".
+
+    template <typename Integer>
+    auto next_accumulate ( span<Integer> x ) -> Integer
+    // requires degree(x) >= 1
+    {
+        auto carry = Integer(0);
+        carry = sum_accumulate( x[0], Integer(1), carry );
+        for (auto i = 1uz; i != x.size(); ++i)
+            carry = sum_accumulate( x[i], Integer(0), carry );
+        return carry;
+    }
 
     /// Sum with carry.
     ///
@@ -321,6 +376,17 @@ export namespace purple
     ///
     /// These procedures decrease values, maybe with a "borrow" or a "remainder".
 
+    template <typename Integer>
+    auto previous_accumulate ( span<Integer> x ) -> Integer
+    // requires degree(x) >= 1
+    {
+        auto borrow = Integer(0);
+        borrow = difference_accumulate( x[0], Integer(1), borrow );
+        for (auto i = 1uz; i != x.size(); ++i)
+            borrow = difference_accumulate( x[i], Integer(0), borrow );
+        return borrow;
+    }
+
     /// Difference with borrow.
     ///
     /// Computes r = x - y - borrow.
@@ -402,7 +468,7 @@ export namespace purple
     /// Returns r.
     template <typename Integer>
     auto division_normalized ( span<Integer> q, span<Integer const> x, Integer y, Integer iy ) -> Integer
-    // requires degree(q) ≥ degree(x)
+    // requires degree(q) ≥ degree(x) ≥ 1
     // requires is_normalized(y)
     // requires iy = inverse_normalized(y)
     {
@@ -413,20 +479,6 @@ export namespace purple
             tie( q[i-1], r ) = division_normalized( span<Integer const,2>(t), y, iy );
         }
         return r;
-    }
-
-    /// Division, quotient and remainder, with normalized operands.
-    ///
-    /// Computes q = x ÷ y and r = x % y.
-    ///
-    /// Returns r.
-    template <typename Integer>
-    auto division_normalized ( span<Integer> q, span<Integer const> x, Integer y ) -> Integer
-    // requires degree(q) ≥ degree(x)
-    // requires is_normalized(y)
-    {
-        auto iy = inverse_normalized(y);
-        return division_normalized( q, x, y, iy );
     }
 }
 

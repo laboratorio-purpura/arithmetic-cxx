@@ -34,6 +34,17 @@ export namespace purple
     ///
     /// These procedures return 1 if the test holds, else return 0.
 
+    /// Tests if greater.
+    template <typename Integer, size_t Degree>
+    requires ( Degree == 2uz )
+    auto is_greater ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
+    {
+        auto carry = Integer(0);
+        tie( ignore, carry ) = difference( y[0], x[0], carry );
+        tie( ignore, carry ) = difference( y[1], x[1], carry );
+        return carry;
+    }
+
     /// Tests if normalized.
     ///
     /// Normalized means there are no leading zeros.
@@ -81,6 +92,16 @@ export namespace purple
     /// Increase procedures.
     ///
     /// These procedures increase values, maybe with a "carry" or an "excess".
+
+    template <typename Integer, size_t Degree>
+    requires ( Degree == 2uz )
+    auto next_accumulate ( span<Integer,Degree> x ) -> Integer
+    {
+        auto carry = Integer(0);
+        carry = sum_accumulate( x[0], Integer(1), carry );
+        carry = sum_accumulate( x[1], Integer(0), carry );
+        return carry;
+    }
 
     /// Sum with carry.
     ///
@@ -191,6 +212,8 @@ export namespace purple
     ///
     /// Computes q = x ÷ y and r = x % y.
     ///
+    /// Computes by the "improved division by invariant integer" method.
+    ///
     /// Returns { q, r }.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
@@ -224,6 +247,8 @@ export namespace purple
     /// Division, quotient and remainder.
     ///
     /// Computes q = x ÷ y and r = x % y.
+    ///
+    /// Computes by the "improved division by invariant integer" method.
     ///
     /// Returns { q, r }.
     template <typename Integer, size_t Degree>
@@ -263,6 +288,15 @@ export namespace purple
 
 export namespace purple
 {
+    template <typename Integer, size_t Degree>
+    requires ( Degree == 2uz )
+    auto is_greater ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
+    {
+        auto xx = span<Integer const,Degree>(x);
+        auto yy = span<Integer const,Degree>(y);
+        return is_greater<Integer,Degree>( xx, yy );
+    }
+
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto not_smaller ( span<Integer const,Degree> x, span<Integer,Degree> y ) noexcept

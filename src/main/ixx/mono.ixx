@@ -4,6 +4,7 @@
 module;
 
 #include <array>
+#include <stdint.h>
 #include <tuple>
 
 export module purple.arithmetic:mono;
@@ -12,94 +13,136 @@ using std::array;
 using std::size_t;
 using std::tuple;
 
-// Scalar arithmetic.
+/// Singular nonnegative integer arithmetics.
+///
+/// This module partition defines nonnegative integer arithmetics on singular integers,
+/// that is, integers represented with a single numeric "limb".
+///
+/// Machines usually offer primitive operators for singular nonnegative arithmetics with carry or borrow.
+/// Programming languages usually expose these primitive operators but omitting the carry or borrow.
+/// This module partition defines procedures for singular nonnegative arithmetics with carry or borrow.
+///
+/// Many additional procedures are defined with the purpose of obtaining a basic "arithmetic language",
+/// so that procedures on higher-degree integers may be expressed completely in this basic language.
+///
+/// In the specification of this module partition, let B = 2 ^ bits be the numeric base of a single "limb".
 
 export namespace purple
 {
     static_assert( sizeof(unsigned int) == 4, "oops");
     static_assert( sizeof(unsigned long long) == 8, "oops");
 
-    /// Properties.
+    /// Test procedures.
+    ///
+    /// These procedures return 1 if the test holds, else return 0.
 
-    /// Inverse approximation.
-    auto inverse ( unsigned y ) noexcept -> unsigned
-    // requires y != 0
+    /// Tests if normalized.
+    ///
+    /// Normalized means there are no leading zeros.
+    ///
+    /// In a binary machine, this means the most significant bit is 1.
+    constexpr
+    auto is_normalized ( unsigned y ) noexcept -> unsigned
     {
-        // 2^32 / y
-        return 0xFFFFFFFFu / y;
+        return y >> 31u;
     }
 
-    /// Inverse approximation of "normalised" integer.
-    auto inverse_normalised ( unsigned y ) noexcept -> unsigned
-    // requires 2^31 <= y < 2^32
-    {
-        // ( ( ( 2^64 - 1 ) / y ) / 2^32 ) - 2^32
-        auto x = static_cast< unsigned long long >( 0xFFFFFFFFU - y ) << 32 | 0xFFFFFFFFU;
-        auto q = x / y;
-        return q;
-    }
-
-    /// 1 if and only if x is zero, else 0.
+    /// Tests if zero.
     constexpr
     auto is_zero ( unsigned int x ) noexcept -> unsigned int
     {
         x |= -x;
-        x >>= 31U;
-        return 1U - x;
+        x >>= 31u;
+        return 1u - x;
     }
 
-    /// 1 if and only if x is *not* zero, else 0.
+    /// Tests if *not* zero.
     constexpr
     auto not_zero ( unsigned int x ) noexcept -> unsigned int
     {
         x |= -x;
-        return x >> 31U;
+        return x >> 31u;
     }
 
-    /// Relations.
-
-    /// 1 if and only f x is smaller than y, else 0.
+    /// Tests if smaller.
     constexpr
     auto is_smaller ( unsigned int x, unsigned int y ) noexcept -> unsigned int
     {
         auto r0 = x ^ y;
         auto r1 = x - y;
-        r1 ^= r0 & (r1 ^ x ^ (1U << 31));
+        r1 ^= r0 & (r1 ^ x ^ (1u << 31));
         return r1 >> 31;
     }
 
-    /// 1 if and only f x is *not* smaller than y, else 0.
+    /// Tests if *not* smaller.
     constexpr
     auto not_smaller ( unsigned int x, unsigned int y ) noexcept -> unsigned int
     {
-        return 1U - is_smaller( x, y );
+        return 1u - is_smaller( x, y );
     }
 
-    /// 1 if and only f x is greater than y, else 0.
+    /// Tests if greater.
     constexpr
     auto is_greater ( unsigned int x, unsigned int y ) noexcept -> unsigned int
     {
         return is_smaller( y, x );
     }
 
-    /// 1 if and only f x is *not* greater than y, else 0.
+    /// Tests if *not* greater.
     constexpr
     auto not_greater ( unsigned int x, unsigned int y ) noexcept -> unsigned int
     {
-        return 1U - is_smaller( y, x );
+        return 1u - is_smaller( y, x );
     }
 
-    /// count of "top" zeros.
+    /// Transform procedures.
+    ///
+    /// TODO: conceptualize
+
+    /// Inverse approximation.
+    ///
+    /// Computes y' such that product x × y' approximates quotient x ÷ y.
+    constexpr
+    auto inverse ( unsigned y ) noexcept -> unsigned
+    // requires not_zero(y)
+    {
+        // ( B - 1 ) ÷ y
+        return 0xFFFFFFFFu / y;
+    }
+
+    /// Inverse approximation of normalized integer.
+    ///
+    /// Computes y' such that product x × y' approximates quotient x ÷ y.
+    constexpr
+    auto inverse_normalized ( unsigned y ) noexcept -> unsigned
+    // requires is_normalized(y)
+    {
+        // ( ( ( B^2 - 1 ) ÷ y ) ÷ B ) - B
+        auto x = static_cast< unsigned long long >( 0xFFFFFFFFu - y ) << 32 | 0xFFFFFFFFu;
+        auto q = x / y;
+        return q;
+    }
+
+    /// Counts leading zeros in representation.
+    ///
+    /// TODO: explain what this means, perhaps rename
     constexpr
     auto top_zeros ( unsigned x ) noexcept
-    // requires x != 0
+    // requires not_zero(x)
     {
         return __builtin_clzg( x );
     }
 
-    /// Expansion operators.
+    /// Increase procedures.
+    ///
+    /// These procedures increase values, maybe with a "carry" or an "excess".
 
     /// Sum with carry.
+    ///
+    /// Computes r = x + y + carry.
+    /// If r is higher than B, set carry ← 1; else carry ← 0.
+    ///
+    /// Returns { r % B, carry }.
     constexpr
     auto sum ( unsigned int x, unsigned int y, unsigned int carry = 0 ) noexcept -> tuple< unsigned int, unsigned int >
     {
@@ -107,7 +150,13 @@ export namespace purple
         return { r, carry };
     }
 
-    /// Accumulate sum, return carry.
+    /// Sum with carry.
+    ///
+    /// Computes r = x + y + carry.
+    /// If r is higher than B, set carry ← 1; else carry ← 0.
+    ///
+    /// Accumulates x ← r % B.
+    /// Returns carry.
     constexpr
     auto sum_accumulate ( unsigned int & x, unsigned int y, unsigned int carry = 0 ) noexcept -> unsigned int
     {
@@ -115,7 +164,13 @@ export namespace purple
         return carry;
     }
 
-    /// Nth twice with carry.
+    /// Twice N times.
+    ///
+    /// In a binary machine, twice means shifting bits towards most significant.
+    ///
+    /// Computes r = x × 2 ^ N.
+    ///
+    /// Returns { r % B, r ÷ B }.
     constexpr
     auto twice ( unsigned int x, size_t N ) noexcept -> array< unsigned int, 2 >
     {
@@ -126,7 +181,14 @@ export namespace purple
         };
     }
 
-    /// Accumulate Nth twice, return carry.
+    /// Twice N times.
+    ///
+    /// In a binary machine, twice means shifting bits towards most significant.
+    ///
+    /// Computes r = x × 2 ^ N.
+    ///
+    /// Accumulates x ← r % B.
+    /// Returns r ÷ B.
     constexpr
     auto twice_accumulate ( unsigned int & x, size_t N ) noexcept -> unsigned int
     {
@@ -135,7 +197,11 @@ export namespace purple
         return r >> 32;
     }
 
-    /// Sum of Nth twice with carry.
+    /// Twice N times and sum.
+    ///
+    /// Computes r = ( x × 2 ^ N ) + y.
+    ///
+    /// Returns { r % B, r ÷ B }.
     constexpr
     auto twice_sum ( unsigned int x, size_t N, unsigned int y ) noexcept -> array< unsigned int, 2 >
     {
@@ -146,7 +212,12 @@ export namespace purple
         };
     }
 
-    /// Accumulate sum of Nth twice, return carry.
+    /// Twice N times and sum.
+    ///
+    /// Computes r = ( x × 2 ^ N ) + y.
+    ///
+    /// Accumulates x ← r % B.
+    /// Returns r ÷ B.
     constexpr
     auto twice_sum_accumulate ( unsigned int & x, size_t N, unsigned int y ) noexcept -> unsigned int
     {
@@ -155,7 +226,11 @@ export namespace purple
         return r >> 32;
     }
 
-    /// Product with carry.
+    /// Product.
+    ///
+    /// Computes r = x × y.
+    ///
+    /// Returns { r % B, r ÷ B }.
     constexpr
     auto product ( unsigned int x, unsigned int y ) noexcept -> array< unsigned int, 2 >
     {
@@ -166,7 +241,12 @@ export namespace purple
         };
     }
 
-    /// Accumulate product, return carry.
+    /// Product.
+    ///
+    /// Computes r = x × y.
+    ///
+    /// Accumulates x ← r % B.
+    /// Returns r ÷ B.
     constexpr
     auto product_accumulate ( unsigned int & x, unsigned int y ) noexcept -> unsigned int
     {
@@ -175,7 +255,11 @@ export namespace purple
         return r >> 32;
     }
 
-    /// Product and sum with carry.
+    /// Product and sum.
+    ///
+    /// Computes r = x × y + z.
+    ///
+    /// Returns { r % B, r ÷ B }.
     constexpr
     auto product_sum ( unsigned int x, unsigned int y, unsigned int z ) noexcept -> array< unsigned int, 2 >
     {
@@ -186,7 +270,12 @@ export namespace purple
         };
     }
 
-    /// Accumulate product and sum, return carry.
+    /// Product and sum.
+    ///
+    /// Computes r = x × y + z.
+    ///
+    /// Accumulates x ← r % B.
+    /// Returns r ÷ B.
     constexpr
     auto product_sum_accumulate ( unsigned int & x, unsigned int y, unsigned int z ) noexcept -> unsigned int
     {
@@ -195,9 +284,16 @@ export namespace purple
         return r >> 32;
     }
 
-    /// Reduction operators.
+    /// Decrease procedures.
+    ///
+    /// These procedures decrease values, maybe with a "borrow" or a "remainder".
 
     /// Difference with borrow.
+    ///
+    /// Computes r = x - y - borrow.
+    /// If r is lower than zero, borrow ← 1; else borrow ← 0.
+    ///
+    /// Returns { |r|, borrow }.
     constexpr
     auto difference ( unsigned int x, unsigned int y, unsigned int borrow = 0 ) noexcept -> tuple< unsigned int, unsigned int >
     {
@@ -205,7 +301,13 @@ export namespace purple
         return { r, borrow };
     }
 
-    /// Accumulate difference, return borrow.
+    /// Difference with borrow.
+    ///
+    /// Computes r = x - y - borrow.
+    /// If r is lower than zero, borrow ← 1; else borrow ← 0.
+    ///
+    /// Accumulates x ← |r|.
+    /// Returns borrow.
     constexpr
     auto difference_accumulate ( unsigned int & x, unsigned int y, unsigned int borrow = 0 ) noexcept -> unsigned int
     {
@@ -213,24 +315,42 @@ export namespace purple
         return borrow;
     }
 
-    /// Nth half rounded down.
+    /// Half N times, rounded down.
+    ///
+    /// In a binary machine, half means shifting bits towards least significant.
+    ///
+    /// Computes q = x ÷ 2 ^ N.
+    /// TODO: compute r
+    ///
+    /// Returns q.
     constexpr
     auto half ( unsigned int & x, size_t N ) noexcept -> unsigned int
     {
         return x >> N;
     }
 
-    /// Accumulate Nth half rounded down.
+    /// Half N times, rounded down.
+    ///
+    /// In a binary machine, half means shifting bits towards least significant.
+    ///
+    /// Computes q = x ÷ 2 ^ N.
+    /// TODO: compute r
+    ///
+    /// Accumulates x ← q.
     constexpr
     void half_accumulate ( unsigned int & x, size_t N ) noexcept
     {
         x >>= N;
     }
 
-    /// Quotient and remainder.
+    /// Division, quotient and remainder.
+    ///
+    /// Computes q = x ÷ y, r = x % y.
+    ///
+    /// Returns { q, r }.
     constexpr
-    auto ratio ( unsigned int x, unsigned int y ) noexcept -> tuple< unsigned int, unsigned int >
-    // requires y != 0
+    auto division ( unsigned int x, unsigned int y ) noexcept -> tuple< unsigned int, unsigned int >
+    // requires not_zero(y)
     {
         auto q = x / y;
         auto r = x % y;

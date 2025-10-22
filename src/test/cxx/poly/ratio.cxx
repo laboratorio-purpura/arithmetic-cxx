@@ -20,29 +20,29 @@ using std::random_device;
 using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
 using std::span;
 
-TEST(poly,ratio_normalised_v00_80000000)
+TEST(poly,division_normalised_v00_80000000)
 {
     auto x = v00;
     auto y = 0x80000000U;
     auto q = array<unsigned,2>();
-    auto iy = inverse_normalised(y);
-    auto r = ratio_normalised<unsigned>( span(q), span(x), y, iy );
+    auto iy = inverse_normalized(y);
+    auto r = division_normalized<unsigned>( span(q), span(x), y, iy );
     ASSERT_EQ( format(q), "0000000000000000" );
     ASSERT_EQ( format(r), "00000000" );
 }
 
-TEST(poly,ratio_normalised_vMM_80000000)
+TEST(poly,division_normalised_vMM_80000000)
 {
     auto x = vMM;
     auto y = 0x80000000U;
     auto q = array<unsigned,2>();
-    auto iy = inverse_normalised(y);
-    auto r = ratio_normalised<unsigned>( span(q), span(x), y, iy );
+    auto iy = inverse_normalized(y);
+    auto r = division_normalized<unsigned>( span(q), span(x), y, iy );
     ASSERT_EQ( format(q), "00000001FFFFFFFF" );
     ASSERT_EQ( format(r), "7FFFFFFF" );
 }
 
-TEST(poly,ratio_4_1_random)
+TEST(poly,division_4_1_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -54,7 +54,7 @@ TEST(poly,ratio_4_1_random)
         while (y == 0) y = generator();
         y |= 0x80000000U;
         auto q = array<unsigned,4>();
-        auto r = ratio<unsigned>( q, x, y );
+        auto r = division_normalized<unsigned>( q, x, y );
 
         auto gx = mpz_class( format(x), 16 );
         auto gy = mpz_class( format(y), 16 );

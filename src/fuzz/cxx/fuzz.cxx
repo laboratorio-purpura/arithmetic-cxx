@@ -181,7 +181,7 @@ namespace
             // "normalise"
             y |= 0x80000000U;
 
-            auto iy = purple::inverse_normalised(y);
+            auto iy = purple::inverse_normalized(y);
 
             fmt::println("i = {};",i);
             fmt::println("b = 100000000;",i);
@@ -260,7 +260,7 @@ namespace
             auto y = random();
             while (y == 0) y = random();
 
-            auto [q,r] = purple::ratio<unsigned>(x,y);
+            auto [q,r] = purple::division<unsigned,2>(x,y);
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
@@ -285,8 +285,8 @@ namespace
             y |= 0x80000000U;
 
             auto q = vector<unsigned>(degree);
-            auto iy = purple::inverse_normalised(y);
-            auto r = purple::ratio_normalised<unsigned>( q, x, y, iy );
+            auto iy = purple::inverse_normalized(y);
+            auto r = purple::division_normalized<unsigned>( q, x, y, iy );
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));

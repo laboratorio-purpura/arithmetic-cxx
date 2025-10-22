@@ -18,13 +18,21 @@ using std::size_t;
 using std::span;
 using std::tie;
 
-/// Multi-degree arithmetic.
+/// Multi-degree nonnegative integer arithmetics.
+///
+/// This module partition defines integer arithmetics on multi-degree integers,
+/// that is, integers represented with multiple "limbs".
+///
+/// In the specification of this module partition, let B = 2 ^ bits be the numeric base of a single "limb"
+/// and let, for some multi-degree integer x, B(x) = B ^ degree(x).
 
 export namespace purple
 {
-    /// Properties.
+    /// Tests.
+    ///
+    /// These procedures return 1 if the test holds, else return 0.
 
-    /// 1 if and only if x is the additive identity, else 0.
+    /// Tests if zero.
     template <typename Integer>
     auto is_zero ( span<Integer const> x ) noexcept -> Integer
     {
@@ -35,7 +43,7 @@ export namespace purple
         return r;
     }
 
-    /// 1 if and only if x is *not* the additive identity, else 0.
+    /// Tests if *not* zero.
     template <typename Integer>
     auto not_zero ( span<Integer const> x ) noexcept -> Integer
     {
@@ -46,12 +54,10 @@ export namespace purple
         return r;
     }
 
-    /// Relations.
-
-    /// 1 if and only if x is smaller than y, else 0.
+    /// Tests if smaller.
     template <typename Integer>
     auto is_smaller_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
-    // requires x.size() == y.size()
+    // requires degree(x) = degree(y)
     {
         auto const z = y.size();
         auto c = Integer(0);
@@ -60,56 +66,58 @@ export namespace purple
         return c;
     }
 
-    /// 1 if and only if x is smaller than y, else 0.
+    /// Tests if smaller.
     template <typename Integer>
     auto is_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer;
+    // deferred definition; see further down.
 
-    /// 1 if and only if x is not smaller than y, else 0.
+    /// Tests if *not* smaller.
     template <typename Integer>
     auto not_smaller_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
-    // requires x.size() == y.size()
+    // requires degree(x) = degree(y)
     {
         return Integer(1) - is_smaller_isodegree( x, y );
     }
 
-    /// 1 if and only if x is not smaller than y, else 0.
+    /// Tests if *not* smaller.
     template <typename Integer>
     auto not_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
         return Integer(1) - is_smaller( x, y );
     }
 
-    /// 1 if and only if x is greater than y, else 0.
+    /// Tests if greater.
     template <typename Integer>
     auto is_greater_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
-    // require x.size() == y.size()
+    // requires degree(x) = degree(y)
     {
         return is_smaller_isodegree( y, x );
     }
 
-    /// 1 if and only if x is greater than y, else 0.
+    /// Tests if greater.
     template <typename Integer>
     auto is_greater ( span<Integer const> x, span<Integer const> y ) -> Integer;
+    // deferred definition; see further down.
 
-    /// 1 if and only if x is not greater than y, else 0.
+    /// Tests if *not* greater.
     template <typename Integer>
     auto not_greater_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
-    // require x.size() == y.size()
+    // requires degree(x) = degree(y)
     {
         return Integer(1) - is_smaller_isodegree( y, x );
     }
 
-    /// 1 if and only if x is not greater than y, else 0.
+    /// Tests if *not* greater.
     template <typename Integer>
     auto not_greater ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
         return Integer(1) - is_smaller( y, x );
     }
 
-    /// 1 if and only if x is equal than y, else 0.
+    /// Tests if equals.
     template <typename Integer>
     auto is_equal_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
-    // requires x.size() == y.size()
+    // requires degree(x) = degree(y)
     {
         auto const z = y.size();
         Integer r {};
@@ -119,7 +127,7 @@ export namespace purple
         return is_zero(r) & (1U - c);
     }
 
-    /// 1 if and only if x is equal than y, else 0.
+    /// Tests if equals.
     template <typename Integer>
     auto is_equal ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
@@ -132,78 +140,115 @@ export namespace purple
         return r;
     }
 
-    /// 1 if and only if x is equal than y, else 0.
+    /// Tests if *not* equals.
     template <typename Integer>
     auto not_equal_isodegree ( span<Integer const> x, span<Integer const> y ) -> Integer
-    // requires x.size() == y.size()
+    // requires degree(x) = degree(y)
     {
         return Integer(1) - is_equal_isodegree( x, y );
     }
 
-    /// 1 if and only if x is equal than y, else 0.
+    /// Tests if *not* equals.
     template <typename Integer>
     auto not_equal ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
         return Integer(1) - is_equal( x, y );
     }
 
-    /// Expansion operators.
+    /// Increase procedures.
+    ///
+    /// These procedures increase values, maybe with a "carry" or an "excess".
 
-    /// Accumulate sum, return carry.
+    /// Sum with carry.
+    ///
+    /// Computes r = x + y + carry.
+    /// If r is higher than B(x), set carry ← 1; else carry ← 0.
+    ///
+    /// Accumulates x ← r % B(x).
+    /// Returns carry.
     template <typename Integer>
-    auto sum_accumulate ( span<Integer> r, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
-    // requires r.size() >= 1
+    auto sum_accumulate ( span<Integer> x, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
+    // requires degree(r) ≥ 1
     {
-        carry = sum_accumulate( r[0], y, carry );
-        for (auto i = 1uz; i != r.size(); ++i)
-            carry = sum_accumulate( r[i], Integer(0), carry );
+        carry = sum_accumulate( x[0], y, carry );
+        for (auto i = 1uz; i != x.size(); ++i)
+            carry = sum_accumulate( x[i], Integer(0), carry );
         return carry;
     }
 
-    // Accumulate sum, return carry.
+    /// Sum with carry.
+    ///
+    /// Computes r = x + y + carry.
+    /// If r is higher than B(x), set carry ← 1; else carry ← 0.
+    ///
+    /// Accumulates x ← r % B(x).
+    /// Returns carry.
     template <typename Integer>
-    auto sum_accumulate_isodegree ( span<Integer> r, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
-    // requires r.size() == y.size()
+    auto sum_accumulate_isodegree ( span<Integer> x, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
+    // requires degree(x) = degree(y)
     {
         for (auto i = 0uz; i != y.size(); ++i)
-            carry = sum_accumulate( r[i], y[i], carry );
+            carry = sum_accumulate( x[i], y[i], carry );
         return carry;
     }
 
-    // Accumulate sum, return carry.
+    /// Sum with carry.
+    ///
+    /// Computes r = x + y + carry.
+    /// If r is higher than B(x), set carry ← 1; else carry ← 0.
+    ///
+    /// Accumulates x ← r % B(x).
+    /// Returns carry.
     template <typename Integer>
-    auto sum_accumulate ( span<Integer> r, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
-    // requires r.size() >= y.size()
+    auto sum_accumulate ( span<Integer> x, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
+    // requires degree(x) ≥ degree(y)
     {
-        carry = sum_accumulate_isodegree( r, y, carry );
-        for (auto i = y.size(); i != r.size(); ++i)
-            carry = sum_accumulate( r[i], Integer(0), carry );
+        carry = sum_accumulate_isodegree( x, y, carry );
+        for (auto i = y.size(); i != x.size(); ++i)
+            carry = sum_accumulate( x[i], Integer(0), carry );
         return carry;
     }
 
-    // Accumulate Nth twice, return carry.
+    /// Twice N times.
+    ///
+    /// In a binary machine, twice means shifting bits towards most significant.
+    ///
+    /// Computes r = x × 2 ^ N + carry.
+    ///
+    /// Accumulates x ← r % B(x).
+    /// Returns r ÷ B(x).
     template <typename Integer>
-    auto twice_accumulate ( span<Integer> r, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
+    auto twice_accumulate ( span<Integer> x, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
     {
-        for (auto i = 0uz; i != r.size(); ++i)
-            carry = twice_sum_accumulate( r[i], N, carry );
+        for (auto i = 0uz; i != x.size(); ++i)
+            carry = twice_sum_accumulate( x[i], N, carry );
         return carry;
     }
 
-    // Accumulate product, return carry.
+    /// Product.
+    ///
+    /// Computes r = x × y.
+    ///
+    /// Accumulates x ← r % B(x).
+    /// Returns r ÷ B(x).
     template <typename Integer>
-    auto product_accumulate ( span<Integer> r, Integer y ) noexcept -> Integer
+    auto product_accumulate ( span<Integer> x, Integer y ) noexcept -> Integer
     {
         auto carry = Integer(0);
-        for (auto i = 0uz; i != r.size(); ++i)
-            carry = product_sum_accumulate( r[i], y, carry );
+        for (auto i = 0uz; i != x.size(); ++i)
+            carry = product_sum_accumulate( x[i], y, carry );
         return carry;
     }
 
-    // Accumulate sum of product, return carry.
+    /// Product and sum.
+    ///
+    /// Computes r = x × y + r.
+    ///
+    /// Accumulates r ← r % B(r).
+    /// Returns r ÷ B(r).
     template <typename Integer>
     auto product_sum_accumulate ( span<Integer> r, span<Integer const> x, span<Integer const> y ) noexcept -> Integer
-    // requires r.size() >= x.size() + y.size() + 1
+    // requires degree(r) ≥ degree(x) + degree(y) + 1
     {
         auto carry = Integer(0);
         auto const xz = x.size();
@@ -226,10 +271,15 @@ export namespace purple
         return sum_accumulate( r[xz+yz], carry );
     }
 
-    // Accumulate sum of square, return carry.
+    /// Square and sum.
+    ///
+    /// Computes r = x ^ 2 + r.
+    ///
+    /// Accumulates r ← r % B(r).
+    /// Returns r ÷ B(r).
     template <typename Integer>
     auto square_sum_accumulate ( span<Integer> r, span<Integer const> x ) noexcept -> Integer
-    // requires r.size() >= x.size() * 2 + 1
+    // requires degree(r) ≥ degree(x) * 2 + 1
     {
         auto carry = Integer(0);
         auto const xz = x.size();
@@ -267,81 +317,116 @@ export namespace purple
         return sum_accumulate( r[xz+xz], carry );
     }
 
-    /// Reduction operators.
+    /// Decrease procedures.
+    ///
+    /// These procedures decrease values, maybe with a "borrow" or a "remainder".
 
-    /// Accumulate difference, return borrow.
+    /// Difference with borrow.
+    ///
+    /// Computes r = x - y - borrow.
+    /// If r is lower than zero, borrow ← 1; else borrow ← 0.
+    ///
+    /// Accumulates x ← |r|.
+    /// Returns borrow.
     template <typename Integer>
-    auto difference_accumulate ( span<Integer> r, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
-    // requires r.size() >= 1
+    auto difference_accumulate ( span<Integer> x, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
+    // requires degree(r) ≥ 1
     {
-        borrow = difference_accumulate( r[0], y, borrow );
-        for (auto i = 1uz; i != r.size(); ++i) {
-            borrow = difference_accumulate( r[i], Integer(0), borrow );
+        borrow = difference_accumulate( x[0], y, borrow );
+        for (auto i = 1uz; i != x.size(); ++i) {
+            borrow = difference_accumulate( x[i], Integer(0), borrow );
         }
         return borrow;
     }
 
-    // Accumulate difference, return borrow.
+    /// Difference with borrow.
+    ///
+    /// Computes r = x - y - borrow.
+    /// If r is lower than zero, borrow ← 1; else borrow ← 0.
+    ///
+    /// Accumulates x ← |r|.
+    /// Returns borrow.
     template <typename Integer>
-    auto difference_accumulate_isodegree ( span<Integer> r, span<Integer const> y, Integer borrow = Integer(0) ) noexcept -> Integer
-    // requires r.size() == y.size()
+    auto difference_accumulate_isodegree ( span<Integer> x, span<Integer const> y, Integer borrow = Integer(0) ) noexcept -> Integer
+    // requires degree(r) = degree(y)
     {
         for (auto i = 0uz; i != y.size(); ++i)
-            borrow = difference_accumulate( r[i], y[i], borrow );
+            borrow = difference_accumulate( x[i], y[i], borrow );
         return borrow;
     }
 
-    // Accumulate difference, return borrow.
+    /// Difference with borrow.
+    ///
+    /// Computes r = x - y - borrow.
+    /// If r is lower than zero, borrow ← 1; else borrow ← 0.
+    ///
+    /// Accumulates x ← |r|.
+    /// Returns borrow.
     template <typename Integer>
-    auto difference_accumulate ( span<Integer> r, span<Integer const> y, Integer borrow = Integer(0) ) noexcept -> Integer
-    // requires r.size() >= y.size()
+    auto difference_accumulate ( span<Integer> x, span<Integer const> y, Integer borrow = Integer(0) ) noexcept -> Integer
+    // requires degree(r) ≥ degree(y)
     {
-        borrow = difference_accumulate_isodegree( r, y, borrow );
-        for (auto i = y.size(); i != r.size(); ++i)
-            borrow = difference_accumulate( r[i], Integer(0), borrow );
+        borrow = difference_accumulate_isodegree( x, y, borrow );
+        for (auto i = y.size(); i != x.size(); ++i)
+            borrow = difference_accumulate( x[i], Integer(0), borrow );
         return borrow;
     }
 
-    // Accumulate Nth half, return remainder.
+    /// Half N times with remainder.
+    ///
+    /// In a binary machine, half means shifting bits towards least significant.
+    ///
+    /// Computes q = x ÷ 2 ^ N and r = x % 2 ^ N.
+    ///
+    /// Accumulates x ← q.
+    /// Returns r.
     template <typename Integer>
-    auto half_accumulate ( span<Integer> r, size_t N ) noexcept -> Integer
+    auto half_accumulate ( span<Integer> x, size_t N ) noexcept -> Integer
     {
         constexpr auto B = sizeof(Integer) * 8uz;
-        auto const z = r.size();
+        auto const z = x.size();
         if (z == 0) return Integer(0);
-        auto r_ = r[0] & ((1 << N) - 1);
-        r[0] >>= N;
+        auto r_ = x[0] & ((1 << N) - 1);
+        x[0] >>= N;
         for (auto i = 1uz; i != z; ++i) {
-            r[i-1] |= r[i] << (B - N);
-            r[i] >>= N;
+            x[i-1] |= x[i] << (B - N);
+            x[i] >>= N;
         }
         return r_;
     }
 
-    /// Store quotient, return remainder, with "normalised" operands.
+    /// Division, quotient and remainder, with normalized operands.
+    ///
+    /// Computes q = x ÷ y and r = x % y.
+    ///
+    /// Returns r.
     template <typename Integer>
-    auto ratio_normalised ( span<Integer> q, span<Integer const> x, Integer y, Integer iy ) -> Integer
-    // requires q.size() >= x.size()
-    // requires B/2 <= y < B
-    // requires iy = ( (B^2 - 1) / y ) - B
+    auto division_normalized ( span<Integer> q, span<Integer const> x, Integer y, Integer iy ) -> Integer
+    // requires degree(q) ≥ degree(x)
+    // requires is_normalized(y)
+    // requires iy = inverse_normalized(y)
     {
         auto const xz = x.size();
         auto r = Integer(0);
         for (auto i = xz; i != 0; --i) {
             auto t = array { x[i-1], r };
-            tie( q[i-1], r ) = ratio_normalised( span<Integer const,2>(t), y, iy );
+            tie( q[i-1], r ) = division_normalized( span<Integer const,2>(t), y, iy );
         }
         return r;
     }
 
-    /// Store quotient, return remainder, with "normalised" operands.
+    /// Division, quotient and remainder, with normalized operands.
+    ///
+    /// Computes q = x ÷ y and r = x % y.
+    ///
+    /// Returns r.
     template <typename Integer>
-    auto ratio ( span<Integer> q, span<Integer const> x, Integer y ) -> Integer
-    // requires q.size() >= x.size()
-    // requires B/2 <= y < B
+    auto division_normalized ( span<Integer> q, span<Integer const> x, Integer y ) -> Integer
+    // requires degree(q) ≥ degree(x)
+    // requires is_normalized(y)
     {
-        auto iy = inverse_normalised(y);
-        return ratio_normalised( q, x, y, iy );
+        auto iy = inverse_normalized(y);
+        return division_normalized( q, x, y, iy );
     }
 }
 
@@ -349,7 +434,6 @@ export namespace purple
 
 namespace purple
 {
-    /// 1 if and only if x is smaller than y, else 0.
     template <typename Integer>
     auto is_smaller ( span<Integer const> x, span<Integer const> y ) -> Integer
     {
@@ -362,7 +446,6 @@ namespace purple
         return c;
     }
 
-    /// 1 if and only if x is greater than y, else 0.
     template <typename Integer>
     auto is_greater ( span<Integer const> x, span<Integer const> y ) -> Integer
     {

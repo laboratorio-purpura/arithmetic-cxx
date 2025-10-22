@@ -20,7 +20,7 @@ using std::random_device;
 using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
 using std::span;
 
-TEST(tri,ratio_random)
+TEST(tri,division_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -36,8 +36,8 @@ TEST(tri,ratio_random)
         y[1] |= 0x80000000U;
         while ( not_smaller( to_cspan<2>(x,1), to_cspan<2>(y) ) )
             x[2] = random();
-        auto iy = inverse_normalised<unsigned,2>( y );
-        auto [ q, r ] = ratio_normalised<unsigned,2,3>( to_cspan<3>(x), to_cspan<2>(y), iy );
+        auto iy = inverse_normalized<unsigned,2>( y );
+        auto [ q, r ] = division_normalized<unsigned,2,3>( to_cspan<3>(x), to_cspan<2>(y), iy );
 
         gx.set_str( format(x), 16 );
         gy.set_str( format(y), 16 );

@@ -37,14 +37,14 @@ TEST(mono,inverse_FFFFFFFF)
 TEST(mono,inverse_normalised_80000000)
 {
     auto y = 0x80000000U;
-    auto iy = inverse_normalised(y);
+    auto iy = inverse_normalized(y);
     ASSERT_EQ( format(iy), "FFFFFFFF" );
 }
 
 TEST(mono,inverse_normalised_FFFFFFFF)
 {
     auto y = 0xFFFFFFFFU;
-    auto iy = inverse_normalised(y);
+    auto iy = inverse_normalized(y);
     ASSERT_EQ( format(iy), "00000001" );
 }
 
@@ -58,7 +58,7 @@ TEST(mono,inverse_normalised_random)
         auto y = generator();
         while (y == 0) y = generator();
         y |= 0x80000000U;
-        auto iy = inverse_normalised( y );
+        auto iy = inverse_normalized( y );
 
         auto gy = mpz_class( format(y), 16 );
         mpz_class giy = ( mpz_class("FFFFFFFFFFFFFFFF",16) / gy ) - mpz_class("100000000",16);

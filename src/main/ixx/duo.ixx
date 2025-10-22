@@ -18,21 +18,35 @@ using std::span;
 using std::tie;
 using std::tuple;
 
-/// Bi-degree arithmetic.
+/// Bi-degree nonnegative integer arithmetics.
+///
+/// This module partition defines integer arithmetics on bi-degree integers,
+/// that is, integers represented with two "limbs".
+///
+/// These procedures are convenient for the definition of operators on higher-degree integers.
+///
+/// In the specification of this module partition, let B = 2 ^ bits be the numeric base of a single "limb".
+/// A bi-degree value is therefore represented in base B^2.
 
 export namespace purple
 {
-    /// Properties.
+    /// Tests.
+    ///
+    /// These procedures return 1 if the test holds, else return 0.
 
-    // Approximate inverse of "normalised" integer.
+    /// Tests if normalized.
+    ///
+    /// Normalized means there are no leading zeros.
+    ///
+    /// In a binary machine, this means the most significant bit is 1.
     template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto inverse_normalised ( span<Integer const,Degree> y ) noexcept -> Integer;
-    // requires B/2 <= y[1] < B
+    constexpr
+    auto is_normalized ( span<Integer const,Degree> y ) noexcept -> unsigned
+    {
+        return is_normalised( y[1] );
+    }
 
-    /// Relations.
-
-    /// 1 if and only if x is smaller than y, else 0.
+    /// Tests if smaller.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto is_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
@@ -43,7 +57,7 @@ export namespace purple
         return carry;
     }
 
-    /// 1 if and only if x is *not* smaller than y, else 0.
+    /// Tests if *not* smaller.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto not_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
@@ -51,9 +65,30 @@ export namespace purple
         return 1U - is_smaller( x, y );
     }
 
-    /// Expansion operators.
+    /// Transform procedures.
+    ///
+    /// TODO: conceptualize
 
-    /// Accumulate sum, return carry.
+    /// Inverse approximation of normalized value.
+    ///
+    /// Computes y' such that product x × y' approximates quotient x ÷ y.
+    template <typename Integer, size_t Degree>
+    requires ( Degree == 2uz )
+    auto inverse_normalized ( span<Integer const,Degree> y ) noexcept -> Integer;
+    // requires is_normalized(y)
+    // deferred definition; see further down.
+
+    /// Increase procedures.
+    ///
+    /// These procedures increase values, maybe with a "carry" or an "excess".
+
+    /// Sum with carry.
+    ///
+    /// Computes r = x + y + carry.
+    /// If r is higher than B^2, set carry ← 1; else carry ← 0.
+    ///
+    /// Accumulates x ← r % B^2.
+    /// Returns carry.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto sum_accumulate ( span<Integer,Degree> x, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
@@ -63,7 +98,13 @@ export namespace purple
         return carry;
     }
 
-    /// Accumulate sum, return carry.
+    /// Sum with carry.
+    ///
+    /// Computes r = x + y + carry.
+    /// If r is higher than B^2, set carry ← 1; else carry ← 0.
+    ///
+    /// Accumulates x ← r % B^2.
+    /// Returns carry.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto sum_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer carry = Integer(0) ) noexcept -> Integer
@@ -73,7 +114,14 @@ export namespace purple
         return carry;
     }
 
-    // Accumulate Nth twice, return carry.
+    /// Twice N times.
+    ///
+    /// In a binary machine, twice means shifting bits towards most significant.
+    ///
+    /// Computes r = x × 2 ^ N.
+    ///
+    /// Accumulates x ← r % B^2.
+    /// Returns r ÷ B^2.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto twice_accumulate ( span<Integer,Degree> x, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
@@ -83,9 +131,17 @@ export namespace purple
         return carry;
     }
 
-    /// Reduction operators.
+    /// Decrease procedures.
+    ///
+    /// These procedures decrease values, maybe with a "borrow" or a "remainder".
 
-    /// Accumulate difference, return borrow.
+    /// Difference with borrow.
+    ///
+    /// Computes r = x - y - borrow.
+    /// If r is lower than zero, borrow ← 1; else borrow ← 0.
+    ///
+    /// Accumulates x ← |r|.
+    /// Returns borrow.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto difference_accumulate ( span<Integer,Degree> x, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
@@ -95,7 +151,13 @@ export namespace purple
         return borrow;
     }
 
-    /// Accumulate difference, return borrow.
+    /// Difference with borrow.
+    ///
+    /// Computes r = x - y - borrow.
+    /// If r is lower than zero, borrow ← 1; else borrow ← 0.
+    ///
+    /// Accumulates x ← |r|.
+    /// Returns borrow.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto difference_accumulate ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer borrow = Integer(0) ) noexcept -> Integer
@@ -105,33 +167,44 @@ export namespace purple
         return borrow;
     }
 
-    /// Accumulate Nth half, return remainder.
+    /// Half N times with remainder.
+    ///
+    /// In a binary machine, half means shifting bits towards least significant.
+    ///
+    /// Computes q = x ÷ 2 ^ N and r = x % 2 ^ N.
+    ///
+    /// Accumulates x ← q.
+    /// Returns r.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
-    auto half_accumulate ( span<Integer,Degree> r, size_t N ) noexcept -> Integer
+    auto half_accumulate ( span<Integer,Degree> x, size_t N ) noexcept -> Integer
     {
         constexpr auto B = sizeof(Integer) * 8uz;
-        auto r_ = r[0] & ((1 << N) - 1);
-        r[0] >>= N;
-        r[0] |= r[1] << (B - N);
-        r[1] >>= N;
-        return r_;
+        auto r = x[0] & ((1 << N) - 1);
+        x[0] >>= N;
+        x[0] |= x[1] << (B - N);
+        x[1] >>= N;
+        return r;
     }
 
-    /// Quotient and remainder with "normalised" operands.
+    /// Division, quotient and remainder, with normalized operands.
+    ///
+    /// Computes q = x ÷ y and r = x % y.
+    ///
+    /// Returns { q, r }.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
-    auto ratio_normalised ( span<Integer const,Degree> x, Integer y, Integer iy ) noexcept -> tuple< Integer, Integer >
-    // requires B/2 <= y < B
-    // requires x[1] < y
-    // requires iy = ( (B^2 - 1) / y ) - B
+    auto division_normalized ( span<Integer const,Degree> x, Integer y, Integer iy ) noexcept -> tuple< Integer, Integer >
+    // requires is_smaller( x[1], y )
+    // requires is_normalized(y)
+    // requires iy = inverse_normalized(y)
     {
-        // t = ( r[1] * iy ) + x
+        // t = ( r[1] × iy ) + x
         auto t = product( x[1], iy );
         ignore = sum_accumulate( span(t), x );
         // q = ( t[1] + 1 ) mod B
         auto [ q, _0 ] = sum( t[1], Integer(1) );
-        // r = ( x - ( q * y ) ) mod B
+        // r = ( x - ( q × y ) ) mod B
         auto qy = product( q, y );
         auto [ r, _1 ] = difference( x[0], qy[0] );
         // if r > t[0] : q = ( q - 1 ) mod B; r = ( r + y ) mod B
@@ -148,33 +221,37 @@ export namespace purple
         return { q, r };
     }
 
-    /// Quotient and remainder.
+    /// Division, quotient and remainder.
+    ///
+    /// Computes q = x ÷ y and r = x % y.
+    ///
+    /// Returns { q, r }.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
-    auto ratio ( span<Integer const,Degree> x, Integer y ) noexcept -> tuple< array<Integer,2>, Integer >
-    // requires y != 0
+    auto division ( span<Integer const,Degree> x, Integer y ) noexcept -> tuple< array<Integer,2>, Integer >
+    // requires not_zero(y)
     {
         auto q = array { Integer(0), Integer(0) };
         auto r = array { x[0], x[1] };
 
-        // "normalise" dividend
+        // normalize dividend
         if ( r[1] >= y )
-            tie( q[1], r[1] ) = ratio( r[1], y ); // TODO: ...with inverse
+            tie( q[1], r[1] ) = division( r[1], y ); // TODO: ...with inverse
         // invariant: r[1] < y
 
-        // "normalise" divisor and remainder
+        // normalize divisor and remainder
         auto ylz = top_zeros( y );
         ignore = twice_accumulate( y, ylz );
         ignore = twice_accumulate( span(r), ylz );
-        // invariant: y is normalised
+        // invariant: y is normalized
 
-        // compute dividend inverse
-        auto iy = inverse_normalised( y );
+        // compute divisor inverse
+        auto iy = inverse_normalized( y );
 
-        // compute "normalised" ratio
-        tie( q[0], r[0] ) = ratio_normalised( span<Integer const,2>(r), y, iy );
+        // compute division with normalized operands
+        tie( q[0], r[0] ) = division_normalized( span<Integer const,2>(r), y, iy );
 
-        // "denormalise" remainder
+        // denormalize remainder
         half_accumulate( r[0], ylz );
 
         // terminate
@@ -182,13 +259,10 @@ export namespace purple
     }
 }
 
-// Fix non-const parameter conversion.
+// Non-const to const conversions.
 
 export namespace purple
 {
-    /// Properties.
-
-    /// 1 if and only if x is *not* smaller than y, else 0.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto not_smaller ( span<Integer const,Degree> x, span<Integer,Degree> y ) noexcept
@@ -196,7 +270,6 @@ export namespace purple
         return not_smaller<Integer,Degree>( x, span<Integer const,Degree>(y) );
     }
 
-    /// 1 if and only if x is *not* smaller than y, else 0.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto not_smaller ( span<Integer,Degree> x, span<Integer const,Degree> y ) noexcept
@@ -204,7 +277,6 @@ export namespace purple
         return not_smaller<Integer,Degree>( span<Integer const,Degree>(x), y );
     }
 
-    /// 1 if and only if x is *not* smaller than y, else 0.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto not_smaller ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
@@ -212,9 +284,6 @@ export namespace purple
         return not_smaller<Integer,Degree>( span<Integer const,Degree>(x), span<Integer const,Degree>(y) );
     }
 
-    // Operators.
-
-    // Accumulate sum, return carry.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto sum_accumulate ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
@@ -222,7 +291,6 @@ export namespace purple
         return sum_accumulate<Integer,Degree>( x, span<Integer const,Degree>(y) );
     }
 
-    // Accumulate difference, return carry.
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
     auto difference_accumulate ( span<Integer,Degree> x, span<Integer,Degree> y ) noexcept
@@ -237,13 +305,12 @@ namespace purple
 {
     template <typename Integer, size_t Degree>
     requires ( Degree == 2uz )
-    auto inverse_normalised ( span<Integer const,Degree> y ) noexcept -> Integer
-    // requires B/2 <= y[1] < B
+    auto inverse_normalized ( span<Integer const,Degree> y ) noexcept -> Integer
     {
-        auto v = inverse_normalised( y[1] );
-        // p = ( y[1] * v ) mod B
+        auto v = inverse_normalized( y[1] );
+        // p ← ( y[1] * v ) % B
         auto p = y[1] * v;
-        // p = ( p + y[0] ) mod B
+        // p ← ( p + y[0] ) % B
         p = p + y[0];
         if (p < y[0]) {
             v = v - 1;
@@ -251,11 +318,11 @@ namespace purple
                 v = v - 1;
                 p = p - y[1];
             }
-            // p = ( p - y[1] ) mod B
+            // p ← ( p - y[1] ) % B
             p = p - y[1];
         }
         auto t = product( v, y[0] );
-        // p = ( p + t[1] ) mod B
+        // p ← ( p + t[1] ) % B
         p = p + t[1];
         if ( p < t[1] ) {
             v = v - 1;

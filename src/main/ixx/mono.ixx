@@ -315,32 +315,35 @@ export namespace purple
         return borrow;
     }
 
-    /// Half N times, rounded down.
+    /// Half N times with remainder.
     ///
     /// In a binary machine, half means shifting bits towards least significant.
     ///
-    /// Computes q = x ÷ 2 ^ N.
-    /// TODO: compute r
+    /// Computes q = x ÷ 2 ^ N, r = x % 2 ^ N.
     ///
-    /// Returns q.
+    /// Returns { q, r }.
     constexpr
-    auto half ( unsigned int & x, size_t N ) noexcept -> unsigned int
+    auto half ( unsigned int x, size_t N ) noexcept -> tuple< unsigned int, unsigned int >
     {
-        return x >> N;
+        auto r = x & ((1 << N) - 1);
+        auto q = x >> N;
+        return { q, r };
     }
 
-    /// Half N times, rounded down.
+    /// Half N times with remainder.
     ///
     /// In a binary machine, half means shifting bits towards least significant.
     ///
-    /// Computes q = x ÷ 2 ^ N.
-    /// TODO: compute r
+    /// Computes q = x ÷ 2 ^ N, r = x % 2 ^ N.
     ///
     /// Accumulates x ← q.
+    /// Returns r.
     constexpr
-    void half_accumulate ( unsigned int & x, size_t N ) noexcept
+    auto half_accumulate ( unsigned int & x, size_t N ) -> unsigned int
     {
-        x >>= N;
+        auto [ q, r ] = half(x,N);
+        x = q;
+        return r;
     }
 
     /// Division, quotient and remainder.

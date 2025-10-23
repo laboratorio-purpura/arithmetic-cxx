@@ -20,13 +20,22 @@ using std::array;
 using std::random_device;
 using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
 using std::span;
-using std::vector;
 
 // Assertions.
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST(poly,half_D4_N1_random)
+// Type conversion from array.
+
+template <typename Integer, size_t Degree>
+requires ( Degree == 2uz )
+auto half_accumulate ( array<Integer,Degree> & x, size_t N ) noexcept -> Integer
+{
+    auto xx = span<Integer,Degree>( x );
+    return half_accumulate( xx, N );
+}
+
+TEST(duo,half_accumulate_1_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -34,11 +43,11 @@ TEST(poly,half_D4_N1_random)
     for (auto i = 0uz; i != 100; ++i)
     {
         // generate random numbers
-        auto x = vector { generator(), generator(), generator(), generator() };
+        auto x = array { generator(), generator() };
 
         // compute with purple
         auto q = x;
-        auto r = half_accumulate<unsigned>( span(q), 1 );
+        auto r = half_accumulate( q, 1 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
@@ -58,16 +67,16 @@ TEST(poly,half_D4_N1_random)
         );
         ASSERT_GMP_EQ(
             gq,
-            mpz_class( format(q), 16 )
+            mpz_class( format( q ), 16 )
         );
-        ASSERT_EQ(
+        ASSERT_GMP_EQ(
             gr,
-            mpz_class( format(r), 16 )
+            mpz_class( format( r ), 16 )
         );
     }
 }
 
-TEST(poly,half_D4_N2_random)
+TEST(duo,half_accumulate_2_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -75,11 +84,11 @@ TEST(poly,half_D4_N2_random)
     for (auto i = 0uz; i != 100; ++i)
     {
         // generate random numbers
-        auto x = vector { generator(), generator(), generator(), generator() };
+        auto x = array { generator(), generator() };
 
         // compute with purple
         auto q = x;
-        auto r = half_accumulate<unsigned>( span(q), 2 );
+        auto r = half_accumulate( q, 2 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
@@ -99,11 +108,11 @@ TEST(poly,half_D4_N2_random)
         );
         ASSERT_GMP_EQ(
             gq,
-            mpz_class( format(q), 16 )
+            mpz_class( format( q ), 16 )
         );
-        ASSERT_EQ(
+        ASSERT_GMP_EQ(
             gr,
-            mpz_class( format(r), 16 )
+            mpz_class( format( r ), 16 )
         );
     }
 }

@@ -24,53 +24,48 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// Type conversion from array.
-
-template <typename Integer, size_t Degree>
-requires ( Degree == 2uz )
-auto inverse_normalized ( array<Integer,Degree> const & y ) noexcept
-{
-    auto yy = span<Integer const,Degree>( y );
-    return inverse_normalized<Integer,Degree>( yy );
-}
-
-TEST(duo,inverse_normalised_9C8739F05AA157B2)
-{
-    auto y = array { 0x5AA157B2U, 0x9C8739F0U };
-    auto iy = inverse_normalized( y );
-    ASSERT_EQ( format(iy), "A2AF5356" );
-}
-
-TEST(duo,inverse_normalised_random)
+TEST(mono,division_random)
 {
     random_device random;
     random_integer generator { random() };
 
     for (auto i = 0uz; i != 100; ++i)
     {
-        auto y = array { generator(), generator() };
-        // requires is_normalized(y)
-        y[1] |= 0x80000000U;
+        // generate random numbers
+        auto x = generator();
+        auto y = generator();
+        // requires not_zero(y)
+        while ( is_zero(y) ) y = generator();
 
         // compute with purple
-        auto iy = inverse_normalized( y );
+        auto [ q, r ] = division( x, y );
 
         // compute with GMP
+        auto gx = mpz_class( format(x), 16 );
         auto gy = mpz_class( format(y), 16 );
-        mpz_class giy = ( mpz_class("FFFFFFFFFFFFFFFFFFFFFFFF",16) / gy ) - mpz_class("100000000",16);
+        auto gq = gx / gy;
+        auto gr = gx % gy;
 
         // compare
         SCOPED_TRACE( std::string() +
             "purple:\n" +
+            "x = " + format(x) + "\n" +
             "y = " + format(y) + "\n" +
-            "iy = " + format(iy) + "\n" +
+            "q = " + format(q) + "\n" +
+            "r = " + format(r) + "\n" +
             "gmp:\n" +
-            "y = " + format(gy) + "\n"
-            "iy = " + format(giy) + "\n"
+            "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
+            "q = " + format(gq) + "\n" +
+            "r = " + format(gr) + "\n"
         );
         ASSERT_GMP_EQ(
-            giy,
-            mpz_class( format(iy), 16 )
+            gq,
+            mpz_class( format(q), 16 )
+        );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format(r), 16 )
         );
     }
 }

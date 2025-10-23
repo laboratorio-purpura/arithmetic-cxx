@@ -4,10 +4,14 @@
 module;
 
 #include <array>
+#include <iomanip>
 #include <span>
+#include <sstream>
 #include <vector>
 
 #include <fmt/format.h>
+
+#include <gmpxx.h>
 
 export module purple.test;
 
@@ -35,6 +39,13 @@ export namespace purple::test
     auto format (unsigned integer)
     {
         return fmt::format("{:08X}",integer);
+    }
+
+    auto format (mpz_class const & integer)
+    {
+        std::stringstream ss;
+        ss << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << integer;
+        return ss.str();
     }
 
     template <size_t SZ, typename AT, size_t AZ>

@@ -22,6 +22,19 @@ using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2
 using std::span;
 using std::vector;
 
+// Assertions.
+
+#define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
+
+// Type conversion for arrays.
+
+template <typename Integer, size_t Z>
+auto twice_accumulate ( array<Integer,Z> & x, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
+{
+    auto xx = span<Integer>( x );
+    return twice_accumulate( xx, N, carry );
+}
+
 TEST(poly,twice_v0)
 {
     ASSERT_EQ( format( twice(v0) ), "0000000000000000" );
@@ -67,28 +80,70 @@ TEST(poly,twice_v0M)
     ASSERT_EQ( format( twice(v0M) ), "00000001FFFFFFFE00000000" );
 }
 
-TEST(poly,twice_4_random)
+TEST(poly,twice_D4_N1_random)
 {
     random_device random;
     random_integer generator { random() };
 
-    for (auto i = 0uz; i != 10; ++i)
+    for (auto i = 0uz; i != 100; ++i)
     {
-        auto x = vector { generator(), generator(), generator(), generator() };
-        auto r = twice<unsigned>( x );
+        // generate random numbers
+        auto x = array { generator(), generator(), generator(), generator() };
 
+        // compute with purple
+        auto r = x;
+        auto rh = twice_accumulate( r, 1 );
+
+        // compute with gmp
         auto gx = mpz_class( format(x), 16 );
-        mpz_class gr = gx * 2;
+        auto gr = gx * 2;
 
+        // compute
         SCOPED_TRACE( std::string() +
             "purple:\n" +
             "x = " + format(x) + "\n" +
-            "x * 2 = " + format(r) + "\n" +
+            "r = " + format( array { r[0], r[1], r[2], r[3], rh } ) + "\n" +
             "gmp:\n" +
-            "x = " + gx.get_str(16) + "\n" +
-            "x * 2 = " + gr.get_str(16) + "\n"
+            "x = " + format(gx) + "\n" +
+            "r = " + format(gr) + "\n"
         );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format( array { r[0], r[1], r[2], r[3], rh } ), 16 )
+        );
+    }
+}
 
-        ASSERT_EQ( cmp( gr, mpz_class( format(r), 16 ) ), 0 );
+TEST(poly,twice_D4_N2_random)
+{
+    random_device random;
+    random_integer generator { random() };
+
+    for (auto i = 0uz; i != 100; ++i)
+    {
+        // generate random numbers
+        auto x = array { generator(), generator(), generator(), generator() };
+
+        // compute with purple
+        auto r = x;
+        auto rh = twice_accumulate( r, 2 );
+
+        // compute with gmp
+        auto gx = mpz_class( format(x), 16 );
+        auto gr = gx * 4;
+
+        // compute
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "x = " + format(x) + "\n" +
+            "r = " + format( array { r[0], r[1], r[2], r[3], rh } ) + "\n" +
+            "gmp:\n" +
+            "x = " + format(gx) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format( array { r[0], r[1], r[2], r[3], rh } ), 16 )
+        );
     }
 }

@@ -20,6 +20,10 @@ using std::random_device;
 using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
 using std::span;
 
+// Assertions.
+
+#define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
+
 TEST(mono,inverse_00000001)
 {
     auto y = 0x00000001U;
@@ -33,6 +37,40 @@ TEST(mono,inverse_FFFFFFFF)
     auto iy = inverse(y);
     ASSERT_EQ( format(iy), "00000001" );
 }
+
+TEST(mono,inverse_random)
+{
+    random_device random;
+    random_integer generator { random() };
+
+    for (auto i = 0uz; i != 10; ++i)
+    {
+        auto y = generator();
+        while ( is_zero(y) ) y = generator();
+
+        // compute with purple
+        auto iy = inverse( y );
+
+        // compute with GMP
+        auto gy = mpz_class( format(y), 16 );
+        mpz_class giy = mpz_class("FFFFFFFF",16) / gy;
+
+        // compare
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "y = " + format(y) + "\n" +
+            "iy = " + format(iy) + "\n" +
+            "gmp:\n" +
+            "y = " + format(gy) + "\n"
+            "iy = " + format(giy) + "\n"
+        );
+        ASSERT_GMP_EQ(
+            giy,
+            mpz_class( format(iy), 16 )
+        );
+    }
+}
+
 
 TEST(mono,inverse_normalised_80000000)
 {
@@ -48,7 +86,7 @@ TEST(mono,inverse_normalised_FFFFFFFF)
     ASSERT_EQ( format(iy), "00000001" );
 }
 
-TEST(mono,inverse_normalised_random)
+TEST(mono,inverse_normalized_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -58,20 +96,26 @@ TEST(mono,inverse_normalised_random)
         auto y = generator();
         while (y == 0) y = generator();
         y |= 0x80000000U;
+
+        // compute with purple
         auto iy = inverse_normalized( y );
 
+        // compute with GMP
         auto gy = mpz_class( format(y), 16 );
         mpz_class giy = ( mpz_class("FFFFFFFFFFFFFFFF",16) / gy ) - mpz_class("100000000",16);
 
+        // compare
         SCOPED_TRACE( std::string() +
             "purple:\n" +
             "y = " + format(y) + "\n" +
             "iy = " + format(iy) + "\n" +
             "gmp:\n" +
-            "y = " + gy.get_str(16) + "\n"
-            "iy = " + giy.get_str(16) + "\n"
+            "y = " + format(gy) + "\n"
+            "iy = " + format(giy) + "\n"
         );
-
-        ASSERT_EQ( cmp( giy, mpz_class( format(iy), 16 ) ), 0 );
+        ASSERT_GMP_EQ(
+            giy,
+            mpz_class( format(iy), 16 )
+        );
     }
 }

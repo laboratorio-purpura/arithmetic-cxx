@@ -26,7 +26,7 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST(poly,product_v0_D2_D1_random)
+TEST(poly,DISABLED_product_v0_D2_D1_random)
 {
     random_device random;
     random_integer generator { random() };

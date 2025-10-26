@@ -24,32 +24,32 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST(mono,inverse_00000001)
+TEST(mono,reciprocal_00000001)
 {
     auto y = 0x00000001U;
-    auto iy = inverse(y);
+    auto iy = reciprocal(y);
     ASSERT_EQ( format(iy), "FFFFFFFF" );
 }
 
-TEST(mono,inverse_FFFFFFFF)
+TEST(mono,reciprocal_FFFFFFFF)
 {
     auto y = 0xFFFFFFFFU;
-    auto iy = inverse(y);
+    auto iy = reciprocal(y);
     ASSERT_EQ( format(iy), "00000001" );
 }
 
-TEST(mono,inverse_random)
+TEST(mono,reciprocal_random)
 {
     random_device random;
     random_integer generator { random() };
 
-    for (auto i = 0uz; i != 10; ++i)
+    for (auto i = 0uz; i != 1000; ++i)
     {
         auto y = generator();
         while ( is_zero(y) ) y = generator();
 
         // compute with purple
-        auto iy = inverse( y );
+        auto iy = reciprocal( y );
 
         // compute with GMP
         auto gy = mpz_class( format(y), 16 );
@@ -71,22 +71,21 @@ TEST(mono,inverse_random)
     }
 }
 
-
-TEST(mono,inverse_normalised_80000000)
+TEST(mono,reciprocal_normalised_80000000)
 {
     auto y = 0x80000000U;
-    auto iy = inverse_normalized(y);
+    auto iy = reciprocal_normalized(y);
     ASSERT_EQ( format(iy), "FFFFFFFF" );
 }
 
-TEST(mono,inverse_normalised_FFFFFFFF)
+TEST(mono,reciprocal_normalised_FFFFFFFF)
 {
     auto y = 0xFFFFFFFFU;
-    auto iy = inverse_normalized(y);
+    auto iy = reciprocal_normalized(y);
     ASSERT_EQ( format(iy), "00000001" );
 }
 
-TEST(mono,inverse_normalized_random)
+TEST(mono,reciprocal_normalized_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -98,7 +97,7 @@ TEST(mono,inverse_normalized_random)
         y |= 0x80000000U;
 
         // compute with purple
-        auto iy = inverse_normalized( y );
+        auto iy = reciprocal_normalized( y );
 
         // compute with GMP
         auto gy = mpz_class( format(y), 16 );

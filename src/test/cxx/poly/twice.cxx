@@ -32,7 +32,7 @@ template <typename Integer, size_t Z>
 auto twice_accumulate ( array<Integer,Z> & x, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
 {
     auto xx = span<Integer>( x );
-    return twice_accumulate( xx, N, carry );
+    return twice_assign( xx, N, carry );
 }
 
 TEST(poly,twice_v0)

@@ -89,7 +89,7 @@ TEST(poly,square_sum_accumulate_carry)
 {
     auto r = vector { 0U, 0xFFFFFFFFU, 0xFFFFFFFFU };
     auto const x = vector { 0x00010000U };
-    auto const r_ = square_sum_accumulate<unsigned>( span(r), span(x) );
+    auto const r_ = square_sum_assign<unsigned>( span(r), span(x) );
     ASSERT_EQ( format(r), "000000000000000000000000" );
     ASSERT_EQ( r_, 1U );
 }

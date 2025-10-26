@@ -32,7 +32,7 @@ requires ( Degree == 2uz )
 auto twice_accumulate ( array<Integer,Degree> & x, size_t N ) noexcept -> Integer
 {
     auto xx = span<Integer,Degree>( x );
-    return twice_accumulate( xx, N );
+    return twice_assign( xx, N );
 }
 
 TEST(duo,twice_accumulate_1_random)

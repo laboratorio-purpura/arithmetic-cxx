@@ -38,7 +38,7 @@ TEST(poly,half_D4_N1_random)
 
         // compute with purple
         auto q = x;
-        auto r = half_accumulate<unsigned>( span(q), 1 );
+        auto r = half_assign<unsigned>( span(q), 1 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
@@ -79,7 +79,7 @@ TEST(poly,half_D4_N2_random)
 
         // compute with purple
         auto q = x;
-        auto r = half_accumulate<unsigned>( span(q), 2 );
+        auto r = half_assign<unsigned>( span(q), 2 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );

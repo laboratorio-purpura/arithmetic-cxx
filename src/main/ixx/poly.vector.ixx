@@ -28,7 +28,7 @@ export namespace purple
         auto r = vector<Integer>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
-        r[xz] = sum_accumulate<Integer>(rs,y);
+        r[xz] = sum_assign<Integer>(rs,y);
         return std::move(r);
     }
 
@@ -40,7 +40,7 @@ export namespace purple
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
         auto ys = span( y.begin(), y.end() );
-        r[xz] = sum_accumulate<Integer>(rs,ys);
+        r[xz] = sum_assign<Integer>(rs,ys);
         return std::move(r);
     }
 
@@ -51,7 +51,7 @@ export namespace purple
         auto r = vector<Integer>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
-        r[xz] = twice_accumulate(rs,N);
+        r[xz] = twice_assign(rs,N);
         return std::move(r);
     }
 
@@ -62,7 +62,7 @@ export namespace purple
         auto r = vector<Integer>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
-        r[xz] = product_accumulate(rs,y);
+        r[xz] = product_assign(rs,y);
         return std::move(r);
     }
 
@@ -77,7 +77,7 @@ export namespace purple
         auto rs = span( r.begin(), r.begin() + xz + yz );
         auto xs = span( x.begin(), x.end() );
         auto ys = span( y.begin(), y.end() );
-        r[xz+yz] = product_sum_accumulate(rs,xs,ys);
+        r[xz+yz] = product_sum_assign(rs,xs,ys);
         return std::move(r);
     }
 
@@ -90,7 +90,7 @@ export namespace purple
         auto rs = span( r.begin(), r.begin() + xz + yz );
         auto xs = span( x.begin(), x.end() );
         auto ys = span( y.begin(), y.end() );
-        r[xz+yz] = product_sum_accumulate(rs,xs,ys);
+        r[xz+yz] = product_sum_assign(rs,xs,ys);
         return std::move(r);
     }
 
@@ -101,7 +101,7 @@ export namespace purple
         auto r = vector<Integer>( xz + xz + 1 );
         auto rs = span( r.begin(), r.begin() + xz + xz );
         auto xs = span( x.begin(), x.end() );
-        r[xz+xz] = square_sum_accumulate(rs,xs);
+        r[xz+xz] = square_sum_assign(rs,xs);
         return std::move(r);
     }
 
@@ -116,7 +116,7 @@ export namespace purple
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
         auto ys = span( y.begin(), y.end() );
-        ignore = difference_accumulate<Integer>(rs,ys);
+        ignore = difference_assign<Integer>(rs,ys);
         return std::move(r);
     }
 }

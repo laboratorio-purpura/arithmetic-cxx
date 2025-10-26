@@ -145,7 +145,7 @@ namespace
             ranges::generate(x,ref(random));
 
             auto r = x;
-            purple::half_accumulate<unsigned>(r,1);
+            purple::half_assign<unsigned>(r,1);
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
@@ -154,16 +154,16 @@ namespace
         });
     }
 
-    int inverse_nonzero (span<char const *> args)
+    int reciprocal_nonzero (span<char const *> args)
     {
-        return command_iterations("inverse-nonzero",args,[] (auto i, auto& random)
+        return command_iterations("reciprocal-nonzero",args,[] (auto i, auto& random)
         {
             auto y = random();
 
             // nonzero
             if (y == 0U) y = 0xFFFFFFFFU;
 
-            auto iy = purple::inverse(y);
+            auto iy = purple::reciprocal(y);
 
             fmt::println("i = {};",i);
             fmt::println("y = {:08X};",y);
@@ -172,16 +172,16 @@ namespace
         });
     }
 
-    int inverse_normalised (span<char const *> args)
+    int reciprocal_normalised (span<char const *> args)
     {
-        return command_iterations("inverse-normalised",args,[] (auto i, auto& random)
+        return command_iterations("reciprocal-normalised",args,[] (auto i, auto& random)
         {
             auto y = random();
 
             // "normalise"
             y |= 0x80000000U;
 
-            auto iy = purple::inverse_normalized(y);
+            auto iy = purple::reciprocal_normalized(y);
 
             fmt::println("i = {};",i);
             fmt::println("b = 100000000;",i);
@@ -285,7 +285,7 @@ namespace
             y |= 0x80000000U;
 
             auto q = vector<unsigned>(degree);
-            auto iy = purple::inverse_normalized(y);
+            auto iy = purple::reciprocal_normalized(y);
             auto r = purple::division_normalized<unsigned>( q, x, y, iy );
 
             fmt::println("i = {};",iteration);
@@ -363,10 +363,10 @@ namespace
             return difference(args);
         else if (command == "half")
             return half(args);
-        else if (command == "inverse-nonzero")
-            return inverse_nonzero(args);
-        else if (command == "inverse-normalised")
-            return inverse_normalised(args);
+        else if (command == "reciprocal-nonzero")
+            return reciprocal_nonzero(args);
+        else if (command == "reciprocal-normalised")
+            return reciprocal_normalised(args);
         else if (command == "is-smaller")
             return is_smaller(args);
         else if (command == "product")

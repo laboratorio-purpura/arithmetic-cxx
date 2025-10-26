@@ -39,7 +39,7 @@ void division_v1_restricted_accumulate_test ( array<T,XZ> const & x, array<T,YZ>
     // compute with purple
     auto q = T(0);
     auto r = x;
-    auto iy = inverse_normalized( y[YZ-1] );
+    auto iy = reciprocal_normalized( y[YZ-1] );
     division_v1_restricted_accumulate<unsigned>( q, r, y, iy );
 
     // compute with gmp
@@ -93,7 +93,7 @@ TEST(poly,division_v1_restricted_accumulate_D4_D3_random)
         y[2] |= 0x80000000;
 
         // requires is_smaller( x[3], y[2] )
-        while ( not_smaller( x[3], y[2] ) ) ignore = difference_accumulate( x[3], y[2] );
+        while ( not_smaller( x[3], y[2] ) ) ignore = difference_assign( x[3], y[2] );
 
         division_v1_restricted_accumulate_test( x,  y );
     }
@@ -160,7 +160,7 @@ TEST(poly,division_v1_normalized_accumulate_D4_D3_random)
         y[2] |= 0x80000000;
 
         // requires is_smaller( x[3], y[2] )
-        while ( not_smaller( x[3], y[2] ) ) ignore = difference_accumulate( x[3], y[2] );
+        while ( not_smaller( x[3], y[2] ) ) ignore = difference_assign( x[3], y[2] );
 
         division_v1_normalized_accumulate_test( x, y );
     }

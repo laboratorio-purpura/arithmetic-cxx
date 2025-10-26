@@ -56,9 +56,9 @@ export namespace purple
         auto r = array { x[0], x[1] };
         while ( not_smaller<unsigned,2>( r, array { y, Integer(0) } ) ) { // TODO: not_smaller 2D vs 1D
             // q ← q + 1
-            ignore = next_accumulate<Integer,Degree>( q );
+            ignore = next_assign<Integer,Degree>( q );
             // r ← r - y
-            ignore = difference_accumulate<Integer,Degree>( r, y );
+            ignore = difference_assign<Integer,Degree>( r, y );
         }
         // terminate
         return { q, r [0] };
@@ -101,13 +101,13 @@ export namespace purple
     // requires iy = ( (B^2 - 1) / y ) - B
     {
         auto [q,q0] = product( x[1], iy );
-        ignore = sum_accumulate( q, x[1] );
+        ignore = sum_assign( q, x[1] );
         auto pp = product( q, y );
         auto r = array<unsigned,2> { x[0], x[1] };
-        ignore = difference_accumulate<Integer>( r, pp );
+        ignore = difference_assign<Integer>( r, pp );
         while ( is_greater( r[1], Integer(0) ) || not_smaller( r[0], y ) ) {
-            ignore = sum_accumulate( q, 1 );
-            ignore = difference_accumulate( r, y );
+            ignore = sum_assign( q, 1 );
+            ignore = difference_assign( r, y );
         }
         return { q, r[0] };
     }

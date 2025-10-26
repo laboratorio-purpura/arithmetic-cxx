@@ -39,7 +39,7 @@ TEST(poly,division_normalised_v00_80000000)
     auto x = v00;
     auto y = 0x80000000U;
     auto q = array<unsigned,2>();
-    auto iy = inverse_normalized(y);
+    auto iy = reciprocal_normalized(y);
     auto r = division_normalized<unsigned>( span(q), span(x), y, iy );
     ASSERT_EQ( format(q), "0000000000000000" );
     ASSERT_EQ( format(r), "00000000" );
@@ -50,7 +50,7 @@ TEST(poly,division_normalised_vMM_80000000)
     auto x = vMM;
     auto y = 0x80000000U;
     auto q = array<unsigned,2>();
-    auto iy = inverse_normalized(y);
+    auto iy = reciprocal_normalized(y);
     auto r = division_normalized<unsigned>( span(q), span(x), y, iy );
     ASSERT_EQ( format(q), "00000001FFFFFFFF" );
     ASSERT_EQ( format(r), "7FFFFFFF" );
@@ -72,7 +72,7 @@ TEST(poly,division_normalized_D4_D1_random)
         while ( not_smaller( x[3], y ) ) x[3] = generator();
 
         // compute with purple
-        auto iy = inverse_normalized( y );
+        auto iy = reciprocal_normalized( y );
         auto q = array { 0u, 0u, 0u, 0u };
         auto r = division_normalized( q, x, y, iy );
 

@@ -40,7 +40,7 @@ requires ( Degree == 2uz )
 auto inverse_normalized ( array<Integer,Degree> const & y ) noexcept
 {
     auto yy = span<Integer const,Degree>( y );
-    return inverse_normalized<Integer,Degree>( yy );
+    return reciprocal_normalized<Integer,Degree>( yy );
 }
 
 template <typename Integer, size_t Degree>

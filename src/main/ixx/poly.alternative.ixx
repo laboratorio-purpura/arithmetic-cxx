@@ -44,9 +44,9 @@ export namespace purple
         // while t ≠ 0:
         while ( not_zero<unsigned>( t ) ) {
             // x ← x + x
-            carry = sum_accumulate<unsigned>( v, x, carry );
+            carry = sum_assign<unsigned>( v, x, carry );
             // t ← t - 1
-            ignore = previous_accumulate<unsigned>( t );
+            ignore = previous_assign<unsigned>( t );
         }
         // terminate:
         // v = v + ( x × y )
@@ -75,30 +75,23 @@ export namespace purple
         // while r ≥ y:
         while ( not_smaller<Integer>( r, y ) ) {
             // q ← q + 1
-            ignore = next_accumulate<Integer>( q );
+            ignore = next_assign<Integer>( q );
             // r ← r - y
-            ignore = difference_accumulate<Integer>( r, y );
+            ignore = difference_assign<Integer>( r, y );
         }
         // terminate:
         // q = x ÷ y
         // r = x % y
     }
 
-    /// Division, quotient and remainder, with restricted operands.
+    /// Restricted division with remainder.
     ///
     /// Requirements:
     /// degree(x) = degree(y) + 1
     /// degree(y) ≥ 1
+    /// x ÷ B < y
     /// y is normalized
     /// iy = reciprocal_normalized(y)
-    /// let N = y.size()
-    /// { x[N], x[N-1], x[N-2], ..., x[1] } < y
-    ///
-    /// Effects:
-    /// q ← q + x ÷ y
-    /// x ← x % y
-    ///
-    /// Computes a single step of the classic or "school" method.
 
     template <typename Integer>
     void division_v1_restricted_accumulate ( Integer & q, span<Integer> x, span<Integer const> y, Integer iy )
@@ -141,7 +134,7 @@ export namespace purple
                 // q_ ← q_ - 1
                 q_ = q_ - 1;
                 // r_ ← r_ + y[N-1]
-                carry = sum_accumulate( r_, y[N-1] );
+                carry = sum_assign( r_, y[N-1] );
                 // carry = 1 ⇒ r_ ≥ B
             }
         }
@@ -155,9 +148,9 @@ export namespace purple
             Integer t_ [ y.size() + 1 ];
             auto t = span<Integer>( t_, y.size() + 1 );
             assign( t, y );
-            ignore = product_accumulate<Integer>( t, q_ );
+            ignore = product_assign<Integer>( t, q_ );
             // r ← x - t
-            borrow = difference_accumulate<Integer>( x, t );
+            borrow = difference_assign<Integer>( x, t );
         }
         // borrow = 1 ⇒ r < 0
 
@@ -166,7 +159,7 @@ export namespace purple
             // q ← q - 1
             q_ = q_ - 1;
             // r ← r + y
-            ignore = sum_accumulate<Integer>( x, y );
+            ignore = sum_assign<Integer>( x, y );
         }
         // invariant: q' = q
 
@@ -174,20 +167,12 @@ export namespace purple
         q += q_;
     }
 
-    /// Division, quotient and remainder, with normalized operands.
+    /// Normalized division with remainder.
     ///
     /// Requirements:
-    /// degree(x) > degree(y) > 1
+    /// degree(x) > degree(y)
+    /// x ÷ B < y
     /// y is normalized
-    /// let N = y.size()
-    /// { x[N], x[N-1], x[N-2], ..., x[1] } < y
-    /// degree(q) ≥ degree(y)
-    ///
-    /// Effects:
-    /// q ← q + x ÷ y
-    /// x ← x % y
-    ///
-    /// Computes the classic or "school" method.
 
     template <typename Integer>
     void division_v1_normalized_accumulate ( span<Integer> q, span<Integer> x, span<Integer const> y )
@@ -205,9 +190,9 @@ export namespace purple
         auto M = x.size() - y.size();
         // let n < degree(y)
         auto N = y.size();
-        // invariant: m >= 1
+        // invariant: m ≥ 1
 
-        auto iy = inverse_normalized( y[N-1] );
+        auto iy = reciprocal_normalized( y[N-1] );
 
         // for j from m to 0 excluding:
         for (auto j = M; j > 0; --j)
@@ -217,48 +202,15 @@ export namespace purple
             // let x' = { x[j+n], x[j+n-1}, ..., x[j] }
             auto x_ = x.subspan( j-1, N+1 );
 
-            auto q_ = Integer(0);
-            division_v1_restricted_accumulate<Integer>( q_, x_, y, iy );
-            q[j-1] += q_;
+            division_v1_restricted_accumulate<Integer>( q[j-1], x_, y, iy );
         }
     }
 
-    /// Division, quotient and remainder, with normalized operands.
+    /// Division with remainder.
     ///
     /// Requirements:
-    /// degree(x) > degree(y) > 1
-    /// y is normalized
-    /// let N = y.size()
-    /// { x[N], x[N-1], x[N-2], ..., x[1] } < y
-    /// degree(q) ≥ degree(x)
-    /// degree(r) ≥ degree(x)
-    ///
-    /// Effects:
-    /// q ← x ÷ y
-    /// r ← x % y
-    ///
-    /// Computes the classic or "school" method.
-
-    template <typename Integer>
-    void division_v1_normalized ( span<Integer> q, span<Integer> r, span<Integer const> x, span<Integer const> y )
-    {
-        assign( r, x );
-        division_v1_normalized_accumulate<Integer>( q, r, y );
-    }
-
-    /// Division, quotient and remainder.
-    ///
-    /// Requirements:
-    /// degree(x) >= degree(y) > 1
+    /// degree(x) ≥ degree(y)
     /// y is nonzero
-    /// degree(q) ≥ degree(x)
-    /// degree(r) ≥ degree(x) + 1
-    ///
-    /// Effects:
-    /// q ← x ÷ y
-    /// x ← x % y
-    ///
-    /// Computes the classic or "school" method.
 
     template <typename Integer>
     void division_v1 ( span<Integer> q, span<Integer> r, span<Integer const> x, span<Integer const> y )
@@ -275,27 +227,27 @@ export namespace purple
         auto const N = y.size();
 
         // 1. find normalization factor.
-        auto d = top_zeros( y[N-1] );
+        auto factor = leading_zero_bits( y[N-1] );
 
         // 2. normalize dividend and divisor.
         Integer ny_ [N];
         auto ny = span<Integer>( ny_, N );
         assign( ny, y );
-        ignore = twice_accumulate<Integer>( ny, d );
+        ignore = twice_assign<Integer>( ny, factor );
 
         assign( r, x );
-        ignore = twice_accumulate<Integer>( r, d );
+        ignore = twice_assign<Integer>( r, factor );
 
         auto r_ = r.subspan( r.size() - N, N );
-        if ( not_smaller<unsigned>( r_, y ) ) {
+        if ( not_smaller<Integer>( r_, y ) ) {
             q[N] += Integer(1);
-            ignore = difference_accumulate<Integer>( r_, y );
+            ignore = difference_assign<Integer>( r_, y );
         }
 
         // 3. divide with normalized operands.
         division_v1_normalized_accumulate<Integer>( q, r, ny );
 
         // 4. denormalize remainder.
-        ignore = half_accumulate( r, d );
+        ignore = half_assign( r, factor );
     }
 }

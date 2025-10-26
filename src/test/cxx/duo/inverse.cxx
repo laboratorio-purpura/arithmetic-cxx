@@ -24,24 +24,14 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// Type conversion from array.
-
-template <typename Integer, size_t Degree>
-requires ( Degree == 2uz )
-auto inverse_normalized ( array<Integer,Degree> const & y ) noexcept
-{
-    auto yy = span<Integer const,Degree>( y );
-    return inverse_normalized<Integer,Degree>( yy );
-}
-
-TEST(duo,inverse_normalised_9C8739F05AA157B2)
+TEST(duo,reciprocal_normalised_9C8739F05AA157B2)
 {
     auto y = array { 0x5AA157B2U, 0x9C8739F0U };
-    auto iy = inverse_normalized( y );
+    auto iy = reciprocal_normalized( y );
     ASSERT_EQ( format(iy), "A2AF5356" );
 }
 
-TEST(duo,inverse_normalised_random)
+TEST(duo,reciprocal_normalised_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -53,7 +43,7 @@ TEST(duo,inverse_normalised_random)
         y[1] |= 0x80000000U;
 
         // compute with purple
-        auto iy = inverse_normalized( y );
+        auto iy = reciprocal_normalized( y );
 
         // compute with GMP
         auto gy = mpz_class( format(y), 16 );

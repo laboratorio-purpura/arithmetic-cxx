@@ -1,6 +1,7 @@
 = purple-arithmetic
+:author: Pedro Lamarão <pedro.lamarao@gmail.com>
 
-The `purple-arithmetic` library contains routines for arithmetic with integer coefficients.
+The `purple-arithmetic` library contains procedures for arithmetics with "long" integers.
 
 This is an educational project with the purpose of learning and sharing algorithmic mathematics.
 

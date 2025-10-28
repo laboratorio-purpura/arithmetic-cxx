@@ -250,26 +250,26 @@ namespace
         });
     }
 
-    int ratio_2_1 (span<char const *> args)
-    {
-        return command_iterations("ratio-2-1",args,[] (auto iteration, auto& random)
-        {
-            auto x = array<unsigned,2>();
-            ranges::generate(x,ref(random));
-
-            auto y = random();
-            while (y == 0) y = random();
-
-            auto [q,r] = purple::division<unsigned,2>(x,y);
-
-            fmt::println("i = {};",iteration);
-            fmt::println("x = {};",format(x));
-            fmt::println("y = {:08X};",y);
-            fmt::println("q = {};",format(q));
-            fmt::println("r = {:08X};",r);
-            fmt::println("((x / y) - q) + (x % y) - r");
-        });
-    }
+    // int ratio_2_1 (span<char const *> args)
+    // {
+    //     return command_iterations("ratio-2-1",args,[] (auto iteration, auto& random)
+    //     {
+    //         auto x = array<unsigned,2>();
+    //         ranges::generate(x,ref(random));
+    //
+    //         auto y = random();
+    //         while (y == 0) y = random();
+    //
+    //         auto [q,r] = purple::division<unsigned,2>(x,y);
+    //
+    //         fmt::println("i = {};",iteration);
+    //         fmt::println("x = {};",format(x));
+    //         fmt::println("y = {:08X};",y);
+    //         fmt::println("q = {};",format(q));
+    //         fmt::println("r = {:08X};",r);
+    //         fmt::println("((x / y) - q) + (x % y) - r");
+    //     });
+    // }
 
     int ratio_N_1 (span<char const *> args)
     {
@@ -373,8 +373,8 @@ namespace
             return product(args);
         else if (command == "product-N-1")
             return product_N_1(args);
-        else if (command == "ratio-2-1")
-            return ratio_2_1(args);
+        // else if (command == "ratio-2-1")
+        //     return ratio_2_1(args);
         else if (command == "ratio-N-1")
             return ratio_N_1(args);
         else if (command == "square")

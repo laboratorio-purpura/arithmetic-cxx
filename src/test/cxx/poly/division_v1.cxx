@@ -31,16 +31,16 @@ using std::span;
 auto x_4291E1FD61304D0E65C8E202031145A2 = array { 0x031145A2u, 0x65C8E202u, 0x61304D0Eu, 0x4291E1FDu };
 auto y_F15E9C694199994951736A63 = array { 0x51736A63u, 0x41999949u, 0xF15E9C69u };
 
-/// division_v1_restricted_accumulate
+/// division_restricted_accumulate
 
 template <typename T, size_t XZ, size_t YZ>
-void division_v1_restricted_accumulate_test ( array<T,XZ> const & x, array<T,YZ> const & y )
+void division_restricted_accumulate_test ( array<T,XZ> const & x, array<T,YZ> const & y )
 {
     // compute with purple
     auto q = T(0);
     auto r = x;
     auto iy = reciprocal_normalized( y[YZ-1] );
-    division_v1_restricted_accumulate<unsigned>( q, r, y, iy );
+    division_restricted_accumulate<unsigned>( q, r, y, iy );
 
     // compute with gmp
     auto gx = mpz_class( format(x), 16 );
@@ -71,14 +71,14 @@ void division_v1_restricted_accumulate_test ( array<T,XZ> const & x, array<T,YZ>
     );
 }
 
-TEST(poly,division_v1_restricted_accumulate_4291E1FD61304D0E65C8E202031145A2_F15E9C694199994951736A63)
+TEST(poly,division_restricted_accumulate_4291E1FD61304D0E65C8E202031145A2_F15E9C694199994951736A63)
 {
     auto x = x_4291E1FD61304D0E65C8E202031145A2;
     auto y = y_F15E9C694199994951736A63;
-    division_v1_restricted_accumulate_test(x,y);
+    division_restricted_accumulate_test(x,y);
 }
 
-TEST(poly,division_v1_restricted_accumulate_D4_D3_random)
+TEST(poly,division_restricted_accumulate_D4_D3_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -95,19 +95,19 @@ TEST(poly,division_v1_restricted_accumulate_D4_D3_random)
         // requires is_smaller( x[3], y[2] )
         while ( not_smaller( x[3], y[2] ) ) ignore = difference_assign( x[3], y[2] );
 
-        division_v1_restricted_accumulate_test( x,  y );
+        division_restricted_accumulate_test( x,  y );
     }
 }
 
-/// division_v1_normalized_accumulate
+/// division_normalized_accumulate
 
 template <typename T, size_t ZX, size_t ZY>
-void division_v1_normalized_accumulate_test ( array<T,ZX> const & x, array<T,ZY> const & y )
+void division_normalized_accumulate_test ( array<T,ZX> const & x, array<T,ZY> const & y )
 {
     // compute with purple
     auto q = array<T,ZY> {};
     auto r = x;
-    division_v1_normalized_accumulate<unsigned>( q, r, y );
+    division_normalized<unsigned>( q, r, y );
 
     // compute with gmp
     auto gx = mpz_class( format(x), 16 );
@@ -138,14 +138,14 @@ void division_v1_normalized_accumulate_test ( array<T,ZX> const & x, array<T,ZY>
     );
 }
 
-TEST(poly,division_v1_normalized_accumulate_4291E1FD61304D0E65C8E202031145A2_F15E9C694199994951736A63)
+TEST(poly,division_normalized_accumulate_4291E1FD61304D0E65C8E202031145A2_F15E9C694199994951736A63)
 {
     auto x = x_4291E1FD61304D0E65C8E202031145A2;
     auto y = y_F15E9C694199994951736A63;
-    division_v1_normalized_accumulate_test(x,y);
+    division_normalized_accumulate_test(x,y);
 }
 
-TEST(poly,division_v1_normalized_accumulate_D4_D3_random)
+TEST(poly,division_normalized_accumulate_D4_D3_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -162,19 +162,19 @@ TEST(poly,division_v1_normalized_accumulate_D4_D3_random)
         // requires is_smaller( x[3], y[2] )
         while ( not_smaller( x[3], y[2] ) ) ignore = difference_assign( x[3], y[2] );
 
-        division_v1_normalized_accumulate_test( x, y );
+        division_normalized_accumulate_test( x, y );
     }
 }
 
-/// division_v1_accumulate
+/// division
 
 template <typename T, size_t XZ, size_t YZ>
-void division_v1_test ( array<T,XZ> const & x, array<T,YZ> const & y )
+void division_test ( array<T,XZ> const & x, array<T,YZ> const & y )
 {
     // compute with purple
     auto q = array<T,XZ> {};
     auto r = array<T,XZ+1> {};
-    division_v1<unsigned>( q, r, x, y );
+    division<unsigned>( q, r, x, y );
 
     // compute with gmp
     auto gx = mpz_class( format(x), 16 );
@@ -205,7 +205,7 @@ void division_v1_test ( array<T,XZ> const & x, array<T,YZ> const & y )
     );
 }
 
-TEST(poly,division_v1_accumulate_D4_D2_random)
+TEST(poly,division_accumulate_D4_D2_random)
 {
     random_device random;
     random_integer generator { random() };
@@ -223,6 +223,6 @@ TEST(poly,division_v1_accumulate_D4_D2_random)
         // requires is_smaller( x[3], y[1] )
         // while ( not_smaller( x[3], y[1] ) ) ignore = difference_accumulate( x[3], y[1] );
 
-        division_v1_test( x, y );
+        division_test( x, y );
     }
 }

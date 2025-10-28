@@ -26,30 +26,30 @@ using std::span;
 
 // Type conversion from array.
 
-template <typename Integer, size_t TriDegree, size_t BiDegree>
+template <typename Word, size_t TriDegree, size_t BiDegree>
 requires  ( TriDegree == 3uz ) && ( BiDegree == 2uz )
-auto division_normalized ( array<Integer,TriDegree> const & x, array<Integer,BiDegree> const & y, Integer iy ) noexcept
+auto division_normalized ( array<Word,TriDegree> const & x, array<Word,BiDegree> const & y, Word iy ) noexcept
 {
-    auto xx = span<Integer const,TriDegree>( x );
-    auto yy = span<Integer const,BiDegree>( y );
-    return division_normalized<Integer,TriDegree,BiDegree>( xx, yy, iy );
+    auto xx = span<Word const,TriDegree>( x );
+    auto yy = span<Word const,BiDegree>( y );
+    return division_normalized<Word,TriDegree,BiDegree>( xx, yy, iy );
 }
 
-template <typename Integer, size_t Degree>
+template <typename Word, size_t Degree>
 requires ( Degree == 2uz )
-auto inverse_normalized ( array<Integer,Degree> const & y ) noexcept
+auto inverse_normalized ( array<Word,Degree> const & y ) noexcept
 {
-    auto yy = span<Integer const,Degree>( y );
-    return reciprocal_normalized<Integer,Degree>( yy );
+    auto yy = span<Word const,Degree>( y );
+    return reciprocal_normalized<Word,Degree>( yy );
 }
 
-template <typename Integer, size_t Degree>
+template <typename Word, size_t Degree>
 requires ( Degree == 2uz )
-auto not_smaller ( array<Integer,Degree> const & x, array<Integer,Degree> const & y ) noexcept
+auto not_smaller ( array<Word,Degree> const & x, array<Word,Degree> const & y ) noexcept
 {
-    auto xx = span<Integer const,Degree>( x );
-    auto yy = span<Integer const,Degree>( y );
-    return not_smaller<Integer,Degree>( xx, yy );
+    auto xx = span<Word const,Degree>( x );
+    auto yy = span<Word const,Degree>( y );
+    return not_smaller<Word,Degree>( xx, yy );
 }
 
 TEST(tri,division_normalized_3_2_random)

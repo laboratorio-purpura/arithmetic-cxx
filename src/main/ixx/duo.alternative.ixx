@@ -24,9 +24,9 @@ namespace purple
 {
     /// Arrays of non-const.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto not_smaller ( array<Integer,Degree> const & x, array<Integer,Degree> const & y ) noexcept -> Integer
+    auto not_smaller ( array<Word,Degree> const & x, array<Word,Degree> const & y ) noexcept -> Word
     {
         auto xx = span(x);
         auto yy = span(y);
@@ -45,20 +45,20 @@ export namespace purple
     /// Computes by definition: successive subtractions.
     ///
     /// Returns { q, r }.
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto division_v0 ( span<Integer const,Degree> x, Integer y ) noexcept -> tuple< array<Integer,Degree>, Integer >
+    auto division_v0 ( span<Word const,Degree> x, Word y ) noexcept -> tuple< array<Word,Degree>, Word >
     // requires not_zero(y)
     {
         // let q ← 0
-        auto q = array { Integer(0), Integer(0) };
+        auto q = array { Word(0), Word(0) };
         // let r ← x
         auto r = array { x[0], x[1] };
-        while ( not_smaller<unsigned,2>( r, array { y, Integer(0) } ) ) { // TODO: not_smaller 2D vs 1D
+        while ( not_smaller<unsigned,2>( r, array { y, Word(0) } ) ) { // TODO: not_smaller 2D vs 1D
             // q ← q + 1
-            ignore = next_assign<Integer,Degree>( q );
+            ignore = next_assign<Word,Degree>( q );
             // r ← r - y
-            ignore = difference_assign<Integer,Degree>( r, y );
+            ignore = difference_assign<Word,Degree>( r, y );
         }
         // terminate
         return { q, r [0] };
@@ -74,28 +74,28 @@ export namespace purple
     /// Our current tool is, of course, the binary electronic computer processor.
     ///
     /// Returns { q, r }.
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto division_v1 ( span<Integer const,Degree> x, Integer y ) noexcept -> tuple< array<Integer,Degree>, Integer >
+    auto division_v1 ( span<Word const,Degree> x, Word y ) noexcept -> tuple< array<Word,Degree>, Word >
     // requires not_zero(y)
     {
         // reinterpret dividend
-        constexpr auto Bits = sizeof(Integer) * 8uz;
-        using DoubleInteger = _BitInt( Bits * 2 );
-        auto x_ = ( DoubleInteger( x[1] ) << Bits ) | x[0];
+        constexpr auto Bits = sizeof(Word) * 8uz;
+        using DoubleWord = _BitInt( Bits * 2 );
+        auto x_ = ( DoubleWord( x[1] ) << Bits ) | x[0];
         // lookup answer with the "tool"
         auto q = x_ / y;
         auto r = x_ % y;
         // terminate
-        auto q0 = Integer( q );
-        auto q1 = Integer( q >> Bits );
+        auto q0 = Word( q );
+        auto q1 = Word( q >> Bits );
         return { array { q0, q1 }, r };
     }
 
     /// Quotient and remainder by "normalised" divisor with inverse.
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto ratio_normalised_v0 ( span<Integer,Degree> x, Integer y, Integer iy ) -> tuple< Integer, Integer >
+    auto ratio_normalised_v0 ( span<Word,Degree> x, Word y, Word iy ) -> tuple< Word, Word >
     // requires B/2 <= y < B
     // requires x[1] < y
     // requires iy = ( (B^2 - 1) / y ) - B
@@ -104,8 +104,8 @@ export namespace purple
         ignore = sum_assign( q, x[1] );
         auto pp = product( q, y );
         auto r = array<unsigned,2> { x[0], x[1] };
-        ignore = difference_assign<Integer>( r, pp );
-        while ( is_greater( r[1], Integer(0) ) || not_smaller( r[0], y ) ) {
+        ignore = difference_assign<Word>( r, pp );
+        while ( is_greater( r[1], Word(0) ) || not_smaller( r[0], y ) ) {
             ignore = sum_assign( q, 1 );
             ignore = difference_assign( r, y );
         }

@@ -21,72 +21,72 @@ export namespace purple
 {
     /// Test procedures.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto is_zero ( array<Integer,Degree> const & x ) noexcept -> bool
+    auto is_zero ( array<Word,Degree> const & x ) noexcept -> bool
     {
-        auto x_ = span<Integer const,Degree>(x);
+        auto x_ = span<Word const,Degree>(x);
         return is_zero(x_);
     }
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto not_zero ( array<Integer,Degree> const & x ) noexcept -> bool
+    auto not_zero ( array<Word,Degree> const & x ) noexcept -> bool
     {
-        auto x_ = span<Integer const,Degree>(x);
+        auto x_ = span<Word const,Degree>(x);
         return not_zero(x_);
     }
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto is_odd ( array<Integer,Degree> const & x ) noexcept -> bool
+    auto is_odd ( array<Word,Degree> const & x ) noexcept -> bool
     {
-        auto x_ = span<Integer const,Degree>(x);
+        auto x_ = span<Word const,Degree>(x);
         return is_odd(x_);
     }
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto not_odd ( array<Integer,Degree> const & x ) noexcept -> bool
+    auto not_odd ( array<Word,Degree> const & x ) noexcept -> bool
     {
-        auto x_ = span<Integer const,Degree>(x);
+        auto x_ = span<Word const,Degree>(x);
         return not_odd(x_);
     }
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto is_normalized ( array<Integer,Degree> const & x ) noexcept -> bool
+    auto is_normalized ( array<Word,Degree> const & x ) noexcept -> bool
     {
-        auto xx = span<Integer const,Degree>(x);
+        auto xx = span<Word const,Degree>(x);
         return is_normalized(xx);
     }
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto not_normalized ( array<Integer,Degree> const & x ) noexcept -> bool
+    auto not_normalized ( array<Word,Degree> const & x ) noexcept -> bool
     {
-        auto x_ = span<Integer const,Degree>(x);
+        auto x_ = span<Word const,Degree>(x);
         return not_normalized(x_);
     }
 
     /// Transform procedures.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto reciprocal_normalized ( array<Integer,Degree> const & y ) noexcept
+    auto reciprocal_normalized ( array<Word,Degree> const & y ) noexcept
     {
-        auto y_ = span<Integer const,Degree>( y );
+        auto y_ = span<Word const,Degree>( y );
         return reciprocal_normalized( y_ );
     }
 
     /// Expand procedures.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto sum_assign ( array<Integer,Degree> const & x, array<Integer,Degree> const & y, Integer c = Integer(0) ) noexcept
+    auto sum_assign ( array<Word,Degree> const & x, array<Word,Degree> const & y, Word c = Word(0) ) noexcept
     {
-        auto x_ = span<Integer const,Degree>( x );
-        auto y_ = span<Integer const,Degree>( y );
+        auto x_ = span<Word const,Degree>( x );
+        auto y_ = span<Word const,Degree>( y );
         return sum_assign( x_, y_, c);
     }
 }

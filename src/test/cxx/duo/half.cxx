@@ -27,11 +27,11 @@ using std::span;
 
 // Type conversion from array.
 
-template <typename Integer, size_t Degree>
+template <typename Word, size_t Degree>
 requires ( Degree == 2uz )
-auto half_accumulate ( array<Integer,Degree> & x, size_t N ) noexcept -> Integer
+auto half_accumulate ( array<Word,Degree> & x, size_t N ) noexcept -> Word
 {
-    auto xx = span<Integer,Degree>( x );
+    auto xx = span<Word,Degree>( x );
     return half_assign( xx, N );
 }
 

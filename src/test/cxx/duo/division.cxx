@@ -26,12 +26,12 @@ using std::span;
 
 // Type conversion from array.
 
-template <typename Integer, size_t Degree>
+template <typename Word, size_t Degree>
 requires ( Degree == 2uz )
-auto division_normalized ( array<Integer,Degree> const & x, Integer y, Integer iy ) noexcept
+auto division_normalized ( array<Word,Degree> const & x, Word y, Word iy ) noexcept
 {
-    auto xx = span<Integer const,Degree>( x );
-    return division_normalized<Integer,Degree>( xx, y, iy );
+    auto xx = span<Word const,Degree>( x );
+    return division_normalized<Word,Degree>( xx, y, iy );
 }
 
 TEST(duo,division_normalized_2_1_random)

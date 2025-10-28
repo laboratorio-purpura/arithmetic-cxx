@@ -21,58 +21,58 @@ export namespace purple
 {
     /// Expansion operators.
 
-    template <typename Integer>
-    auto sum (vector<Integer> const & x, Integer y) -> vector<Integer>
+    template <typename Word>
+    auto sum (vector<Word> const & x, Word y) -> vector<Word>
     {
         auto const xz = x.size();
-        auto r = vector<Integer>( xz + 1 );
+        auto r = vector<Word>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
-        r[xz] = sum_assign<Integer>(rs,y);
+        r[xz] = sum_assign<Word>(rs,y);
         return std::move(r);
     }
 
-    template <typename Integer>
-    auto sum (vector<Integer> const & x, vector<Integer> const & y) -> vector<Integer>
+    template <typename Word>
+    auto sum (vector<Word> const & x, vector<Word> const & y) -> vector<Word>
     {
         auto const xz = x.size();
-        auto r = vector<Integer>( xz + 1 );
+        auto r = vector<Word>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
         auto ys = span( y.begin(), y.end() );
-        r[xz] = sum_assign<Integer>(rs,ys);
+        r[xz] = sum_assign<Word>(rs,ys);
         return std::move(r);
     }
 
-    template <typename Integer>
-    auto twice (vector<Integer> const & x, unsigned N = 1) -> vector<Integer>
+    template <typename Word>
+    auto twice (vector<Word> const & x, unsigned N = 1) -> vector<Word>
     {
         auto const xz = x.size();
-        auto r = vector<Integer>( xz + 1 );
+        auto r = vector<Word>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
         r[xz] = twice_assign(rs,N);
         return std::move(r);
     }
 
-    template <typename Integer>
-    auto product (vector<Integer> const & x, Integer y) -> vector<Integer>
+    template <typename Word>
+    auto product (vector<Word> const & x, Word y) -> vector<Word>
     {
         auto const xz = x.size();
-        auto r = vector<Integer>( xz + 1 );
+        auto r = vector<Word>( xz + 1 );
         for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
         auto rs = span( r.begin(), r.begin() + xz );
         r[xz] = product_assign(rs,y);
         return std::move(r);
     }
 
-    template <typename Integer>
-    auto product_sum (vector<Integer> const & x, vector<Integer> const & y, vector<Integer> const & z) -> vector<Integer>
+    template <typename Word>
+    auto product_sum (vector<Word> const & x, vector<Word> const & y, vector<Word> const & z) -> vector<Word>
     {
         auto xz = x.size();
         auto yz = y.size();
         auto zz = z.size();
-        auto r = vector<Integer>( xz + yz + 1 );
+        auto r = vector<Word>( xz + yz + 1 );
         for (auto i = 0uz; i != zz; ++i) r[i] = z[i];
         auto rs = span( r.begin(), r.begin() + xz + yz );
         auto xs = span( x.begin(), x.end() );

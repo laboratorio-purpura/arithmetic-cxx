@@ -26,11 +26,11 @@ using std::span;
 
 // Type conversion from array.
 
-template <typename Integer, size_t Z1, size_t Z2>
-auto division_normalized ( array<Integer,Z1> & q, array<Integer,Z2> const & x, Integer y, Integer iy ) -> Integer
+template <typename Word, size_t Z1, size_t Z2>
+auto division_normalized ( array<Word,Z1> & q, array<Word,Z2> const & x, Word y, Word iy ) -> Word
 {
-    auto qq = span<Integer>( q );
-    auto xx = span<Integer const>( x );
+    auto qq = span<Word>( q );
+    auto xx = span<Word const>( x );
     return division_normalized( qq, xx, y, iy );
 }
 

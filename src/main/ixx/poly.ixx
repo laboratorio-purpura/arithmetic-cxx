@@ -39,11 +39,11 @@ export namespace purple
 
     /// Assigns a value.
 
-    template <typename Integer>
-    void assign ( span<Integer> x, Integer y )
+    template <typename Word>
+    void assign ( span<Word> x, Word y )
     {
         x[0] = y;
-        for (auto i = 1uz; i != x.size(); ++i) x[i] = Integer(0);
+        for (auto i = 1uz; i != x.size(); ++i) x[i] = Word(0);
     }
 
     /// Assigns a value.
@@ -51,21 +51,21 @@ export namespace purple
     /// Requires:
     /// degree(x) ≥ degree(y)
 
-    template <typename Integer>
-    void assign ( span<Integer> x, span<Integer const> y )
+    template <typename Word>
+    void assign ( span<Word> x, span<Word const> y )
     {
         for (auto i = 0uz; i != y.size(); ++i) x[i] = y[i];
-        for (auto i = y.size(); i != x.size(); ++i) x[i] = Integer(0);
+        for (auto i = y.size(); i != x.size(); ++i) x[i] = Word(0);
     }
 
     /// Test procedures.
 
     /// Tests if zero.
 
-    template <typename Integer>
-    auto is_zero ( span<Integer const> x ) noexcept -> bool
+    template <typename Word>
+    auto is_zero ( span<Word const> x ) noexcept -> bool
     {
-        Integer r { 1 };
+        Word r { 1 };
         auto const xz = x.size();
         for (auto i = 0u; i != xz; ++i)
             r &= is_zero(x[i]);
@@ -74,10 +74,10 @@ export namespace purple
 
     /// Tests if *not* zero.
 
-    template <typename Integer>
-    auto not_zero ( span<Integer const> x ) noexcept -> bool
+    template <typename Word>
+    auto not_zero ( span<Word const> x ) noexcept -> bool
     {
-        Integer r { 0 };
+        Word r { 0 };
         auto const xz = x.size();
         for (auto i = 0u; i != xz; ++i)
             r |= not_zero(x[i]);
@@ -89,13 +89,13 @@ export namespace purple
     /// Requires:
     /// degree(x) = degree(y)
 
-    template <typename Integer>
-    auto is_smaller_isodegree ( span<Integer const> x, span<Integer const> y ) -> bool
+    template <typename Word>
+    auto is_smaller_isodegree ( span<Word const> x, span<Word const> y ) -> bool
     {
         assert( x.size() == y.size() );
 
         auto const z = y.size();
-        auto b = Integer(0);
+        auto b = Word(0);
         for (auto i = 0uz; i != z; ++i)
             tie( ignore, b ) = difference( x[i], y[i], b );
         return b;
@@ -103,8 +103,8 @@ export namespace purple
 
     /// Tests if smaller.
 
-    template <typename Integer>
-    auto is_smaller ( span<Integer const> x, span<Integer const> y ) -> bool;
+    template <typename Word>
+    auto is_smaller ( span<Word const> x, span<Word const> y ) -> bool;
     // deferred definition; see further down.
 
     /// Tests if *not* smaller.
@@ -112,10 +112,10 @@ export namespace purple
     /// Requires:
     /// degree(x) = degree(y)
 
-    template <typename Integer>
-    auto not_smaller_isodegree ( span<Integer const> x, span<Integer const> y ) -> bool
+    template <typename Word>
+    auto not_smaller_isodegree ( span<Word const> x, span<Word const> y ) -> bool
     {
-        return Integer(1) - is_smaller_isodegree( x, y );
+        return Word(1) - is_smaller_isodegree( x, y );
     }
 
     /// Tests if *not* smaller.

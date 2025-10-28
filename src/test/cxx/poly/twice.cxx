@@ -28,10 +28,10 @@ using std::vector;
 
 // Type conversion for arrays.
 
-template <typename Integer, size_t Z>
-auto twice_accumulate ( array<Integer,Z> & x, size_t N, Integer carry = Integer(0) ) noexcept -> Integer
+template <typename Word, size_t Z>
+auto twice_accumulate ( array<Word,Z> & x, size_t N, Word carry = Word(0) ) noexcept -> Word
 {
-    auto xx = span<Integer>( x );
+    auto xx = span<Word>( x );
     return twice_assign( xx, N, carry );
 }
 

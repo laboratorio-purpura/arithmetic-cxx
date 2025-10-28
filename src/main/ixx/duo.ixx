@@ -33,9 +33,9 @@ export namespace purple
 
     /// Tests if zero.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto is_zero ( span<Integer const,Degree> x ) noexcept -> bool
+    auto is_zero ( span<Word const,Degree> x ) noexcept -> bool
     {
         auto r = true;
         r = r && is_zero( x[0] );
@@ -45,9 +45,9 @@ export namespace purple
 
     /// Tests if *not* zero.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto not_zero ( span<Integer const,Degree> x ) noexcept -> bool
+    auto not_zero ( span<Word const,Degree> x ) noexcept -> bool
     {
         auto r = false;
         r = r || not_zero( x[0] );
@@ -59,9 +59,9 @@ export namespace purple
     ///
     /// In a binary machine, this means the least significant bit is 1.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto is_odd ( span<Integer const,Degree> x ) noexcept -> bool
+    auto is_odd ( span<Word const,Degree> x ) noexcept -> bool
     {
         return is_odd( x[0] );
     }
@@ -70,9 +70,9 @@ export namespace purple
     ///
     /// In a binary machine, this means the least significant bit is 0.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto not_odd ( span<Integer const,Degree> x ) noexcept -> bool
+    auto not_odd ( span<Word const,Degree> x ) noexcept -> bool
     {
         return not_odd( x[0] );
     }
@@ -83,9 +83,9 @@ export namespace purple
     ///
     /// In a binary machine, this means the most significant bit is 1.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto is_normalized ( span<Integer const,Degree> y ) noexcept -> bool
+    auto is_normalized ( span<Word const,Degree> y ) noexcept -> bool
     {
         return is_normalized( y[1] );
     }
@@ -96,20 +96,20 @@ export namespace purple
     ///
     /// In a binary machine, this means the most significant bit is 0.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto not_normalized ( span<Integer const,Degree> y ) noexcept -> bool
+    auto not_normalized ( span<Word const,Degree> y ) noexcept -> bool
     {
         return not_normalized( y[1] );
     }
 
     /// Tests if smaller.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto is_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> bool
+    auto is_smaller ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> bool
     {
-        auto carry = Integer(0);
+        auto carry = Word(0);
         tie( ignore, carry ) = difference( x[0], y[0], carry );
         tie( ignore, carry ) = difference( x[1], y[1], carry );
         return carry == 1;
@@ -117,11 +117,11 @@ export namespace purple
 
     /// Tests if *not* smaller.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto not_smaller ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> bool
+    auto not_smaller ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> bool
     {
-        auto carry = Integer(0);
+        auto carry = Word(0);
         tie( ignore, carry ) = difference( x[0], y[0], carry );
         tie( ignore, carry ) = difference( x[1], y[1], carry );
         return carry == 0;
@@ -129,11 +129,11 @@ export namespace purple
 
     /// Tests if greater.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto is_greater ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> Integer
+    auto is_greater ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> Word
     {
-        auto carry = Integer(0);
+        auto carry = Word(0);
         tie( ignore, carry ) = difference( y[0], x[0], carry );
         tie( ignore, carry ) = difference( y[1], x[1], carry );
         return carry == 1;
@@ -141,11 +141,11 @@ export namespace purple
 
     /// Tests if *not* greater.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto not_greater ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> bool
+    auto not_greater ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> bool
     {
-        auto carry = Integer(0);
+        auto carry = Word(0);
         tie( ignore, carry ) = difference( y[0], x[0], carry );
         tie( ignore, carry ) = difference( y[1], x[1], carry );
         return carry == 0;
@@ -153,9 +153,9 @@ export namespace purple
 
     /// Tests if equal.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto is_equal ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> bool
+    auto is_equal ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> bool
     {
         bool r = true;
         r = r && is_equal( x[0], y[0] );
@@ -176,8 +176,6 @@ export namespace purple
     }
 
     /// Transform procedures.
-    ///
-    /// TODO: conceptualize
 
     /// Normalized reciprocal approximation.
     ///

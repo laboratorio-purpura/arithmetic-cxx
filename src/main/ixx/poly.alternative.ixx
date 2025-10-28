@@ -42,11 +42,11 @@ export namespace purple
     ///
     /// Computes by definition: successive addition.
 
-    template <typename Integer>
-    void product_v0 ( span<Integer> r, span<Integer const> x, span<Integer const> y )
+    template <typename Word>
+    void product_v0 ( span<Word> r, span<Word const> x, span<Word const> y )
     // requires degree(v) ≥ degree(x) + degree(y) + 1
     {
-        auto carry = Integer(0);
+        auto carry = Word(0);
         // t ← 0
         auto t = vector(y.begin(),y.end());
         // while t ≠ 0:
@@ -70,8 +70,8 @@ export namespace purple
     ///
     /// Computes by definition: successive subtraction.
 
-    template <typename Integer>
-    void division_v0 ( span<Integer> q, span<Integer> r, span<Integer const> x, span<Integer const> y )
+    template <typename Word>
+    void division_v0 ( span<Word> q, span<Word> r, span<Word const> x, span<Word const> y )
     {
         // q ← 0
         for (auto i = 0uz; i != q.size(); ++i) q[i] = 0u;
@@ -79,11 +79,11 @@ export namespace purple
         for (auto i = 0uz; i != x.size(); ++i) r[i] = x[i];
         for (auto i = x.size(); i != r.size(); ++i) r[i] = 0u;
         // while r ≥ y:
-        while ( not_smaller<Integer>( r, y ) ) {
+        while ( not_smaller<Word>( r, y ) ) {
             // q ← q + 1
-            ignore = next_assign<Integer>( q );
+            ignore = next_assign<Word>( q );
             // r ← r - y
-            ignore = difference_assign<Integer>( r, y );
+            ignore = difference_assign<Word>( r, y );
         }
         // terminate:
         // q = x ÷ y

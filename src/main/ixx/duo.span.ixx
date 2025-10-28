@@ -42,21 +42,21 @@ export namespace purple
 
     /// Increase procedures.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto sum_assign ( span<Integer,Degree> x, span<Integer,Degree> y, Integer carry = Integer(0) ) noexcept
+    auto sum_assign ( span<Word,Degree> x, span<Word,Degree> y, Word carry = Word(0) ) noexcept
     {
-        auto y_ = span<Integer const,Degree>(y);
+        auto y_ = span<Word const,Degree>(y);
         return sum_assign( x, y_, carry );
     }
 
     /// Decrease procedures.
 
-    template <typename Integer, size_t Degree>
+    template <typename Word, size_t Degree>
     requires ( Degree == 2uz )
-    auto difference_assign ( span<Integer,Degree> x, span<Integer,Degree> y, Integer borrow = Integer(0) ) noexcept
+    auto difference_assign ( span<Word,Degree> x, span<Word,Degree> y, Word borrow = Word(0) ) noexcept
     {
-        auto y_ = span<Integer const,Degree>(y);
+        auto y_ = span<Word const,Degree>(y);
         return difference_assign( x, y_, borrow );
     }
 }

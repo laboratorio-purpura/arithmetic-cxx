@@ -42,10 +42,10 @@ export namespace purple
     /// y is normalized
     /// iy = reciprocal_normalized(y)
 
-    template <typename Integer, size_t TriDegree, size_t BiDegree>
+    template <typename Word, size_t TriDegree, size_t BiDegree>
     requires  ( TriDegree == 3uz ) && ( BiDegree == 2uz )
-    auto division_normalized ( span<Integer const,TriDegree> x, span<Integer const,BiDegree> y, Integer iy ) noexcept
-        -> tuple< Integer, array<Integer,BiDegree> >
+    auto division_normalized ( span<Word const,TriDegree> x, span<Word const,BiDegree> y, Word iy ) noexcept
+        -> tuple< Word, array<Word,BiDegree> >
     {
         // 1. <q1,q0> ← v.u2
         auto q = product( iy, x[2] );
@@ -62,7 +62,7 @@ export namespace purple
         ignore = difference_assign( span(r), span(t) );
         ignore = difference_assign( span(r), y );
         // 6. q1 ← (q1 + 1) % B
-        ignore = sum_assign( q[1], Integer(1) );
+        ignore = sum_assign( q[1], Word(1) );
         // 7. if r1 ≥ q0
         if ( not_smaller( r[1], q[0] ) ) {
             // 8. q1 ← (q1 - 1) % B

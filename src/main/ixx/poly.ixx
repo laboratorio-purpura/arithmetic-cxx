@@ -65,10 +65,10 @@ export namespace purple
     template <typename Word>
     auto is_zero ( span<Word const> x ) noexcept -> bool
     {
-        Word r { 1 };
+        bool r = true;
         auto const xz = x.size();
         for (auto i = 0u; i != xz; ++i)
-            r &= is_zero(x[i]);
+            r = r && is_zero(x[i]);
         return r;
     }
 
@@ -77,10 +77,10 @@ export namespace purple
     template <typename Word>
     auto not_zero ( span<Word const> x ) noexcept -> bool
     {
-        Word r { 0 };
+        bool r = false;
         auto const xz = x.size();
         for (auto i = 0u; i != xz; ++i)
-            r |= not_zero(x[i]);
+            r = r || not_zero(x[i]);
         return r;
     }
 
@@ -98,7 +98,7 @@ export namespace purple
         auto b = Word(0);
         for (auto i = 0uz; i != z; ++i)
             tie( ignore, b ) = difference( x[i], y[i], b );
-        return b;
+        return b == 1;
     }
 
     /// Tests if smaller.
@@ -115,7 +115,7 @@ export namespace purple
     template <typename Word>
     auto not_smaller_isodegree ( span<Word const> x, span<Word const> y ) -> bool
     {
-        return Word(1) - is_smaller_isodegree( x, y );
+        return ! is_smaller_isodegree( x, y );
     }
 
     /// Tests if *not* smaller.
@@ -123,7 +123,7 @@ export namespace purple
     template <typename Integer>
     auto not_smaller ( span<Integer const> x, span<Integer const> y ) -> bool
     {
-        return Integer(1) - is_smaller( x, y );
+        return ! is_smaller( x, y );
     }
 
     /// Tests if greater.
@@ -151,7 +151,7 @@ export namespace purple
     template <typename Integer>
     auto not_greater_isodegree ( span<Integer const> x, span<Integer const> y ) -> bool
     {
-        return Integer(1) - is_smaller_isodegree( y, x );
+        return ! is_smaller_isodegree( y, x );
     }
 
     /// Tests if *not* greater.
@@ -159,7 +159,7 @@ export namespace purple
     template <typename Integer>
     auto not_greater ( span<Integer const> x, span<Integer const> y ) -> bool
     {
-        return Integer(1) - is_smaller( y, x );
+        return ! is_smaller( y, x );
     }
 
     /// Tests if equals.
@@ -188,7 +188,7 @@ export namespace purple
         if (xz < yz) return is_equal(y,x);
         auto r = is_equal_isodegree( x, y );
         for (auto i = yz; i != xz; ++i)
-            r &= is_zero( x[i] );
+            r = r && is_zero( x[i] );
         return r;
     }
 
@@ -200,7 +200,7 @@ export namespace purple
     template <typename Integer>
     auto not_equal_isodegree ( span<Integer const> x, span<Integer const> y ) -> bool
     {
-        return Integer(1) - is_equal_isodegree( x, y );
+        return ! is_equal_isodegree( x, y );
     }
 
     /// Tests if *not* equals.
@@ -208,7 +208,7 @@ export namespace purple
     template <typename Integer>
     auto not_equal ( span<Integer const> x, span<Integer const> y ) -> bool
     {
-        return Integer(1) - is_equal( x, y );
+        return ! is_equal( x, y );
     }
 
     /// Tests if normalized.
@@ -642,7 +642,7 @@ namespace purple
         if (xz < yz) return is_greater( y, x );
         auto c = is_smaller_isodegree( x, y );
         for (auto i = yz; i != xz; ++i)
-            c &= is_zero( x[i] );
+            c = c && is_zero( x[i] );
         return c;
     }
 
@@ -654,7 +654,7 @@ namespace purple
         if (xz < yz) return is_smaller( y, x );
         auto c = is_greater_isodegree( x, y );
         for (auto i = yz; i != xz; ++i)
-            c |= not_zero( x[i] );
+            c = c || not_zero( x[i] );
         return c;
     }
 }

@@ -67,7 +67,7 @@ TEST(duo,division_normalized_2_1_random)
             "r = " + format(r) + "\n" +
             "gmp:\n" +
             "x = " + format(gx) + "\n" +
-            "y = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
             "q = " + format(gq) + "\n" +
             "r = " + format(gr) + "\n"
         );

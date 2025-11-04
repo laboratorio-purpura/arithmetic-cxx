@@ -61,7 +61,7 @@ TEST(poly,division_normalized_D4_D1_random)
     random_device random;
     random_integer generator { random() };
 
-    for (auto i = 0uz; i != 100; ++i)
+    for (auto i = 0; i != 1000; ++i)
     {
         // generate random numbers
         auto x = array { generator(), generator(), generator(), generator() };
@@ -75,6 +75,55 @@ TEST(poly,division_normalized_D4_D1_random)
         auto iy = reciprocal_normalized( y );
         auto q = array { 0u, 0u, 0u, 0u };
         auto r = division_normalized( q, x, y, iy );
+
+        // compute with gmp
+        auto gx = mpz_class( format(x), 16 );
+        auto gy = mpz_class( format(y), 16 );
+        auto gq = gx / gy;
+        auto gr = gx % gy;
+
+        // compare
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "q = " + format(q) + "\n" +
+            "r = " + format(r) + "\n" +
+            "gmp:\n" +
+            "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
+            "q = " + format(gq) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+        ASSERT_GMP_EQ(
+            gq,
+            mpz_class( format(q), 16 )
+        );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format(r), 16 )
+        );
+    }
+}
+
+TEST(poly,division_8_4_random)
+{
+    random_device random;
+    random_integer generator { random() };
+
+    for (auto i = 0; i != 1000; ++i)
+    {
+        auto x = array<unsigned,8> {};
+        std::ranges::generate(x,ref(generator));
+
+        auto y = array<unsigned,4> {};
+        while ( is_zero<unsigned>( y ) )
+           std::ranges::generate(y,ref(generator));
+
+        // compute with purple
+        auto q = array<unsigned,8> {};
+        auto r = array<unsigned,9> {};
+        division_assign<unsigned>( q, r, x, y );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );

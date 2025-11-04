@@ -26,24 +26,26 @@ using std::vector;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST(poly,half_D4_N1_random)
+// Tests.
+
+TEST(poly,half_4_1_random)
 {
     random_device random;
     random_integer generator { random() };
 
-    for (auto i = 0uz; i != 100; ++i)
+    for (auto i = 0; i != 1000; ++i)
     {
         // generate random numbers
-        auto x = vector { generator(), generator(), generator(), generator() };
+        auto x = array { generator(), generator(), generator(), generator() };
 
         // compute with purple
-        auto q = x;
-        auto r = half_assign<unsigned>( span(q), 1 );
+        auto q = array<unsigned,4> {};
+        auto r = half_assign<unsigned>( q, x, 1 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
-        auto gq = gx / 2;
-        auto gr = gx % 2;
+        auto gq = gx >> 1;
+        auto gr = gx % (1 << 1);
 
         // compare
         SCOPED_TRACE( std::string() +
@@ -67,24 +69,24 @@ TEST(poly,half_D4_N1_random)
     }
 }
 
-TEST(poly,half_D4_N2_random)
+TEST(poly,half_4_31_random)
 {
     random_device random;
     random_integer generator { random() };
 
-    for (auto i = 0uz; i != 100; ++i)
+    for (auto i = 0; i != 1000; ++i)
     {
         // generate random numbers
-        auto x = vector { generator(), generator(), generator(), generator() };
+        auto x = array { generator(), generator(), generator(), generator() };
 
         // compute with purple
-        auto q = x;
-        auto r = half_assign<unsigned>( span(q), 2 );
+        auto q = array<unsigned,4> {};
+        auto r = half_assign<unsigned>( q, x, 31 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
-        auto gq = gx / 4;
-        auto gr = gx % 4;
+        auto gq = gx >> 31;
+        auto gr = gx % (1 << 31);
 
         // compare
         SCOPED_TRACE( std::string() +

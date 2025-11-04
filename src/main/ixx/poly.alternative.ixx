@@ -54,7 +54,7 @@ export namespace purple
             // x ← x + x
             carry = sum_assign<unsigned>( r, x, carry );
             // t ← t - 1
-            ignore = previous_assign<unsigned>( t );
+            ignore = previous_assign<unsigned>( t, t );
         }
         // terminate:
         // v = v + ( x × y )
@@ -81,9 +81,9 @@ export namespace purple
         // while r ≥ y:
         while ( not_smaller<Word>( r, y ) ) {
             // q ← q + 1
-            ignore = next_assign<Word>( q );
+            ignore = next_assign<Word>( q, q );
             // r ← r - y
-            ignore = difference_assign<Word>( r, y );
+            ignore = difference_assign<Word>( r, r, y );
         }
         // terminate:
         // q = x ÷ y

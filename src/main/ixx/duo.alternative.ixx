@@ -56,9 +56,9 @@ export namespace purple
         auto r = array { x[0], x[1] };
         while ( not_smaller<unsigned,2>( r, array { y, Word(0) } ) ) { // TODO: not_smaller 2D vs 1D
             // q ← q + 1
-            ignore = next_assign<Word,Degree>( q );
+            ignore = next_assign<Word,Degree>( q, q );
             // r ← r - y
-            ignore = difference_assign<Word,Degree>( r, y );
+            ignore = difference_assign<Word,Degree>( r, r, y );
         }
         // terminate
         return { q, r [0] };

@@ -197,11 +197,13 @@ export namespace purple
     }
 
     /// Next with carry.
+    ///
+    /// Permits aliasing r to x.
 
     constexpr
-    auto next_assign ( unsigned & x, unsigned carry = 0 ) noexcept -> unsigned
+    auto next_assign ( unsigned & r, unsigned x, unsigned carry = 0 ) noexcept -> unsigned
     {
-        x = __builtin_addc(x,1u,carry,&carry);
+        r = __builtin_addc(x,1u,carry,&carry);
         return carry;
     }
 
@@ -215,11 +217,13 @@ export namespace purple
     }
 
     /// Sum with carry.
+    ///
+    /// Permits aliasing r to x.
 
     constexpr
-    auto sum_assign ( unsigned & x, unsigned y, unsigned carry = 0 ) noexcept -> unsigned
+    auto sum_assign ( unsigned & r, unsigned x, unsigned y, unsigned carry = 0 ) noexcept -> unsigned
     {
-        x = __builtin_addc(x,y,carry,&carry);
+        r = __builtin_addc(x,y,carry,&carry);
         return carry;
     }
 
@@ -236,16 +240,21 @@ export namespace purple
     }
 
     /// Product with excess.
+    ///
+    /// Permits aliasing r to x.
 
     constexpr
-    auto product_assign ( unsigned & x, unsigned y, unsigned excess = 0 ) noexcept -> unsigned
+    auto product_assign ( unsigned & r, unsigned x, unsigned y, unsigned excess = 0 ) noexcept -> unsigned
     {
-        auto r = ( static_cast<unsigned long long>(x) * y ) + excess;
-        x = r;
-        return r >> 32;
+        auto t = ( static_cast<unsigned long long>(x) * y ) + excess;
+        r = t;
+        return t >> 32;
     }
 
     /// Twice with excess.
+    ///
+    /// Requires:
+    /// z < bits (TODO)
 
     constexpr
     auto twice ( unsigned x, size_t z, unsigned excess = 0 ) noexcept -> array< unsigned, 2uz >
@@ -258,13 +267,18 @@ export namespace purple
     }
 
     /// Twice with excess.
+    ///
+    /// Permits aliasing r to x.
+    ///
+    /// Requires:
+    /// z < bits (TODO)
 
     constexpr
-    auto twice_assign ( unsigned & x, size_t z, unsigned excess = 0 ) noexcept -> unsigned
+    auto twice_assign ( unsigned & r, unsigned x, size_t z, unsigned excess = 0 ) noexcept -> unsigned
     {
-        auto r = ( static_cast<unsigned long long>(x) << z ) + excess;
-        x = r;
-        return r >> 32;
+        auto t = ( static_cast<unsigned long long>(x) << z ) + excess;
+        r = t;
+        return t >> 32;
     }
 
     /// Reduce procedures.
@@ -281,11 +295,13 @@ export namespace purple
     }
 
     /// Previous with borrow.
+    ///
+    /// Permits aliasing r to x.
 
     constexpr
-    auto previous_assign ( unsigned & x, unsigned borrow = 0 ) noexcept -> unsigned
+    auto previous_assign ( unsigned & r, unsigned x, unsigned borrow = 0 ) noexcept -> unsigned
     {
-        x = __builtin_subc(x,1u,borrow,&borrow);
+        r = __builtin_subc(x,1u,borrow,&borrow);
         return borrow;
     }
 
@@ -299,11 +315,13 @@ export namespace purple
     }
 
     /// Difference with borrow.
+    ///
+    /// Permits aliasing r to x.
 
     constexpr
-    auto difference_assign ( unsigned & x, unsigned y, unsigned borrow = 0 ) noexcept -> unsigned
+    auto difference_assign ( unsigned & r, unsigned x, unsigned y, unsigned borrow = 0 ) noexcept -> unsigned
     {
-        x = __builtin_subc(x,y,borrow,&borrow);
+        r = __builtin_subc(x,y,borrow,&borrow);
         return borrow;
     }
 
@@ -322,19 +340,24 @@ export namespace purple
 
     /// Division with remainder.
     ///
+    /// Permits aliasing q to x.
+    ///
     /// Requires:
     /// y is nonzero
 
     constexpr
-    auto division_assign ( unsigned & x, unsigned y ) noexcept -> unsigned
+    auto division_assign ( unsigned & q, unsigned x, unsigned y ) noexcept -> unsigned
     {
-        auto q = x / y;
+        auto t = x / y;
         auto r = x % y;
-        x = q;
+        q = t;
         return r;
     }
 
     /// Half with remainder.
+    ///
+    /// Requires:
+    /// z < bits (TODO)
 
     constexpr
     auto half ( unsigned x, size_t z ) noexcept -> tuple< unsigned, unsigned >
@@ -345,13 +368,18 @@ export namespace purple
     }
 
     /// Half with remainder.
+    ///
+    /// Permits aliasing q to x.
+    ///
+    /// Requires:
+    /// z < bits (TODO)
 
     constexpr
-    auto half_assign ( unsigned & x, size_t z ) -> unsigned
+    auto half_assign ( unsigned & q, unsigned x, size_t z ) -> unsigned
     {
-        auto q = x >> z;
+        auto t = x >> z;
         auto r = x & ((1 << z) - 1);
-        x = q;
+        q = t;
         return r;
     }
 }

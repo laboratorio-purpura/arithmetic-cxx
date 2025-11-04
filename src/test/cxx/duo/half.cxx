@@ -25,15 +25,7 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// Type conversion from array.
-
-template <typename Word, size_t Degree>
-requires ( Degree == 2uz )
-auto half_accumulate ( array<Word,Degree> & x, size_t N ) noexcept -> Word
-{
-    auto xx = span<Word,Degree>( x );
-    return half_assign( xx, N );
-}
+// Tests.
 
 TEST(duo,half_accumulate_1_random)
 {
@@ -46,8 +38,8 @@ TEST(duo,half_accumulate_1_random)
         auto x = array { generator(), generator() };
 
         // compute with purple
-        auto q = x;
-        auto r = half_accumulate( q, 1 );
+        auto q = array { 0u, 0u };
+        auto r = half_assign<unsigned,2>( q, x, 1 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
@@ -87,8 +79,8 @@ TEST(duo,half_accumulate_2_random)
         auto x = array { generator(), generator() };
 
         // compute with purple
-        auto q = x;
-        auto r = half_accumulate( q, 2 );
+        auto q = array { 0u, 0u };
+        auto r = half_assign<unsigned,2>( q, x, 2 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );

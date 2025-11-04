@@ -33,9 +33,9 @@ export namespace purple
 
     /// Tests if zero.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto is_zero ( span<Word const,Degree> x ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto is_zero ( span<Word const,Bi> x ) noexcept -> bool
     {
         auto r = true;
         r = r && is_zero( x[0] );
@@ -45,9 +45,9 @@ export namespace purple
 
     /// Tests if *not* zero.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto not_zero ( span<Word const,Degree> x ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto not_zero ( span<Word const,Bi> x ) noexcept -> bool
     {
         auto r = false;
         r = r || not_zero( x[0] );
@@ -59,9 +59,9 @@ export namespace purple
     ///
     /// In a binary machine, this means the least significant bit is 1.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto is_odd ( span<Word const,Degree> x ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto is_odd ( span<Word const,Bi> x ) noexcept -> bool
     {
         return is_odd( x[0] );
     }
@@ -70,9 +70,9 @@ export namespace purple
     ///
     /// In a binary machine, this means the least significant bit is 0.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto not_odd ( span<Word const,Degree> x ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto not_odd ( span<Word const,Bi> x ) noexcept -> bool
     {
         return not_odd( x[0] );
     }
@@ -83,9 +83,9 @@ export namespace purple
     ///
     /// In a binary machine, this means the most significant bit is 1.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto is_normalized ( span<Word const,Degree> y ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto is_normalized ( span<Word const,Bi> y ) noexcept -> bool
     {
         return is_normalized( y[1] );
     }
@@ -96,18 +96,18 @@ export namespace purple
     ///
     /// In a binary machine, this means the most significant bit is 0.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto not_normalized ( span<Word const,Degree> y ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto not_normalized ( span<Word const,Bi> y ) noexcept -> bool
     {
         return not_normalized( y[1] );
     }
 
     /// Tests if smaller.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto is_smaller ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto is_smaller ( span<Word const,Bi> x, span<Word const,Bi> y ) noexcept -> bool
     {
         auto carry = Word(0);
         tie( ignore, carry ) = difference( x[0], y[0], carry );
@@ -117,9 +117,9 @@ export namespace purple
 
     /// Tests if *not* smaller.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto not_smaller ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto not_smaller ( span<Word const,Bi> x, span<Word const,Bi> y ) noexcept -> bool
     {
         auto carry = Word(0);
         tie( ignore, carry ) = difference( x[0], y[0], carry );
@@ -129,9 +129,9 @@ export namespace purple
 
     /// Tests if greater.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto is_greater ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> Word
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto is_greater ( span<Word const,Bi> x, span<Word const,Bi> y ) noexcept -> Word
     {
         auto carry = Word(0);
         tie( ignore, carry ) = difference( y[0], x[0], carry );
@@ -141,9 +141,9 @@ export namespace purple
 
     /// Tests if *not* greater.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto not_greater ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto not_greater ( span<Word const,Bi> x, span<Word const,Bi> y ) noexcept -> bool
     {
         auto carry = Word(0);
         tie( ignore, carry ) = difference( y[0], x[0], carry );
@@ -153,9 +153,9 @@ export namespace purple
 
     /// Tests if equal.
 
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto is_equal ( span<Word const,Degree> x, span<Word const,Degree> y ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto is_equal ( span<Word const,Bi> x, span<Word const,Bi> y ) noexcept -> bool
     {
         bool r = true;
         r = r && is_equal( x[0], y[0] );
@@ -165,9 +165,9 @@ export namespace purple
 
     /// Tests if *not* equal.
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto not_equal ( span<Integer const,Degree> x, span<Integer const,Degree> y ) noexcept -> bool
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto not_equal ( span<Word const,Bi> x, span<Word const,Bi> y ) noexcept -> bool
     {
         bool r = false;
         r = r || not_equal( x[0], y[0] );
@@ -184,9 +184,9 @@ export namespace purple
     /// Requires:
     /// y is normalized
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto reciprocal_normalized ( span<Integer const,Degree> y ) noexcept -> Integer
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto reciprocal_normalized ( span<Word const,Bi> y ) noexcept -> Word
     {
         auto v = reciprocal_normalized( y[1] );
         // p ← ( y[1] * v ) % B
@@ -208,7 +208,7 @@ export namespace purple
         if ( p < t[1] ) {
             v = v - 1;
             auto tp = array { t[0], p };
-            if ( not_smaller( span<Integer const,2>(tp), y ) ) {
+            if ( not_smaller( span<Word const,2>(tp), y ) ) {
                 v = v - 1;
             }
         }
@@ -220,48 +220,57 @@ export namespace purple
     /// These procedures increase values, producing a "carry" or an "excess".
 
     /// Next with carry.
+    ///
+    /// Permits aliasing r to x.
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto next_assign ( span<Integer,Degree> x ) -> Integer
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto next_assign ( span<Word> r, span<Word const,Bi> x, Word carry = Word(0) ) -> Word
     {
-        auto carry = Integer(0);
-        carry = sum_assign( x[0], Integer(1), carry );
-        carry = sum_assign( x[1], Integer(0), carry );
+        carry = sum_assign( r[0], x[0], Word(1), carry );
+        carry = sum_assign( r[1], x[1], Word(0), carry );
         return carry;
     }
 
     /// Sum with carry.
+    ///
+    /// Permits aliasing r to x.
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto sum_assign ( span<Integer,Degree> x, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto sum_assign ( span<Word> r, span<Word const,Bi> x, Word y, Word carry = Word(0) ) noexcept -> Word
     {
-        carry = sum_assign( x[0], y, carry );
-        carry = sum_assign( x[1], Integer(0), carry );
+        carry = sum_assign( r[0], x[0], y, carry );
+        carry = sum_assign( r[1], x[1], Word(0), carry );
         return carry;
     }
 
     /// Sum with carry.
+    ///
+    /// Permits aliasing r to x.
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto sum_assign ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer carry = Integer(0) ) noexcept -> Integer
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto sum_assign ( span<Word> r, span<Word const,Bi> x, span<Word const,Bi> y, Word carry = Word(0) ) noexcept -> Word
     {
-        carry = sum_assign( x[0], y[0], carry );
-        carry = sum_assign( x[1], y[1], carry );
+        carry = sum_assign( r[0], x[0], y[0], carry );
+        carry = sum_assign( r[1], x[1], y[1], carry );
         return carry;
     }
 
-    /// Twice N times with excess.
+    /// Twice with excess.
+    ///
+    /// Permits aliasing r to x.
+    ///
+    /// Requires:
+    /// z < bits (TODO)
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto twice_assign ( span<Integer,Degree> x, size_t times = 1 ) noexcept -> Integer
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto twice_assign ( span<Word> r, span<Word const,Bi> x, size_t z, Word excess = Word(0) ) noexcept -> Word
     {
-        auto excess = Integer(0);
-        excess = twice_assign( x[0], times, excess );
-        excess = twice_assign( x[1], times, excess );
+        excess = twice_assign( r[0], x[0], z, excess );
+        excess = twice_assign( r[1], x[1], z, excess );
         return excess;
     }
 
@@ -270,39 +279,48 @@ export namespace purple
     /// These procedures decrease values, requiring with a "borrow" or leaving a "remainder".
 
     /// Difference with borrow.
+    ///
+    /// Permits aliasing r to x.
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto difference_assign ( span<Integer,Degree> x, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto difference_assign ( span<Word> r, span<Word const,Bi> x, Word y, Word borrow = Word(0) ) noexcept -> Word
     {
-        borrow = difference_assign( x[0], y, borrow );
-        borrow = difference_assign( x[1], Integer(0), borrow );
+        borrow = difference_assign( r[0], x[0], y, borrow );
+        borrow = difference_assign( r[1], x[1], Word(0), borrow );
         return borrow;
     }
 
     /// Difference with borrow.
+    ///
+    /// Permits aliasing r to x.
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto difference_assign ( span<Integer,Degree> x, span<Integer const,Degree> y, Integer borrow = Integer(0) ) noexcept -> Integer
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto difference_assign ( span<Word> r, span<Word,Bi> x, span<Word const,Bi> y, Word borrow = Word(0) ) noexcept -> Word
     {
-        borrow = difference_assign( x[0], y[0], borrow );
-        borrow = difference_assign( x[1], y[1], borrow );
+        borrow = difference_assign( r[0], x[0], y[0], borrow );
+        borrow = difference_assign( r[1], x[1], y[1], borrow );
         return borrow;
     }
 
     /// Half N times with remainder.
+    ///
+    /// Permits aliasing r to x.
+    ///
+    /// Requires:
+    /// z < bits (TODO)
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto half_assign ( span<Integer,Degree> x, size_t times = 1 ) noexcept -> Integer
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto half_assign ( span<Word> r, span<Word const,Bi> x, size_t times = 1 ) noexcept -> Word
     {
-        constexpr auto B = sizeof(Integer) * 8uz;
-        auto r = x[0] & ((1 << times) - 1);
-        x[0] >>= times;
-        x[0] |= x[1] << (B - times);
-        x[1] >>= times;
-        return r;
+        constexpr auto B = sizeof(Word) * 8uz;
+        auto t = x[0] & ((1 << times) - 1);
+        r[0] = x[0] >> times;
+        r[0] |= x[1] << (B - times);
+        r[1] = x[1] >> times;
+        return t;
     }
 
     /// Normalized division with remainder.
@@ -312,27 +330,27 @@ export namespace purple
     /// y is normalized
     /// iy = reciprocal_normalized(y)
 
-    template <typename Integer, size_t Degree>
-    requires ( Degree == 2uz )
-    auto division_normalized ( span<Integer const,Degree> x, Integer y, Integer iy ) noexcept -> tuple< Integer, Integer >
+    template <typename Word, size_t Bi>
+    requires ( Bi == 2uz )
+    auto division_normalized ( span<Word const,Bi> x, Word y, Word iy ) noexcept -> tuple< Word, Word >
     {
         // t = ( r[1] × iy ) + x
         auto t = product( x[1], iy );
-        ignore = sum_assign( span(t), x );
+        ignore = sum_assign<Word,Bi>( t, t, x );
         // q = ( t[1] + 1 ) mod B
-        auto [ q, _ ] = sum( t[1], Integer(1) );
+        auto [ q, _ ] = sum( t[1], Word(1) );
         // r = ( x - ( q × y ) ) mod B
         auto qy = product( q, y );
         auto [ r, _ ] = difference( x[0], qy[0] );
         // if r > t[0] : q = ( q - 1 ) mod B; r = ( r + y ) mod B
         if ( is_greater( r, t[0] ) ) {
-            ignore = previous_assign( q );
-            ignore = sum_assign( r, y );
+            ignore = previous_assign( q, q );
+            ignore = sum_assign( r, r, y );
         }
         // if r >= y : q = ( q + 1 ) mod B; r = ( r - y ) mod B
         if ( not_smaller( r, y ) ) [[unlikely]] {
-            ignore = next_assign( q );
-            ignore = difference_assign( r, y );
+            ignore = next_assign( q, q );
+            ignore = difference_assign( r, r, y );
         }
         // terminate
         return { q, r };

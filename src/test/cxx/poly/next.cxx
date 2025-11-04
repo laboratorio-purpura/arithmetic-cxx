@@ -20,6 +20,7 @@ using std::array;
 using std::random_device;
 using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
 using std::span;
+using std::vector;
 
 // Assertions.
 
@@ -27,57 +28,22 @@ using std::span;
 
 // Tests.
 
-TEST(duo,twice_assign_1_random)
+TEST(poly,next_4_random)
 {
     random_device random;
     random_integer generator { random() };
 
-    for (auto i = 0; i != 1000; ++i)
+    for (auto i = 0uz; i != 1000; ++i)
     {
-        // generate random numbers
-        auto x = array { generator(), generator() };
+        auto x = array { generator(), generator(), generator(), generator() };
 
         // compute with purple
-        auto r = array { 0u, 0u, 0u };
-        r[2] = twice_assign<unsigned,2>( r, x, 1 );
+        auto r = array<unsigned,5> {};
+        r[4] = next_assign<unsigned>( r, x );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
-        auto gr = gx << 1;
-
-        // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
-            "x = " + format(gx) + "\n" +
-            "r = " + format(gr) + "\n"
-        );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
-        );
-    }
-}
-
-TEST(duo,twice_assign_31_random)
-{
-    random_device random;
-    random_integer generator { random() };
-
-    for (auto i = 0; i != 1000; ++i)
-    {
-        // generate random numbers
-        auto x = array { generator(), generator() };
-
-        // compute with purple
-        auto r = array { 0u, 0u, 0u };
-        r[2] = twice_assign<unsigned,2>( r, x, 31 );
-
-        // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gr = gx << 31;
+        auto gr = ++gx;
 
         // compare
         SCOPED_TRACE( std::string() +

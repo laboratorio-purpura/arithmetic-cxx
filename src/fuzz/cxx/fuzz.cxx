@@ -125,8 +125,8 @@ namespace
 
             // compute with purple
 
-            auto r = x;
-            auto b = purple::difference_assign<unsigned>(r,y);
+            auto r = vector<unsigned>(degree);
+            auto b = purple::difference_assign<unsigned>(r,x,y);
 
             // compute with GMP
 
@@ -157,13 +157,13 @@ namespace
 
             // compute with purple
 
-            auto r = x;
-            purple::half_assign<unsigned>(r,1);
+            auto r = vector<unsigned>(degree);
+            purple::half_assign<unsigned>(r,x,1);
 
             // compute with GMP
 
             auto gx = mpz_class( format(x), 16 );
-            auto gr = gx / 2;
+            auto gr = gx >> 1;
 
             // compare
 
@@ -322,8 +322,8 @@ namespace
 
             // compute with purple
 
-            auto r = vector<unsigned>(degree*2);
-            auto e = purple::product_accumulate<unsigned>(r,x,y);
+            auto r = vector<unsigned>((degree*2)+1);
+            r[degree*2] = purple::product_accumulate<unsigned>(r,x,y);
 
             // compute with GMP
 
@@ -357,8 +357,7 @@ namespace
             // compute with purple
 
             auto r = vector<unsigned>(degree+1);
-            purple::assign<unsigned>(r,x);
-            auto e = purple::product_assign<unsigned>(r,y);
+            r[degree] = purple::product_assign<unsigned>(r,x,y);
 
             // compute with GMP
 
@@ -502,8 +501,8 @@ namespace
 
             // compute with purple
 
-            auto r = x;
-            auto c = purple::sum_assign<unsigned>(r,y);
+            auto r = vector<unsigned>(degree+1);
+            r[degree] = purple::sum_assign<unsigned>(r,x,y);
 
             // compute with GMP
 
@@ -534,13 +533,13 @@ namespace
 
             // compute with purple
 
-            auto r = x;
-            auto e = purple::twice_assign<unsigned>(r,1uz);
+            auto r = vector<unsigned>(degree+1);
+            r[degree] = purple::twice_assign<unsigned>(r,x,1uz);
 
             // compute with GMP
 
             auto gx = mpz_class( format(x), 16 );
-            auto gr = gx * 2;
+            auto gr = gx << 1;
 
             // compare
 

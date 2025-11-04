@@ -25,10 +25,8 @@ export namespace purple
     auto sum (vector<Word> const & x, Word y) -> vector<Word>
     {
         auto const xz = x.size();
-        auto r = vector<Word>( xz + 1 );
-        for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
-        auto rs = span( r.begin(), r.begin() + xz );
-        r[xz] = sum_assign<Word>(rs,y);
+        auto r = vector<Word>(xz+1);
+        r[xz] = sum_assign<Word>(r,x,y);
         return std::move(r);
     }
 
@@ -36,11 +34,8 @@ export namespace purple
     auto sum (vector<Word> const & x, vector<Word> const & y) -> vector<Word>
     {
         auto const xz = x.size();
-        auto r = vector<Word>( xz + 1 );
-        for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
-        auto rs = span( r.begin(), r.begin() + xz );
-        auto ys = span( y.begin(), y.end() );
-        r[xz] = sum_assign<Word>(rs,ys);
+        auto r = vector<Word>(xz+1);
+        r[xz] = sum_assign<Word>(r,x,y);
         return std::move(r);
     }
 
@@ -48,10 +43,8 @@ export namespace purple
     auto twice (vector<Word> const & x, unsigned N = 1) -> vector<Word>
     {
         auto const xz = x.size();
-        auto r = vector<Word>( xz + 1 );
-        for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
-        auto rs = span( r.begin(), r.begin() + xz );
-        r[xz] = twice_assign(rs,N);
+        auto r = vector<Word>(xz+1);
+        r[xz] = twice_assign<Word>(r,x,N);
         return std::move(r);
     }
 
@@ -59,25 +52,8 @@ export namespace purple
     auto product (vector<Word> const & x, Word y) -> vector<Word>
     {
         auto const xz = x.size();
-        auto r = vector<Word>( xz + 1 );
-        for (auto i = 0uz; i != xz; ++i) r[i] = x[i];
-        auto rs = span( r.begin(), r.begin() + xz );
-        r[xz] = product_assign(rs,y);
-        return std::move(r);
-    }
-
-    template <typename Word>
-    auto product_sum (vector<Word> const & x, vector<Word> const & y, vector<Word> const & z) -> vector<Word>
-    {
-        auto xz = x.size();
-        auto yz = y.size();
-        auto zz = z.size();
-        auto r = vector<Word>( xz + yz + 1 );
-        for (auto i = 0uz; i != zz; ++i) r[i] = z[i];
-        auto rs = span( r.begin(), r.begin() + xz + yz );
-        auto xs = span( x.begin(), x.end() );
-        auto ys = span( y.begin(), y.end() );
-        r[xz+yz] = product_sum_assign(rs,xs,ys);
+        auto r = vector<Word>(xz+1);
+        r[xz] = product_assign<Word>(r,x,y);
         return std::move(r);
     }
 

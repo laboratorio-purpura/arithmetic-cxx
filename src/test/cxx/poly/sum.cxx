@@ -22,6 +22,12 @@ using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2
 using std::span;
 using std::vector;
 
+// Assertions.
+
+#define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
+
+// Tests.
+
 TEST(poly,sum_vM_1)
 {
     ASSERT_EQ( format( sum(vM,1U) ), "0000000100000000" );
@@ -207,25 +213,34 @@ TEST(poly,sum_4_random)
     random_device random;
     random_integer generator { random() };
 
-    for (auto i = 0uz; i != 10; ++i)
+    for (auto i = 0uz; i != 1000; ++i)
     {
-        auto x = vector { generator(), generator(), generator(), generator() };
-        auto y = vector { generator(), generator(), generator(), generator() };
-        auto r = sum<unsigned>( x, y );
+        auto x = array { generator(), generator(), generator(), generator() };
+        auto y = array { generator(), generator(), generator(), generator() };
 
+        // compute with purple
+        auto r = array<unsigned,5> {};
+        r[4] = sum_assign<unsigned>( r, x, y );
+
+        // compute with gmp
         auto gx = mpz_class( format(x), 16 );
         auto gy = mpz_class( format(y), 16 );
-        mpz_class gr = gx + gy;
+        auto gr = gx + gy;
 
+        // compare
         SCOPED_TRACE( std::string() +
             "purple:\n" +
-            "x = " + format(x) + "; y = " + format(y) + "\n" +
-            "x + y = " + format(r) + "\n"
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(r) + "\n" +
             "gmp:\n" +
-            "x = " + gx.get_str(16) + "; y = " + gy.get_str(16) + "\n"
-            "x + y = " + gr.get_str(16) + "\n"
+            "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
+            "r = " + format(gr) + "\n"
         );
-
-        ASSERT_EQ( cmp( gr, mpz_class( format(r), 16 ) ), 0 );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format(r), 16 )
+        );
     }
 }

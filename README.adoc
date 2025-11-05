@@ -29,7 +29,7 @@ cmake --preset default
 cmake --build --preset default
 ----
 
-To test the library:
+To test the library, run the `purple-arithmetic-test` program.
 
 [source,shell]
 ----
@@ -38,29 +38,25 @@ cmake-build-default/purple-arithmetic-test
 
 `purple-arithmetic-test` is a Google Test program containing unit tests for the library.
 
-Fuzzying the library requires these tools.
+To fuzz procedures, use the `purple-arithmetic-fuzz` program.
 
-- bc
-
-To fuzz the `square` routine with an 8 degree "number" 1000 times:
+To fuzz the `square` procedure 1000 times with 8-word numbers:
 
 [source,shell]
 ----
-cmake-build-default/purple-arithmetic-fuzz square 8 1000 | tee log | bc | cmake-build-default/purple-arithmetic-fuzz assert-zero
+cmake-build-default/purple-arithmetic-fuzz square 8 1000
 ----
 
-If successful, this pipeline prints nothing and returns `0`. Else, it prints the index of the failed case, whose parameters can be found in the `log` file.
-
-`purple-arithmetic-fuzz square` prints a program for `bc` whose expressions must always return `0`. If any expression returns nonzero, that means `bc` disagrees with `purple-arithmetic` on the correct result.
-
-`purple-arithmetic-fuzz assert-zero` consumes numbers from the standard input and tests for zero. If nonzero, it prints the index of this number and returns nonzero.
+Each iteration, the fuzzer generates random numbers, computes both with purple-arithmetic and GMP, and prints a report. If a difference is found, the fuzzer terminates with status 1.
 
 Available fuzzers:
 
+* `difference-restricted` _degree_ _iterations_
+* `division-2-1` _iterations_
+* `division-N-1` _iterations_
 * `half` _degree_ _iterations_
 * `product` _degree_ _iterations_
 * `product-N-1` _degree_ _iterations_
-* `ratio-2-1` _iterations_
 * `square` _degree_ _iterations_
 * `sum` _degree_ _iterations_
 * `twice` _degree_ _iterations_

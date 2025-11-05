@@ -90,7 +90,7 @@ export namespace purple
         auto rs = span( r.begin(), r.begin() + xz + yz );
         auto xs = span( x.begin(), x.end() );
         auto ys = span( y.begin(), y.end() );
-        r[xz+yz] = product_sum_assign(rs,xs,ys);
+        r[xz+yz] = product_accumulate(rs,xs,ys);
         return std::move(r);
     }
 
@@ -101,7 +101,7 @@ export namespace purple
         auto r = vector<Integer>( xz + xz + 1 );
         auto rs = span( r.begin(), r.begin() + xz + xz );
         auto xs = span( x.begin(), x.end() );
-        r[xz+xz] = square_sum_assign(rs,xs);
+        r[xz+xz] = square_accumulate(rs,xs);
         return std::move(r);
     }
 

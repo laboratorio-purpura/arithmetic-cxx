@@ -336,7 +336,7 @@ TEST(poly,product_sum_accumulate_carry)
     auto r = vector { 0U, 0xFFFFFFFFU, 0xFFFFFFFFU };
     auto const x = vector { 0x80000000U };
     auto const y = vector { 2U };
-    auto const r_ = product_sum_assign<unsigned>( span(r), span(x), span(y) );
+    auto const r_ = product_accumulate<unsigned>( span(r), span(x), span(y) );
     ASSERT_EQ( format(r), "000000000000000000000000" );
     ASSERT_EQ( r_, 1U );
 }

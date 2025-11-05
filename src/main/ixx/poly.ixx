@@ -297,13 +297,11 @@ export namespace purple
         return excess;
     }
 
-    /// Product and sum.
+    /// Product with excess.
 
     template <typename Integer>
-    auto product_sum_assign ( span<Integer> r, span<Integer const> x, span<Integer const> y ) noexcept -> Integer
-    // requires degree(r) ≥ degree(x) + degree(y) + 1
+    auto product_accumulate ( span<Integer> r, span<Integer const> x, span<Integer const> y, Integer excess = Integer(0) ) noexcept -> Integer
     {
-        auto carry = Integer(0);
         auto const xz = x.size();
         auto const yz = y.size();
         for (auto xi = 0uz; xi != xz; ++xi)
@@ -312,25 +310,23 @@ export namespace purple
             {
                 auto ri = xi+yi;
                 // xi * yi + carry
-                auto [ p0, p1 ] = product( x[xi], y[yi], carry );
+                auto [ p0, p1 ] = product( x[xi], y[yi], excess );
                 // store
                 auto c = sum_assign( r[ri], p0 );
-                carry = p1 + c;
+                excess = p1 + c;
             }
             // store
-            carry = sum_assign( r[xi+yz], carry );
+            excess = sum_assign( r[xi+yz], excess );
         }
         // store
-        return sum_assign( r[xz+yz], carry );
+        return sum_assign( r[xz+yz], excess );
     }
 
-    /// Square and sum.
+    /// Square with excess.
 
     template <typename Integer>
-    auto square_sum_assign ( span<Integer> r, span<Integer const> x ) noexcept -> Integer
-    // requires degree(r) ≥ degree(x) * 2 + 1
+    auto square_accumulate ( span<Integer> r, span<Integer const> x, Integer excess = Integer(0) ) noexcept -> Integer
     {
-        auto carry = Integer(0);
         auto const xz = x.size();
         for (auto xi = 0uz; xi != xz; ++xi)
         {
@@ -338,10 +334,10 @@ export namespace purple
             {
                 auto ri = xi+xi;
                 // xi ^ 2 + carry
-                auto [ p0, p1 ] = product( x[xi], x[xi], carry );
+                auto [ p0, p1 ] = product( x[xi], x[xi], excess );
                 // store
                 auto c = sum_assign( r[ri], p0 );
-                carry = p1 + c;
+                excess = p1 + c;
             }
             // 2 * xi * xj
             for (auto xj = xi + 1uz; xj != xz; ++xj)
@@ -350,20 +346,20 @@ export namespace purple
                 // xi * xj
                 auto [ p0, p1 ] = product( x[xi], x[xj] );
                 // 2 * xi * xj + carry
-                auto [ t00, t01 ] = twice( p0, 1uz, carry );
+                auto [ t00, t01 ] = twice( p0, 1uz, excess );
                 auto [ t10, t11 ] = twice( p1, 1uz );
                 // store
                 auto c0 = sum_assign( r[ri+0], t00 );
                 auto c1 = sum_assign( r[ri+1], t01, c0 );
                 auto c2 = sum_assign( r[ri+1], t10, c1 );
                 auto c3 = sum_assign( r[ri+2], t11, c2 );
-                carry = c3;
+                excess = c3;
             }
             // store
-            carry = sum_assign( r[xi+xz], carry );
+            excess = sum_assign( r[xi+xz], excess );
         }
         // store
-        return sum_assign( r[xz+xz], carry );
+        return sum_assign( r[xz+xz], excess );
     }
 
     /// Reduce procedures.
@@ -640,7 +636,7 @@ namespace purple
         auto const xz = x.size();
         auto const yz = y.size();
         if (xz < yz) return is_greater( y, x );
-        auto c = is_smaller_isodegree( x, y );
+        auto c = is_smaller_isodegree( x.subspan(0,y.size()), y );
         for (auto i = yz; i != xz; ++i)
             c = c && is_zero( x[i] );
         return c;
@@ -652,7 +648,7 @@ namespace purple
         auto const xz = x.size();
         auto const yz = y.size();
         if (xz < yz) return is_smaller( y, x );
-        auto c = is_greater_isodegree( x, y );
+        auto c = is_greater_isodegree( x.subspan(0,y.size()), y );
         for (auto i = yz; i != xz; ++i)
             c = c || not_zero( x[i] );
         return c;

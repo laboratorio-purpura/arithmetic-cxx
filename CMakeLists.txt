@@ -59,5 +59,6 @@ target_sources(purple-arithmetic-fuzz
 target_link_libraries(purple-arithmetic-fuzz
     PRIVATE
     fmt::fmt
+    gmp::gmp
     purple-arithmetic
 )

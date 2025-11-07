@@ -4,6 +4,7 @@
 #include <array>
 #include <random>
 #include <span>
+#include <vector>
 
 #include <gmpxx.h>
 
@@ -25,31 +26,38 @@ using std::span;
 
 // Tests.
 
-TEST_F(PurpleTest,half_assign_2_1_random)
+TEST_F(PurpleTest,difference_assign_64_1_borrowless_random)
 {
     for (auto i = 0; i != 1000; ++i)
     {
-        auto x = array<unsigned,2> {};
-        generate(x);
+        auto x = array<unsigned,64> {};
+        auto y = 0u;
+
+        while ( not_greater<unsigned>( x, array { y } ) ) {
+            generate(x);
+            y = generate();
+        }
 
         // purposeful excess capacity with garbage
-        auto r = array<unsigned,4> {};
+        auto r = array<unsigned,66> {};
         generate(r);
 
         // compute with purple
-        ignore = half_assign<unsigned,2>( r, x, 1 );
+        ignore = difference_assign<unsigned>( r, x, y );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
-        auto gr = gx >> 1;
+        auto gr = gx - y;
 
         // compare
         SCOPED_TRACE( std::string() +
             "purple:\n" +
             "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
             "r = " + format(r) + "\n" +
             "gmp:\n" +
             "x = " + format(gx) + "\n" +
+            "y = " + format(y) + "\n" +
             "r = " + format(gr) + "\n"
         );
         ASSERT_GMP_EQ(
@@ -59,31 +67,53 @@ TEST_F(PurpleTest,half_assign_2_1_random)
     }
 }
 
-TEST_F(PurpleTest,half_assign_2_31_random)
+TEST_F(PurpleTest,difference_assign_N_N)
+{
+    auto r = array<unsigned,32> {};
+    auto b = 0u;
+
+    b = difference_assign<unsigned>( r,
+        array { 0x5F327ECDu, 0x4253ECBFu },
+        array { 0x2EBDE466u, 0x0FCDC1D5u }
+    );
+    ASSERT_EQ( format(r), "32862AEA30749A67" );
+    ASSERT_EQ( b , 0 );
+}
+
+TEST_F(PurpleTest,difference_assign_32_32_borrowless_random)
 {
     for (auto i = 0; i != 1000; ++i)
     {
-        auto x = array<unsigned,2> {};
-        generate(x);
+        auto x = array<unsigned,32> {};
+        auto y = array<unsigned,32> {};
+
+        while ( not_greater<unsigned>( x, y ) ) {
+            generate(x);
+            generate(y);
+        }
 
         // purposeful excess capacity with garbage
-        auto r = array<unsigned,4> {};
+        auto r = array<unsigned,34> {};
         generate(r);
 
         // compute with purple
-        ignore = half_assign<unsigned,2>( r, x, 31 );
+        ignore = difference_assign<unsigned>( r, x, y );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
-        auto gr = gx >> 31;
+        auto gy = mpz_class( format(y), 16 );
+        auto gr = gx - gy;
 
         // compare
         SCOPED_TRACE( std::string() +
+            "i = " + format(i) + "\n" +
             "purple:\n" +
             "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
             "r = " + format(r) + "\n" +
             "gmp:\n" +
             "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
             "r = " + format(gr) + "\n"
         );
         ASSERT_GMP_EQ(

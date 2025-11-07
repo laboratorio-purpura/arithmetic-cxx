@@ -17,8 +17,7 @@ using namespace purple;
 using namespace purple::test;
 
 using std::array;
-using std::random_device;
-using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
+using std::ignore;
 using std::span;
 
 // Assertions.
@@ -27,19 +26,19 @@ using std::span;
 
 // Tests.
 
-TEST(duo,twice_assign_1_random)
+TEST_F(PurpleTest,twice_assign_2_1_random)
 {
-    random_device random;
-    random_integer generator { random() };
-
     for (auto i = 0; i != 1000; ++i)
     {
-        // generate random numbers
-        auto x = array { generator(), generator() };
+        auto x = array<unsigned,2> {};
+        generate(x);
+
+        // purposeful excess capacity with garbage
+        auto r = array<unsigned,4> {};
+        generate(r);
 
         // compute with purple
-        auto r = array { 0u, 0u, 0u };
-        r[2] = twice_assign<unsigned,2>( r, x, 1 );
+        ignore = twice_assign<unsigned,2>( r, x, 1 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
@@ -61,19 +60,19 @@ TEST(duo,twice_assign_1_random)
     }
 }
 
-TEST(duo,twice_assign_31_random)
+TEST_F(PurpleTest,twice_assign_2_31_random)
 {
-    random_device random;
-    random_integer generator { random() };
-
     for (auto i = 0; i != 1000; ++i)
     {
-        // generate random numbers
-        auto x = array { generator(), generator() };
+        auto x = array<unsigned,2> {};
+        generate(x);
+
+        // purposeful excess capacity with garbage
+        auto r = array<unsigned,4> {};
+        generate(r);
 
         // compute with purple
-        auto r = array { 0u, 0u, 0u };
-        r[2] = twice_assign<unsigned,2>( r, x, 31 );
+        ignore = twice_assign<unsigned,2>( r, x, 31 );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );

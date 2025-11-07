@@ -78,15 +78,4 @@ export namespace purple
         auto y_ = span<Word const,Degree>( y );
         return reciprocal_normalized( y_ );
     }
-
-    /// Expand procedures.
-
-    template <typename Word, size_t Degree>
-    requires ( Degree == 2uz )
-    auto sum_assign ( array<Word,Degree> const & x, array<Word,Degree> const & y, Word c = Word(0) ) noexcept
-    {
-        auto x_ = span<Word const,Degree>( x );
-        auto y_ = span<Word const,Degree>( y );
-        return sum_assign( x_, y_, c);
-    }
 }

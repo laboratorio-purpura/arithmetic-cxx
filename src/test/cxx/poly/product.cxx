@@ -17,10 +17,8 @@ using namespace purple;
 using namespace purple::test;
 
 using std::array;
-using std::random_device;
-using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
+using std::ignore;
 using std::span;
-using std::vector;
 
 // Assertions.
 
@@ -28,92 +26,78 @@ using std::vector;
 
 // Tests.
 
-template <typename Word, size_t XZ>
-void product_assign_test ( array<Word,XZ> const & x, Word y )
+TEST_F(PurpleTest,product_assign_64_1_random)
 {
-    // compute with purple
-    auto r = array<unsigned,XZ+1> {};
-    r[XZ] = product_assign<unsigned>( r, x, y );
-
-    // compute with gmp
-    auto gx = mpz_class( format(x), 16 );
-    auto gr = gx * y;
-
-    // compare
-    SCOPED_TRACE( std::string() +
-        "purple:\n" +
-        "x = " + format(x) + "\n" +
-        "y = " + format(y) + "\n" +
-        "r = " + format(r) + "\n" +
-        "gmp:\n" +
-        "x = " + format(gx) + "\n" +
-        "y = " + format(y) + "\n" +
-        "r = " + format(gr) + "\n"
-    );
-    ASSERT_GMP_EQ(
-        gr,
-        mpz_class( format(r), 16 )
-    );
-}
-
-TEST(poly,product_assign_64_1_random)
-{
-    random_device random;
-    random_integer generator { random() };
-
     for (auto i = 0; i != 1000; ++i)
     {
-        auto x = array<unsigned,64uz> {};
-        std::ranges::generate(x,ref(generator));
+        auto x = array<unsigned,64> {};
+        generate(x);
 
-        auto y = generator();
+        auto y = generate();
 
-        product_assign_test( x, y );
+        // purposeful excess capacity with garbage
+        auto r = array<unsigned,66> {};
+        generate(r);
+
+        // compute with purple
+        ignore = product_assign<unsigned>( r, x, y );
+
+        // compute with gmp
+        auto gx = mpz_class( format(x), 16 );
+        auto gr = gx * y;
+
+        // compare
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(r) + "\n" +
+            "gmp:\n" +
+            "x = " + format(gx) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format(r), 16 )
+        );
     }
 }
 
-template <typename Word, size_t XZ, size_t YZ>
-void product_accumulate_test ( array<Word,XZ> const & x, array<Word,YZ> const & y )
+TEST_F(PurpleTest,product_accumulate_32_32_random)
 {
-    // compute with purple
-    auto r = array<unsigned,XZ+YZ+1> {};
-    r[XZ+YZ] = product_accumulate<unsigned>( r, x, y );
-
-    // compute with gmp
-    auto gx = mpz_class( format(x), 16 );
-    auto gy = mpz_class( format(y), 16 );
-    auto gr = gx * gy;
-
-    // compare
-    SCOPED_TRACE( std::string() +
-        "purple:\n" +
-        "x = " + format(x) + "\n" +
-        "y = " + format(y) + "\n" +
-        "r = " + format(r) + "\n" +
-        "gmp:\n" +
-        "x = " + format(gx) + "\n" +
-        "y = " + format(gy) + "\n" +
-        "r = " + format(gr) + "\n"
-    );
-    ASSERT_GMP_EQ(
-        gr,
-        mpz_class( format(r), 16 )
-    );
-}
-
-TEST(poly,product_accumulate_32_32_random)
-{
-    random_device random;
-    random_integer generator { random() };
-
     for (auto i = 0; i != 1000; ++i)
     {
-        auto x = array<unsigned,32uz> {};
-        std::ranges::generate(x,ref(generator));
+        auto x = array<unsigned,32> {};
+        generate(x);
 
-        auto y = array<unsigned,32uz> {};
-        std::ranges::generate(y,ref(generator));
+        auto y = array<unsigned,32> {};
+        generate(y);
 
-        product_accumulate_test( x, y );
+        auto r = array<unsigned,65> {};
+
+        // compute with purple
+        ignore = product_accumulate<unsigned>( r, x, y );
+
+        // compute with gmp
+        auto gx = mpz_class( format(x), 16 );
+        auto gy = mpz_class( format(y), 16 );
+        auto gr = gx * gy;
+
+        // compare
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(r) + "\n" +
+            "gmp:\n" +
+            "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format(r), 16 )
+        );
     }
 }

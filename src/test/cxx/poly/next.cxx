@@ -17,10 +17,11 @@ using namespace purple;
 using namespace purple::test;
 
 using std::array;
+using std::ignore;
 using std::random_device;
-using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
 using std::span;
-using std::vector;
+
+using random_engine = std::linear_congruential_engine<unsigned,48271ul,0ul,2147483647ul>;
 
 // Assertions.
 
@@ -28,42 +29,73 @@ using std::vector;
 
 // Tests.
 
-template <typename Word, size_t XZ>
-void next_assign_test ( array<Word,XZ> const & x )
+TEST_F(PurpleTest,next_assign_N_capacity)
 {
-    // compute with purple
-    auto r = array<unsigned,XZ+1> {};
-    r[XZ] = next_assign<unsigned>( r, x );
+    array<unsigned,1> r1 {};
+    array<unsigned,2> r2 {};
+    array<unsigned,3> r3 {};
 
-    // compute with gmp
-    auto gx = mpz_class( format(x), 16 );
-    auto gr = ++gx;
+    // tests required capacity when operands are not compact
 
-    // compare
-    SCOPED_TRACE( std::string() +
-        "purple:\n" +
-        "x = " + format(x) + "\n" +
-        "r = " + format(r) + "\n" +
-        "gmp:\n" +
-        "x = " + format(gx) + "\n" +
-        "r = " + format(gr) + "\n"
-    );
-    ASSERT_GMP_EQ(
-        gr,
-        mpz_class( format(r), 16 )
-    );
+    auto carry = purple::next_assign<unsigned>( r1, array { 0u, 0u } );
+    ASSERT_EQ( format(r1), "00000001" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = purple::next_assign<unsigned>( r1, array { 0xFFFFFFFEu, 0u } );
+    ASSERT_EQ( format(r1), "FFFFFFFF" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = purple::next_assign<unsigned>( r1, array { 0xFFFFFFFFu, 0u } );
+    ASSERT_EQ( format(r1), "00000000" );
+    ASSERT_EQ( carry, 1 );
+
+    carry = purple::next_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0u } );
+    ASSERT_EQ( format(r2), "0000000100000000" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = purple::next_assign<unsigned>( r2, array { 0xFFFFFFFEu, 0xFFFFFFFFu } );
+    ASSERT_EQ( format(r2), "FFFFFFFFFFFFFFFF" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = purple::next_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0xFFFFFFFFu } );
+    ASSERT_EQ( format(r2), "00000000" );
+    ASSERT_EQ( carry, 1 );
+
+    carry = purple::next_assign<unsigned>( r3, array { 0xFFFFFFFFu, 0xFFFFFFFFu } );
+    ASSERT_EQ( format(r3), "000000010000000000000000" );
+    ASSERT_EQ( carry, 0 );
 }
 
-TEST(poly,next_assign_32_random)
+TEST_F(PurpleTest,next_assign_32_random)
 {
-    random_device random;
-    random_integer generator { random() };
-
-    for (auto i = 0uz; i != 1000; ++i)
+    for (auto i = 0; i != 1000; ++i)
     {
-        auto x = array<unsigned,32uz> {};
-        std::ranges::generate(x,ref(generator));
+        auto x = array<unsigned,32> {};
+        generate(x);
 
-        next_assign_test( x );
+        // purposeful excess capacity with garbage
+        auto r = array<unsigned,34> {};
+        generate(r);
+
+        // compute with purple
+        ignore = next_assign<unsigned>( r, x );
+
+        // compute with gmp
+        auto gx = mpz_class( format(x), 16 );
+        auto gr = ++gx;
+
+        // compare
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "x = " + format(x) + "\n" +
+            "r = " + format(r) + "\n" +
+            "gmp:\n" +
+            "x = " + format(gx) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format(r), 16 )
+        );
     }
 }

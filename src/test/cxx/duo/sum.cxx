@@ -17,6 +17,7 @@ using namespace purple;
 using namespace purple::test;
 
 using std::array;
+using std::ignore;
 using std::random_device;
 using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
 using std::span;
@@ -25,22 +26,61 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// tests.
+// Tests.
 
-TEST(duo,sum_assign_random)
+TEST_F(PurpleTest,sum_assign_2_2_capacity)
 {
-    random_device random;
-    random_integer generator { random() };
+    array<unsigned,1> r1 {};
+    array<unsigned,2> r2 {};
+    array<unsigned,3> r3 {};
 
+    // tests required capacity when operands are not compact
+
+    auto carry = sum_assign<unsigned,2>( r1, array { 0u, 0u }, array { 1u, 0u } );
+    ASSERT_EQ( format(r1), "00000001" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned,2>( r1, array { 0xFFFFFFFEu, 0u }, array { 1u, 0u } );
+    ASSERT_EQ( format(r1), "FFFFFFFF" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned,2>( r1, array { 0xFFFFFFFFu, 0u }, array { 1u, 0u } );
+    ASSERT_EQ( format(r1), "00000000" );
+    ASSERT_EQ( carry, 1 );
+
+    carry = sum_assign<unsigned,2>( r2, array { 0xFFFFFFFFu, 0u }, array { 1u, 0u } );
+    ASSERT_EQ( format(r2), "0000000100000000" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned,2>( r2, array { 0xFFFFFFFEu, 0xFFFFFFFFu }, array { 1u, 0u } );
+    ASSERT_EQ( format(r2), "FFFFFFFFFFFFFFFF" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned,2>( r2, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, array { 1u, 0u } );
+    ASSERT_EQ( format(r2), "00000000" );
+    ASSERT_EQ( carry, 1 );
+
+    carry = sum_assign<unsigned,2>( r3, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, array { 1u, 0u } );
+    ASSERT_EQ( format(r3), "000000010000000000000000" );
+    ASSERT_EQ( carry, 0 );
+}
+
+TEST_F(PurpleTest,sum_assign_2_2_random)
+{
     for (auto i = 0; i != 1000; ++i)
     {
-        // generate random numbers
-        auto x = array { generator(), generator() };
-        auto y = array { generator(), generator() };
+        auto x = array<unsigned,2> {};
+        generate(x);
+
+        auto y = array<unsigned,2> {};
+        generate(y);
+
+        // purposeful excess capacity with garbage
+        auto r = array<unsigned,4> {};
+        generate(r);
 
         // compute with purple
-        auto r = array { 0u, 0u, 0u };
-        r[2] = sum_assign<unsigned,2>( r, x, y );
+        ignore = sum_assign<unsigned,2>( r, x, y );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );

@@ -1,16 +1,16 @@
 = purple-arithmetic
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
-:lang: en
+:lang: pt
 
-Para este texto em português, veja link:README.pt.adoc[].
+For this text in english, see link:README.adoc[].
 
-The `purple-arithmetic` library contains procedures for arithmetics with "long" nonnegative integers.
+A biblioteca `purple-arithmetic` contém rotinas para aritmética com inteiros não-negativos "grandes".
 
-This is an educational project with the purpose of learning and sharing algorithmic mathematics.
+Este é um projeto educacional com o propósito de aprendizado e compartilhamento de matemática algorítmica.
 
-This library is defined in a C++26 module.
+Esta biblioteca está definida em um módulo C++26.
 
-References:
+Referências:
 
 * Donald E. Knuth, "The Art of Computer Programming", volume 2, "Seminumerical Algorithms", third edition, ISBN 0-201-89684-2
 * MMIXmasters, "MIX to MMIX Conversion", https://mmix.cs.hm.edu/mmixmasters/index.html#MIXtoMMIX
@@ -18,13 +18,13 @@ References:
 * Alexander Stepanov, Daniel Rose, "From Mathematics to Generic Programming", Addison Wesley, 2015, ISBN 978-0-321-94204-3
 * Niels Möller, Torbjörn Granlund, "Improved division by invariant integers", IEEE Transactions on Computers, Volume 60, Issue 2, February 2011, DOI: 10.1109/TC.2010.143
 
-Building the library requires these tools.
+Construir a biblioteca exige estas ferramentas.
 
 - clang 20+
 - ninja 1.11+
 - cmake 3.30+
 
-To build the library:
+Para construir a biblioteca:
 
 [source,shell]
 ----
@@ -32,22 +32,22 @@ cmake --preset default
 cmake --build --preset default
 ----
 
-To test for quality, run the `purple-arithmetic-test` program.
+Para testar a qualidade, execute o programa `purple-arithmetic-test`.
 
 [source,shell]
 ----
 cmake-build-default/purple-arithmetic-test
 ----
 
-This is a standard Google Test program, supporting the usual command line options.
+Este é um programa padrão do Google Test, aceitando as opções de linha de comando convencionais.
 
-To test for performance, run the `purple-arithmetic-bechmark` program.
+Para testar o desempenho, execute o programa `purple-arithmetic-bechmark`.
 
 [source,shell]
 ----
 cmake-build-default/purple-arithmetic-benchmark
 ----
 
-This is a standard Google Benchmark program, supporting the usual command line options.
+Este é um programa padrão Google Benchmark, aceitando as opções de linha de comando convencionais.
 
-Performance is compared against the GMP library.
+O desempenho será comparado contra a biblioteca GMP.

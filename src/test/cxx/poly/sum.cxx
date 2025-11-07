@@ -17,10 +17,8 @@ using namespace purple;
 using namespace purple::test;
 
 using std::array;
-using std::random_device;
-using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
+using std::ignore;
 using std::span;
-using std::vector;
 
 // Assertions.
 
@@ -28,94 +26,154 @@ using std::vector;
 
 // Tests.
 
-template <typename Word, size_t XZ>
-void sum_assign_test ( array<Word,XZ> const & x, Word y )
+TEST_F(PurpleTest,sum_assign_N_1_capacity)
 {
-    // compute with purple
-    auto r = array<unsigned,XZ+1> {};
-    r[XZ] = sum_assign<unsigned>( r, x, y );
+    array<unsigned,1> r1 {};
+    array<unsigned,2> r2 {};
+    array<unsigned,3> r3 {};
 
-    // compute with gmp
-    auto gx = mpz_class( format(x), 16 );
-    auto gr = gx + y;
+    // tests required capacity when operands are not compact
 
-    // compare
-    SCOPED_TRACE( std::string() +
-        "purple:\n" +
-        "x = " + format(x) + "\n" +
-        "y = " + format(y) + "\n" +
-        "r = " + format(r) + "\n" +
-        "gmp:\n" +
-        "x = " + format(gx) + "\n" +
-        "y = " + format(y) + "\n" +
-        "r = " + format(gr) + "\n"
-    );
-    ASSERT_GMP_EQ(
-        gr,
-        mpz_class( format(r), 16 )
-    );
+    auto carry = sum_assign<unsigned>( r1, array { 0u, 0u }, 1u );
+    ASSERT_EQ( format(r1), "00000001" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned>( r1, array { 0xFFFFFFFEu, 0u }, 1u );
+    ASSERT_EQ( format(r1), "FFFFFFFF" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned>( r1, array { 0xFFFFFFFFu, 0u }, 1u );
+    ASSERT_EQ( format(r1), "00000000" );
+    ASSERT_EQ( carry, 1 );
+
+    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0u }, 1u );
+    ASSERT_EQ( format(r2), "0000000100000000" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFEu, 0xFFFFFFFFu }, 1u );
+    ASSERT_EQ( format(r2), "FFFFFFFFFFFFFFFF" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, 1u );
+    ASSERT_EQ( format(r2), "00000000" );
+    ASSERT_EQ( carry, 1 );
+
+    carry = sum_assign<unsigned>( r3, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, 1u );
+    ASSERT_EQ( format(r3), "000000010000000000000000" );
+    ASSERT_EQ( carry, 0 );
 }
 
-TEST(poly,sum_assign_64_1_random)
+TEST_F(PurpleTest,sum_assign_64_1_random)
 {
-    random_device random;
-    random_integer generator { random() };
-
-    for (auto i = 0uz; i != 1000; ++i)
+    for (auto i = 0; i != 1000; ++i)
     {
-        auto x = array<unsigned,64uz> {};
-        std::ranges::generate(x,ref(generator));
+        auto x = array<unsigned,64> {};
+        generate(x);
 
         auto y = generator();
 
-        sum_assign_test( x, y );
+        // purposeful excess capacity with garbage
+        auto r = array<unsigned,66> {};
+        generate(r);
+
+        // compute with purple
+        ignore = sum_assign<unsigned>( r, x, y );
+
+        // compute with gmp
+        auto gx = mpz_class( format(x), 16 );
+        auto gr = gx + y;
+
+        // compare
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(r) + "\n" +
+            "gmp:\n" +
+            "x = " + format(gx) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format(r), 16 )
+        );
     }
 }
 
-template <typename Word, size_t XZ, size_t YZ>
-void sum_assign_test ( array<Word,XZ> const & x, array<Word,YZ> const & y )
+TEST_F(PurpleTest,sum_assign_N_capacity)
 {
-    static_assert( XZ >= YZ );
+    array<unsigned,1> r1 {};
+    array<unsigned,2> r2 {};
+    array<unsigned,3> r3 {};
 
-    // compute with purple
-    auto r = array<unsigned,XZ+1> {};
-    r[XZ] = sum_assign<unsigned>( r, x, y );
+    // tests required capacity when operands are not compact
 
-    // compute with gmp
-    auto gx = mpz_class( format(x), 16 );
-    auto gy = mpz_class( format(y), 16 );
-    auto gr = gx + gy;
+    auto carry = sum_assign<unsigned>( r1, array { 0u, 0u }, array { 1u, 0u } );
+    ASSERT_EQ( format(r1), "00000001" );
+    ASSERT_EQ( carry, 0 );
 
-    // compare
-    SCOPED_TRACE( std::string() +
-        "purple:\n" +
-        "x = " + format(x) + "\n" +
-        "y = " + format(y) + "\n" +
-        "r = " + format(r) + "\n" +
-        "gmp:\n" +
-        "x = " + format(gx) + "\n" +
-        "y = " + format(gy) + "\n" +
-        "r = " + format(gr) + "\n"
-    );
-    ASSERT_GMP_EQ(
-        gr,
-        mpz_class( format(r), 16 )
-    );
+    carry = sum_assign<unsigned>( r1, array { 0xFFFFFFFEu, 0u }, array { 1u, 0u } );
+    ASSERT_EQ( format(r1), "FFFFFFFF" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned>( r1, array { 0xFFFFFFFFu, 0u }, array { 1u, 0u } );
+    ASSERT_EQ( format(r1), "00000000" );
+    ASSERT_EQ( carry, 1 );
+
+    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0u }, array { 1u, 0u } );
+    ASSERT_EQ( format(r2), "0000000100000000" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFEu, 0xFFFFFFFFu }, array { 1u, 0u } );
+    ASSERT_EQ( format(r2), "FFFFFFFFFFFFFFFF" );
+    ASSERT_EQ( carry, 0 );
+
+    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, array { 1u, 0u } );
+    ASSERT_EQ( format(r2), "00000000" );
+    ASSERT_EQ( carry, 1 );
+
+    carry = sum_assign<unsigned>( r3, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, array { 1u, 0u } );
+    ASSERT_EQ( format(r3), "000000010000000000000000" );
+    ASSERT_EQ( carry, 0 );
 }
 
-TEST(poly,sum_assign_32_32_random)
+TEST_F(PurpleTest,sum_assign_32_32_random)
 {
-    random_device random;
-    random_integer generator { random() };
-
-    for (auto i = 0uz; i != 1000; ++i)
+    for (auto i = 0; i != 1000; ++i)
     {
-        auto x = array<unsigned,32uz> {};
-        std::ranges::generate(x,ref(generator));
+        auto x = array<unsigned,32> {};
+        generate(x);
 
-        auto y = array<unsigned,32uz> {};
-        std::ranges::generate(y,ref(generator));
+        auto y = array<unsigned,32> {};
+        generate(y);
 
-        sum_assign_test( x, y );
+        // purposeful excess capacity with garbage
+        auto r = array<unsigned,34> {};
+        generate(r);
+
+        // compute with purple
+        ignore = sum_assign<unsigned>( r, x, y );
+
+        // compute with gmp
+        auto gx = mpz_class( format(x), 16 );
+        auto gy = mpz_class( format(y), 16 );
+        auto gr = gx + gy;
+
+        // compare
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(r) + "\n" +
+            "gmp:\n" +
+            "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+        ASSERT_GMP_EQ(
+            gr,
+            mpz_class( format(r), 16 )
+        );
     }
 }

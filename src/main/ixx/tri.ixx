@@ -27,6 +27,9 @@ using std::tuple;
 /// By tri-degree integers we mean integers represented with three words.
 ///
 /// This module partition defines procedures with tri-degree integer operands.
+///
+/// Requires, unless otherwise specified:
+/// degree(operand) ≥ 1
 
 export namespace purple
 {

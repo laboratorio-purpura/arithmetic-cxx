@@ -5,11 +5,14 @@ module;
 
 #include <array>
 #include <iomanip>
+#include <random>
 #include <span>
 #include <sstream>
 #include <vector>
 
 #include <fmt/format.h>
+
+#include <gtest/gtest.h>
 
 #include <gmpxx.h>
 
@@ -58,30 +61,6 @@ export namespace purple::test
         return ss.str();
     }
 
-    template <size_t SZ, typename AT, size_t AZ>
-    auto to_cspan ( array<AT,AZ> const & integer, size_t offset = 0uz ) -> span<AT const,SZ>
-    {
-        return span<AT const,SZ>( integer.begin() + offset, SZ );
-    }
-
-    template <size_t SZ, typename AT>
-    auto to_cspan ( vector<AT> const & integer, size_t offset = 0uz ) -> span<AT const,SZ>
-    {
-        return span<AT const,SZ>( integer.begin() + offset, SZ );
-    }
-
-    template <size_t SZ, typename AT, size_t AZ>
-    auto to_span ( array<AT,AZ> & integer, size_t offset = 0uz ) -> span<AT,SZ>
-    {
-        return span<AT,SZ>( integer.begin() + offset, SZ );
-    }
-
-    template <size_t SZ, typename AT>
-    auto to_span ( vector<AT> & integer, size_t offset = 0uz ) -> span<AT,SZ>
-    {
-        return span<AT,SZ>( integer.begin() + offset, SZ );
-    }
-
     constexpr unsigned L = 0x80000000U;
     constexpr unsigned M = 0xFFFFFFFFU;
 
@@ -107,8 +86,18 @@ export namespace purple::test
     const vector<unsigned> v0L { 0U, L,  };
     const vector<unsigned> v0M { 0U, M,  };
 
-    const vector<unsigned> v11 { 1U, 1U, };
-    const vector<unsigned> v22 { 2U, 2U, };
-    const vector<unsigned> vLL { L,  L,  };
-    const vector<unsigned> vMM { M,  M,  };
+    struct PurpleTest : ::testing::Test
+    {
+        random_device random;
+        linear_congruential_engine<unsigned,48271ul,0ul,2147483647ul> generator { random() };
+
+        auto generate () {
+            return generator();
+        }
+
+        template <typename T, size_t N>
+        void generate (std::array<T,N> & a) {
+            std::ranges::generate(a,std::ref(generator));
+        }
+    };
 }

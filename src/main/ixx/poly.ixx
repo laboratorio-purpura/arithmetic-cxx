@@ -3,6 +3,7 @@
 
 module;
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <span>
@@ -29,32 +30,35 @@ using std::tie;
 ///
 /// This module partition defines procedures with multi-degree integer operands.
 ///
-/// Unless otherwise specified, requires:
+/// Requires, unless otherwise specified:
 /// degree(operand) ≥ 1
 
 export namespace purple
 {
-    /// Representation procedures.
+    /// Query procedures.
 
-    /// Assigns a value.
+    /// Count of significant words.
 
-    template <typename Word>
-    void assign ( span<Word> x, Word y )
+    template <typename Integer>
+    auto degree ( span<Integer const> x ) noexcept -> size_t
     {
-        x[0] = y;
-        for (auto i = 1uz; i != x.size(); ++i) x[i] = Word(0);
+        auto i = x.size();
+        while (i > 1 && is_zero( x[i-1] )) --i;
+        return i;
     }
 
-    /// Assigns a value.
-    ///
-    /// Requires:
-    /// degree(x) ≥ degree(y)
+    /// Count of words.
 
-    template <typename Word>
-    void assign ( span<Word> x, span<Word const> y )
+    template <typename Integer>
+    auto words ( span<Integer const> x ) noexcept -> size_t
     {
-        for (auto i = 0uz; i != y.size(); ++i) x[i] = y[i];
-        for (auto i = y.size(); i != x.size(); ++i) x[i] = Word(0);
+        return x.size();
+    }
+
+    template <typename Integer>
+    auto words ( span<Integer> x ) noexcept -> size_t
+    {
+        return x.size();
     }
 
     /// Test procedures.
@@ -214,13 +218,50 @@ export namespace purple
     ///
     /// Let N = degree(y).
     /// Normalized means B ÷ 2 ≤ y[N-1] < B.
-    ///
-    /// In a binary machine, this means the most significant bit is 1.
 
     template <typename Integer>
     auto is_normalized ( span<Integer const> y ) noexcept -> Integer
     {
         return is_normalized( y[ y.size() - 1 ] );
+    }
+
+    /// Assignment procedures.
+
+    /// Assigns a value.
+
+    template <typename Word>
+    void assign ( span<Word> r, Word y ) noexcept
+    {
+        using namespace std::ranges;
+
+        r[0] = y;
+        fill( r.begin() + 1uz, r.end(), Word(0) );
+    }
+
+    /// Assigns a value.
+    ///
+    /// Requires:
+    /// degree(x) ≥ degree(y)
+
+    template <typename Word>
+    void assign ( span<Word> r, span<Word const> y ) noexcept
+    {
+        using namespace std::ranges;
+
+        copy( y, r.begin() );
+        fill( r.begin() + y.size(), r.end(), Word(0) );
+    }
+
+    /// Clears words.
+    ///
+    /// The result is zero.
+
+    template <typename Word>
+    void clear ( span<Word> r ) noexcept
+    {
+        using namespace std::ranges;
+
+        fill( r, Word(0) );
     }
 
     /// Expand procedures.
@@ -230,26 +271,48 @@ export namespace purple
     /// Next with carry.
     ///
     /// Permits aliasing r to x.
+    ///
+    /// Requires:
+    /// words(r) ≥ degree(x)
 
     template <typename Integer>
     auto next_assign ( span<Integer> r, span<Integer const> x, Integer carry = Integer(0) ) -> Integer
     {
-        carry = sum_assign( r[0], x[0], Integer(1), carry );
-        for (auto i = 1uz; i != x.size(); ++i)
-            carry = sum_assign( r[i], x[i], Integer(0), carry );
+        auto const xd = degree(x);
+        auto const rz = words(r);
+
+        assert( xd >= 1 );
+        assert( rz >= xd );
+
+        carry = next_assign( r[0], x[0], carry );
+        for (auto i = 1uz; i != xd; ++i)
+            carry = sum_assign( r[i], x[i], carry );
+        for (auto i = xd; i != rz; ++i)
+            carry = sum_assign( r[i], Integer(0), carry );
         return carry;
     }
 
     /// Sum with carry.
     ///
     /// Permits aliasing r to x.
+    ///
+    /// Requires:
+    /// words(r) ≥ degree(x)
 
     template <typename Integer>
     auto sum_assign ( span<Integer> r, span<Integer const> x, Integer y, Integer carry = Integer(0) ) noexcept -> Integer
     {
+        auto const xd = degree(x);
+        auto const rz = words(r);
+
+        assert( xd >= 1 );
+        assert( rz >= xd );
+
         carry = sum_assign( r[0], x[0], y, carry );
-        for (auto i = 1uz; i != x.size(); ++i)
-            carry = sum_assign( r[i], x[i], Integer(0), carry );
+        for (auto i = 1uz; i != xd; ++i)
+            carry = sum_assign( r[i], x[i], carry );
+        for (auto i = xd; i != rz; ++i)
+            carry = sum_assign( r[i], Integer(0), carry );
         return carry;
     }
 
@@ -258,67 +321,85 @@ export namespace purple
     /// Permits aliasing r to x.
     ///
     /// Requires:
-    /// degree(x) = degree(y)
-
-    template <typename Integer>
-    auto sum_assign_isodegree ( span<Integer> r, span<Integer const> x, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
-    {
-        for (auto i = 0uz; i != y.size(); ++i)
-            carry = sum_assign( r[i], x[i], y[i], carry );
-        return carry;
-    }
-
-    /// Sum with carry.
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Requires:
-    /// degree(x) ≥ degree(y)
+    /// words(r) ≥ degree(x)
 
     template <typename Integer>
     auto sum_assign ( span<Integer> r, span<Integer const> x, span<Integer const> y, Integer carry = Integer(0) ) noexcept -> Integer
     {
-        carry = sum_assign_isodegree( r, x, y, carry );
-        for (auto i = y.size(); i != x.size(); ++i)
-            carry = sum_assign( r[i], x[i], Integer(0), carry );
+        auto const xd = degree(x);
+        auto const yd = degree(y);
+        auto const rz = words(r);
+
+        if (xd < yd)
+            return sum_assign(r,y,x,carry);
+
+        assert( xd >= yd );
+        assert( yd >= 1 );
+        assert( rz >= xd );
+
+        for (auto i = 0uz; i != yd; ++i)
+            carry = sum_assign( r[i], x[i], y[i], carry );
+        for (auto i = yd; i != xd; ++i)
+            carry = sum_assign( r[i], x[i], carry );
+        for (auto i = xd; i != rz; ++i)
+            carry = sum_assign( r[i], Integer(0), carry );
         return carry;
     }
 
     /// Product with excess.
     ///
     /// Permits aliasing r to x.
+    ///
+    /// Requires:
+    /// words(r) ≥ degree(x)
 
     template <typename Integer>
     auto product_assign ( span<Integer> r, span<Integer const> x, Integer y, Integer excess = Integer(0) ) noexcept -> Integer
     {
-        for (auto i = 0uz; i != x.size(); ++i)
+        auto const xd = degree(x);
+        auto const rz = words(r);
+
+        assert( xd >= 1 );
+        assert( rz >= xd );
+
+        for (auto i = 0uz; i != xd; ++i)
             excess = product_assign( r[i], x[i], y, excess );
+        for (auto i = xd; i != rz; ++i)
+            excess = sum_assign( r[i], Integer(0), excess );
         return excess;
     }
 
     /// Product with excess.
+    ///
+    /// Requires:
+    /// words(r) ≥ degree(x) + degree(y)
 
     template <typename Integer>
     auto product_accumulate ( span<Integer> r, span<Integer const> x, span<Integer const> y, Integer excess = Integer(0) ) noexcept -> Integer
     {
-        auto const xz = x.size();
-        auto const yz = y.size();
-        for (auto xi = 0uz; xi != xz; ++xi)
+        auto const xd = degree(x);
+        auto const yd = degree(y);
+        auto const rz = words(r);
+
+        assert( xd >= 1 );
+        assert( yd >= 1 );
+        assert( rz >= xd+yd );
+
+        for (auto xi = 0uz; xi != xd; ++xi)
         {
-            for (auto yi = 0uz; yi != yz; ++yi)
+            for (auto yi = 0uz; yi != yd; ++yi)
             {
                 auto ri = xi+yi;
-                // xi * yi + carry
                 auto [ p0, p1 ] = product( x[xi], y[yi], excess );
-                // store
                 auto c = sum_assign( r[ri], r[ri], p0 );
                 excess = p1 + c;
             }
-            // store
-            excess = sum_assign( r[xi+yz], r[xi+yz], excess );
+            excess = sum_assign( r[xi+yd], r[xi+yd], excess );
         }
-        // store
-        return sum_assign( r[xz+yz], r[xz+yz], excess );
+        for (auto i = xd+yd; i != rz; ++i) {
+            excess = sum_assign( r[i], Integer(0), excess );
+        }
+        return excess;
     }
 
     /// Twice with excess.
@@ -327,22 +408,39 @@ export namespace purple
     ///
     /// Requires:
     /// z < bits
+    /// words(r) ≥ degree(x)
 
     template <typename Integer>
     auto twice_assign ( span<Integer> r, span<Integer const> x, size_t z, Integer excess = Integer(0) ) noexcept -> Integer
     {
-        for (auto i = 0uz; i != x.size(); ++i)
+        auto const xd = degree(x);
+        auto const rz = words(r);
+
+        assert( xd >= 1 );
+        assert( rz >= xd );
+
+        for (auto i = 0uz; i != xd; ++i)
             excess = twice_assign( r[i], x[i], z, excess );
+        for (auto i = xd; i != rz; ++i)
+            excess = sum_assign( r[i], Integer(0), excess );
         return excess;
     }
 
     /// Square with excess.
+    ///
+    /// Requires:
+    /// words(r) ≥ degree(x) × 2
 
     template <typename Integer>
     auto square_accumulate ( span<Integer> r, span<Integer const> x, Integer excess = Integer(0) ) noexcept -> Integer
     {
-        auto const xz = x.size();
-        for (auto xi = 0uz; xi != xz; ++xi)
+        auto const xd = x.size();
+        auto const rz = words(r);
+
+        assert( xd >= 1 );
+        assert( rz >= xd*2 );
+
+        for (auto xi = 0uz; xi != xd; ++xi)
         {
             // xi ^ 2
             {
@@ -354,7 +452,7 @@ export namespace purple
                 excess = p1 + c;
             }
             // 2 * xi * xj
-            for (auto xj = xi + 1uz; xj != xz; ++xj)
+            for (auto xj = xi + 1uz; xj != xd; ++xj)
             {
                 auto ri = xi+xj;
                 // xi * xj
@@ -370,10 +468,13 @@ export namespace purple
                 excess = c3;
             }
             // store
-            excess = sum_assign( r[xi+xz], r[xi+xz], excess );
+            excess = sum_assign( r[xi+xd], r[xi+xd], excess );
         }
-        // store
-        return sum_assign( r[xz+xz], r[xz+xz], excess );
+        // terminate
+        for (auto i = xd*2; i != rz; ++i) {
+            excess = sum_assign( r[i], Integer(0), excess );
+        }
+        return excess;
     }
 
     /// Reduce procedures.
@@ -383,27 +484,24 @@ export namespace purple
     /// Previous with borrow.
     ///
     /// Permits aliasing r to x.
+    ///
+    /// Requires:
+    /// words(r) ≥ degree(x)
 
     template <typename Integer>
     auto previous_assign ( span<Integer> r, span<Integer const> x, Integer borrow = Integer(0) ) -> Integer
     {
-        borrow = difference_assign( r[0], x[0], Integer(1), borrow );
-        for (auto i = 1uz; i != x.size(); ++i)
-            borrow = difference_assign( r[i], x[i], Integer(0), borrow );
-        return borrow;
-    }
+        auto const xd = degree(x);
+        auto const rz = words(r);
 
-    /// Difference with borrow.
-    ///
-    /// Permits aliasing r to x.
+        assert( xd >= 1 );
+        assert( rz >= xd );
 
-    template <typename Integer>
-    auto difference_assign ( span<Integer> r, span<Integer const> x, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
-    {
-        borrow = difference_assign( r[0], x[0], y, borrow );
-        for (auto i = 1uz; i != x.size(); ++i) {
-            borrow = difference_assign( r[i], x[i], Integer(0), borrow );
-        }
+        borrow = previous_assign( r[0], x[0], borrow );
+        for (auto i = 1uz; i != xd; ++i)
+            borrow = difference_assign( r[i], x[i], borrow );
+        for (auto i = xd; i != rz; ++i)
+            borrow = difference_assign( r[i], Integer(0), borrow );
         return borrow;
     }
 
@@ -412,13 +510,22 @@ export namespace purple
     /// Permits aliasing r to x.
     ///
     /// Requires:
-    /// degree(x) = degree(y)
+    /// words(r) ≥ degree(x)
 
     template <typename Integer>
-    auto difference_assign_isodegree ( span<Integer> r, span<Integer const> x, span<Integer const> y, Integer borrow = Integer(0) ) noexcept -> Integer
+    auto difference_assign ( span<Integer> r, span<Integer const> x, Integer y, Integer borrow = Integer(0) ) noexcept -> Integer
     {
-        for (auto i = 0uz; i != y.size(); ++i)
-            borrow = difference_assign( r[i], x[i], y[i], borrow );
+        auto const xd = degree(x);
+        auto const rz = words(r);
+
+        assert( xd >= 1 );
+        assert( rz >= xd );
+
+        borrow = difference_assign( r[0], x[0], y, borrow );
+        for (auto i = 1uz; i != xd; ++i)
+            borrow = difference_assign( r[i], x[i], borrow );
+        for (auto i = xd; i != rz; ++i)
+            borrow = difference_assign( r[i], Integer(0), borrow );
         return borrow;
     }
 
@@ -428,33 +535,56 @@ export namespace purple
     ///
     /// Requires:
     /// degree(x) ≥ degree(y)
+    /// words(r) ≥ degree(x)
 
     template <typename Integer>
     auto difference_assign ( span<Integer> r, span<Integer const> x, span<Integer const> y, Integer borrow = Integer(0) ) noexcept -> Integer
     {
-        borrow = difference_assign_isodegree( r, x, y, borrow );
-        for (auto i = y.size(); i != x.size(); ++i)
-            borrow = difference_assign( r[i], x[i], Integer(0), borrow );
+        auto const xd = x.size();
+        auto const yd = y.size();
+        auto const rz = words(r);
+
+        if (xd < yd)
+            return difference_assign( r, y, x, borrow );
+
+        assert( xd >= yd );
+        assert( yd >= 1 );
+        assert( rz >= xd );
+
+        for (auto i = 0uz; i != yd; ++i)
+            borrow = difference_assign( r[i], x[i], y[i], borrow );
+        for (auto i = yd; i != xd; ++i)
+            borrow = difference_assign( r[i], x[i], borrow );
+        for (auto i = xd; i != rz; ++i)
+            borrow = difference_assign( r[i], Integer(0), borrow );
         return borrow;
     }
 
     /// Half with remainder.
     ///
     /// Permits aliasing r to x.
+    ///
+    /// Requires:
+    /// words(q) ≥ degree(x)
 
     template <typename Integer>
-    auto half_assign ( span<Integer> r, span<Integer const> x, size_t N ) noexcept -> Integer
+    auto half_assign ( span<Integer> q, span<Integer const> x, size_t z ) noexcept -> Integer
     {
-        constexpr auto B = sizeof(Integer) * 8uz;
-        auto const z = x.size();
-        if (z == 0) return Integer(0);
-        auto t = x[0] & ((1 << N) - 1);
-        r[0] = x[0] >> N;
-        for (auto i = 1uz; i != z; ++i) {
-            r[i-1] |= x[i] << (B - N);
-            r[i] = x[i] >> N;
+        auto const B = sizeof(Integer) * 8uz;
+        auto const xd = degree(x);
+        auto const rz = words(q);
+
+        assert( xd >= 1 );
+        assert( rz >= xd );
+
+        auto r = x[0] & ((Integer(1) << z) - Integer(1));
+        q[0] = x[0] >> z;
+        for (auto i = 1uz; i != xd; ++i) {
+            q[i-1] |= x[i] << (B - z);
+            q[i] = x[i] >> z;
         }
-        return t;
+        std::ranges::fill( q.subspan(xd), Integer(0) );
+        return r;
     }
 
     /// Division with remainder.
@@ -465,13 +595,17 @@ export namespace purple
     ///
     /// Requirements:
     /// y is nonzero
+    /// words(q) ≥ degree(x)
 
     template <typename Integer>
     auto division_assign ( span<Integer> q, span<Integer const> x, Integer y ) -> Integer
     {
-        assert( x.size() > 1 );
+        auto const xd = degree(x);
+        auto const qz = words(q);
+
+        assert( xd >= 1 );
         assert( not_zero(y) );
-        assert( q.size() >= x.size() );
+        assert( qz >= xd );
 
         // normalize operands, then divide with normalized algorithm.
 
@@ -484,10 +618,9 @@ export namespace purple
         auto [ny,_] = twice( y, factor );
 
         // 2.2 normalize dividend.
-        Integer nx_ [ x.size() + 1 ];
-        auto nx = span<Integer>( nx_, x.size() + 1 );
-        assign<Integer>( nx, x );
-        ignore = twice_assign<Integer>( nx, nx, factor );
+        Integer nx_ [ xd + 1 ];
+        auto nx = span<Integer>( nx_, xd + 1 );
+        ignore = twice_assign<Integer>( nx, x, factor );
 
         // 3. divide with normalized.
 
@@ -517,26 +650,28 @@ export namespace purple
     /// Permits aliasing r to x.
     ///
     /// Requirements:
-    /// degree(x) = degree(y) + 1
-    /// degree(y) ≥ 1
+    /// words(x) = words(y) + 1
+    /// words(y) ≥ 1
     /// x ÷ B < y
     /// y is normalized
     /// iy = reciprocal_normalized(y)
+    /// words(r) ≥ words(x)
 
     template <typename Integer>
     void division_restricted_assign ( Integer & q, span<Integer> r, span<Integer const> x, span<Integer const> y, Integer iy )
     {
-        assert( x.size() == y.size() + 1 );
+        assert( words(x) == words(y) + 1 );
         assert( is_normalized<Integer>(y) == 1 );
         assert( is_smaller<Integer>( x.subspan(1), y ) == 1 );
+        assert( words(r) >= words(x) );
 
         // guess the quotient.
         // we guess by dividing 2-by-1 the most significant words.
         // the restriction on the operands guarantee a strict bound on the error.
         // we detect the error and fix the quotient.
 
-        // let N = degree(y)
-        auto N = y.size();
+        // let N = words(y)
+        auto N = words(y);
 
         // compute tentative quotient q'
         auto q_ = Integer(0);
@@ -575,8 +710,8 @@ export namespace purple
         auto borrow = Integer(0);
         {
             // let t = q' × y
-            Integer t_ [ y.size() + 1 ];
-            auto t = span<Integer>( t_, y.size() + 1 );
+            Integer t_ [ N + 1 ];
+            auto t = span<Integer>( t_, N + 1 );
             // TODO: fix excess propagation
             assign( t, y );
             ignore = product_assign<Integer>( t, t, q_ );
@@ -607,6 +742,8 @@ export namespace purple
     /// Requirements:
     /// degree(x) ≥ degree(y)
     /// y is nonzero
+    /// words(q) ≥ degree(x)
+    /// words(r) ≥ degree(x)
 
     template <typename Integer>
     void division_assign ( span<Integer> q, span<Integer> r, span<Integer const> x, span<Integer const> y )
@@ -625,13 +762,14 @@ export namespace purple
         auto factor = leading_zero_bits( y[N-1] );
 
         // 2. normalize dividend and divisor.
+
+        // 2.1. normalize divisor.
         Integer ny_ [N];
         auto ny = span<Integer>( ny_, N );
         ignore = twice_assign<Integer>( ny, y, factor );
 
-        // TODO: fix excess propagation
-        assign( r, x );
-        ignore = twice_assign<Integer>( r, r, factor );
+        // 2.2. normalize dividend.
+        ignore = twice_assign<Integer>( r, x, factor );
 
         {
             auto r_ = r.subspan( r.size() - N, N );
@@ -644,7 +782,7 @@ export namespace purple
         // 3. divide with normalized operands.
 
         // compute each quotient word one by one,
-        // computing each by division of N + 1 dividend words by divisor.
+        // computing each by division of N+1 degree dividend by N degree divisor.
         // normalization of operands is key.
 
         // let m <- degree(x) - degree(y)

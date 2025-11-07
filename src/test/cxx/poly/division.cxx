@@ -24,57 +24,68 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// Type conversion from array.
+// Tests.
 
-template <typename Word, size_t Z1, size_t Z2>
-auto division_normalized ( array<Word,Z1> & q, array<Word,Z2> const & x, Word y, Word iy ) -> Word
+template <typename Word, size_t XZ>
+void division_assign_test ( array<Word,XZ> const & x, Word y )
 {
-    auto qq = span<Word>( q );
-    auto xx = span<Word const>( x );
-    return division_normalized( qq, xx, y, iy );
+    // compute with purple
+    auto q = array<unsigned,XZ> {};
+    auto r = division_assign<unsigned>( q, x, y );
+
+    // compute with gmp
+    auto gx = mpz_class( format(x), 16 );
+    auto gq = gx / y;
+    auto gr = gx % y;
+
+    // compare
+    SCOPED_TRACE( std::string() +
+        "purple:\n" +
+        "x = " + format(x) + "\n" +
+        "y = " + format(y) + "\n" +
+        "q = " + format(q) + "\n" +
+        "r = " + format(r) + "\n" +
+        "gmp:\n" +
+        "x = " + format(gx) + "\n" +
+        "y = " + format(y) + "\n" +
+        "q = " + format(gq) + "\n" +
+        "r = " + format(gr) + "\n"
+    );
+    ASSERT_GMP_EQ(
+        gq,
+        mpz_class( format(q), 16 )
+    );
+    ASSERT_GMP_EQ(
+        gr,
+        mpz_class( format(r), 16 )
+    );
 }
 
-TEST(poly,division_normalised_v00_80000000)
+TEST(poly,division_N_1)
 {
-    auto x = v00;
-    auto y = 0x80000000U;
-    auto q = array<unsigned,2>();
-    auto iy = reciprocal_normalized(y);
-    auto r = division_normalized<unsigned>( span(q), span(x), y, iy );
-    ASSERT_EQ( format(q), "0000000000000000" );
-    ASSERT_EQ( format(r), "00000000" );
+    division_assign_test(
+        array { 0x00000000u, 0xFFFFFFFFu },
+        0x80000000u
+    );
 }
 
-TEST(poly,division_normalised_vMM_80000000)
-{
-    auto x = vMM;
-    auto y = 0x80000000U;
-    auto q = array<unsigned,2>();
-    auto iy = reciprocal_normalized(y);
-    auto r = division_normalized<unsigned>( span(q), span(x), y, iy );
-    ASSERT_EQ( format(q), "00000001FFFFFFFF" );
-    ASSERT_EQ( format(r), "7FFFFFFF" );
-}
-
-TEST(poly,division_normalized_D4_D1_random)
+TEST(poly,division_64_1_random)
 {
     random_device random;
     random_integer generator { random() };
 
     for (auto i = 0; i != 1000; ++i)
     {
-        // generate random numbers
-        auto x = array { generator(), generator(), generator(), generator() };
-        auto y = generator();
-        // requires is_normalized(y)
-        y |= 0x80000000U;
-        // requires is_smaller( x[3], y )
-        while ( not_smaller( x[3], y ) ) x[3] = generator();
+        auto x = array<unsigned,64uz> {};
+        std::ranges::generate(x,ref(generator));
+
+        auto y = 0u;
+        while ( is_zero( y ) )
+            y = generator();
 
         // compute with purple
-        auto iy = reciprocal_normalized( y );
-        auto q = array { 0u, 0u, 0u, 0u };
-        auto r = division_normalized( q, x, y, iy );
+        auto q = array<unsigned,65uz> {};
+        auto r = division_assign<unsigned>( q, x, y );
 
         // compute with gmp
         auto gx = mpz_class( format(x), 16 );
@@ -106,51 +117,65 @@ TEST(poly,division_normalized_D4_D1_random)
     }
 }
 
-TEST(poly,division_8_4_random)
+template <typename Word, size_t XZ, size_t YZ>
+void division_assign_test ( array<Word,XZ> const & x, array<Word,YZ> const & y )
+{
+    // compute with purple
+    auto q = array<unsigned,XZ> {};
+    auto r = array<unsigned,XZ+1> {};
+    division_assign<unsigned>( q, r, x, y );
+
+    // compute with gmp
+    auto gx = mpz_class( format(x), 16 );
+    auto gy = mpz_class( format(y), 16 );
+    auto gq = gx / gy;
+    auto gr = gx % gy;
+
+    // compare
+    SCOPED_TRACE( std::string() +
+        "purple:\n" +
+        "x = " + format(x) + "\n" +
+        "y = " + format(y) + "\n" +
+        "q = " + format(q) + "\n" +
+        "r = " + format(r) + "\n" +
+        "gmp:\n" +
+        "x = " + format(gx) + "\n" +
+        "y = " + format(gy) + "\n" +
+        "q = " + format(gq) + "\n" +
+        "r = " + format(gr) + "\n"
+    );
+    ASSERT_GMP_EQ(
+        gq,
+        mpz_class( format(q), 16 )
+    );
+    ASSERT_GMP_EQ(
+        gr,
+        mpz_class( format(r), 16 )
+    );
+}
+
+TEST(poly,division_M_N)
+{
+    division_assign_test(
+        array { 0x00000000u, 0xFFFFFFFFu },
+        array { 0x80000000u }
+    );
+}
+
+TEST(poly,division_64_32_random)
 {
     random_device random;
     random_integer generator { random() };
 
     for (auto i = 0; i != 1000; ++i)
     {
-        auto x = array<unsigned,8> {};
+        auto x = array<unsigned,64uz> {};
         std::ranges::generate(x,ref(generator));
 
-        auto y = array<unsigned,4> {};
+        auto y = array<unsigned,32uz> {};
         while ( is_zero<unsigned>( y ) )
            std::ranges::generate(y,ref(generator));
 
-        // compute with purple
-        auto q = array<unsigned,8> {};
-        auto r = array<unsigned,9> {};
-        division_assign<unsigned>( q, r, x, y );
-
-        // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gy = mpz_class( format(y), 16 );
-        auto gq = gx / gy;
-        auto gr = gx % gy;
-
-        // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "y = " + format(y) + "\n" +
-            "q = " + format(q) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
-            "x = " + format(gx) + "\n" +
-            "y = " + format(gy) + "\n" +
-            "q = " + format(gq) + "\n" +
-            "r = " + format(gr) + "\n"
-        );
-        ASSERT_GMP_EQ(
-            gq,
-            mpz_class( format(q), 16 )
-        );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
-        );
+        division_assign_test( x, y );
     }
 }

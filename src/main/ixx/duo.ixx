@@ -263,7 +263,7 @@ export namespace purple
     /// Permits aliasing r to x.
     ///
     /// Requires:
-    /// z < bits (TODO)
+    /// z < B
 
     template <typename Word, size_t Bi>
     requires ( Bi == 2uz )
@@ -307,9 +307,6 @@ export namespace purple
     /// Half N times with remainder.
     ///
     /// Permits aliasing r to x.
-    ///
-    /// Requires:
-    /// z < bits (TODO)
 
     template <typename Word, size_t Bi>
     requires ( Bi == 2uz )
@@ -324,6 +321,8 @@ export namespace purple
     }
 
     /// Normalized division with remainder.
+    ///
+    /// Computes by the "Improved division by invariant integers" method.
     ///
     /// Requires:
     /// x ÷ B < y

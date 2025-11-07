@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(purple-arithmetic VERSION 1.0.0 LANGUAGES C CXX)
+project(purple-arithmetic VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(CMAKE_CXX_STANDARD 26)
 
 # main
 
+find_package(benchmark REQUIRED)
 find_package(fmt REQUIRED)
 find_package(gmp REQUIRED)
 find_package(GTest REQUIRED)
@@ -43,6 +44,25 @@ target_link_libraries(purple-arithmetic-test
     gmp::gmp
     GTest::gtest_main
     purple-arithmetic
+)
+
+# benchmark
+
+add_executable(purple-arithmetic-benchmark)
+
+FILE(GLOB benchmark_cxx_sources src/benchmark/cxx/*.cxx)
+
+target_sources(purple-arithmetic-benchmark
+        PRIVATE
+        ${benchmark_cxx_sources}
+)
+
+target_link_libraries(purple-arithmetic-benchmark
+        PRIVATE
+        benchmark::benchmark
+        fmt::fmt
+        gmp::gmp
+        purple-arithmetic
 )
 
 # fuzz

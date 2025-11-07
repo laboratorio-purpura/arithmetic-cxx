@@ -425,18 +425,14 @@ namespace
             auto x = vector<unsigned>(degree);
             ranges::generate(x,ref(random));
 
-            // requires y is normalized
-            auto y = random();
-            y |= 0x80000000u;
-
-            // requires x ÷ B < y
-            while ( purple::not_smaller( x[degree-1], y ) ) x[degree-1] = random();
+            auto y = 0u;
+            while ( purple::is_zero(y) )
+                y = random();
 
             // compute with purple
 
-            auto iy = purple::reciprocal_normalized(y);
             auto q = vector<unsigned>(degree+1);
-            auto r = purple::division_normalized<unsigned>(span(q),x,y,iy);
+            auto r = purple::division_assign<unsigned>(span(q),x,y);
 
             // compute with GMP
 

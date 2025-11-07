@@ -254,7 +254,7 @@ export namespace purple
     /// Twice with excess.
     ///
     /// Requires:
-    /// z < bits (TODO)
+    /// z < B
 
     constexpr
     auto twice ( unsigned x, size_t z, unsigned excess = 0 ) noexcept -> array< unsigned, 2uz >
@@ -271,7 +271,7 @@ export namespace purple
     /// Permits aliasing r to x.
     ///
     /// Requires:
-    /// z < bits (TODO)
+    /// z < B
 
     constexpr
     auto twice_assign ( unsigned & r, unsigned x, size_t z, unsigned excess = 0 ) noexcept -> unsigned
@@ -355,9 +355,6 @@ export namespace purple
     }
 
     /// Half with remainder.
-    ///
-    /// Requires:
-    /// z < bits (TODO)
 
     constexpr
     auto half ( unsigned x, size_t z ) noexcept -> tuple< unsigned, unsigned >
@@ -370,9 +367,6 @@ export namespace purple
     /// Half with remainder.
     ///
     /// Permits aliasing q to x.
-    ///
-    /// Requires:
-    /// z < bits (TODO)
 
     constexpr
     auto half_assign ( unsigned & q, unsigned x, size_t z ) -> unsigned

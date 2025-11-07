@@ -23,7 +23,12 @@ export namespace purple::test
     auto format (array<unsigned,N> const & integer)
     {
         string s;
-        for (auto i = integer.size(); i > 0; --i)
+        size_t i = integer.size();
+        for (; integer[i-1] == 0 && i > 0; --i)
+            continue;
+        if (i == 0)
+            s = "00000000";
+        for (; i > 0; --i)
             s += fmt::format("{:08X}",integer[i-1]);
         return s;
     }
@@ -31,7 +36,12 @@ export namespace purple::test
     auto format (vector<unsigned> const & integer)
     {
         string s;
-        for (auto i = integer.size(); i > 0; --i)
+        size_t i = integer.size();
+        for (; integer[i-1] == 0 && i > 0; --i)
+            continue;
+        if (i == 0)
+            s = "000000000";
+        for (; i > 0; --i)
             s += fmt::format("{:08X}",integer[i-1]);
         return s;
     }

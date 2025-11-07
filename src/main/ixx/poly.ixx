@@ -19,7 +19,6 @@ using std::ignore;
 using std::size_t;
 using std::span;
 using std::tie;
-using std::vector;
 
 /// Multi-degree nonnegative integer arithmetics.
 ///
@@ -327,7 +326,7 @@ export namespace purple
     /// Permits aliasing r to x.
     ///
     /// Requires:
-    /// z < bits (TODO)
+    /// z < bits
 
     template <typename Integer>
     auto twice_assign ( span<Integer> r, span<Integer const> x, size_t z, Integer excess = Integer(0) ) noexcept -> Integer
@@ -442,9 +441,6 @@ export namespace purple
     /// Half with remainder.
     ///
     /// Permits aliasing r to x.
-    ///
-    /// Requires:
-    /// z < bits (TODO)
 
     template <typename Integer>
     auto half_assign ( span<Integer> r, span<Integer const> x, size_t N ) noexcept -> Integer
@@ -461,22 +457,56 @@ export namespace purple
         return t;
     }
 
-    /// Normalized division with remainder.
+    /// Division with remainder.
     ///
-    /// Requires:
-    /// x ÷ B < y
-    /// y is normalized
-    /// iy = reciprocal_normalized(y)
+    /// Computes by the classical or "school" method.
+    ///
+    /// Permits aliasing r to x.
+    ///
+    /// Requirements:
+    /// y is nonzero
 
     template <typename Integer>
-    auto division_normalized ( span<Integer> q, span<Integer const> x, Integer y, Integer iy ) -> Integer
+    auto division_assign ( span<Integer> q, span<Integer const> x, Integer y ) -> Integer
     {
-        auto const xz = x.size();
+        assert( x.size() > 1 );
+        assert( not_zero(y) );
+        assert( q.size() >= x.size() );
+
+        // normalize operands, then divide with normalized algorithm.
+
+        // 1. find normalization factor.
+        auto factor = leading_zero_bits( y );
+
+        // 2. normalize dividend and divisor.
+
+        // 2.1. normalize divisor.
+        auto [ny,_] = twice( y, factor );
+
+        // 2.2 normalize dividend.
+        Integer nx_ [ x.size() + 1 ];
+        auto nx = span<Integer>( nx_, x.size() + 1 );
+        assign<Integer>( nx, x );
+        ignore = twice_assign<Integer>( nx, nx, factor );
+
+        // 3. divide with normalized.
+
+        // compute each quotient word one by one,
+        // computing each by division of 2 dividend words by singular divisor.
+        // normalization of operands is key.
+
+        auto iy = reciprocal_normalized( ny );
+
         auto r = Integer(0);
-        for (auto i = xz; i != 0; --i) {
-            auto t = array { x[i-1], r };
-            tie( q[i-1], r ) = division_normalized( span<Integer const,2>(t), y, iy );
+
+        for (auto i = nx.size(); i != 0; --i) {
+            auto t = array { nx[i-1], r };
+            tie( q[i-1], r ) = division_normalized<Integer,2uz>( t, ny, iy );
         }
+
+        // 4. denormalize remainder.
+        ignore = half_assign( r, r, factor );
+
         return r;
     }
 
@@ -582,7 +612,6 @@ export namespace purple
     void division_assign ( span<Integer> q, span<Integer> r, span<Integer const> x, span<Integer const> y )
     {
         assert( x.size() >= y.size() );
-        assert( y.size() > 1 );
         assert( not_zero<Integer>(y) );
         assert( q.size() >= x.size() );
         assert( r.size() >= x.size() + 1 );
@@ -606,9 +635,9 @@ export namespace purple
 
         {
             auto r_ = r.subspan( r.size() - N, N );
-            if ( not_smaller<Integer>( r_, y ) ) {
+            if ( not_smaller<Integer>( r_, ny ) ) {
                 ignore = next_assign( q[N], q[N] );
-                ignore = difference_assign<Integer>( r_, r_, y );
+                ignore = difference_assign<Integer>( r_, r_, ny );
             }
         }
 

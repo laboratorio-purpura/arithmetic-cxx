@@ -28,35 +28,42 @@ using std::vector;
 
 // Tests.
 
-TEST(poly,next_4_random)
+template <typename Word, size_t XZ>
+void next_assign_test ( array<Word,XZ> const & x )
+{
+    // compute with purple
+    auto r = array<unsigned,XZ+1> {};
+    r[XZ] = next_assign<unsigned>( r, x );
+
+    // compute with gmp
+    auto gx = mpz_class( format(x), 16 );
+    auto gr = ++gx;
+
+    // compare
+    SCOPED_TRACE( std::string() +
+        "purple:\n" +
+        "x = " + format(x) + "\n" +
+        "r = " + format(r) + "\n" +
+        "gmp:\n" +
+        "x = " + format(gx) + "\n" +
+        "r = " + format(gr) + "\n"
+    );
+    ASSERT_GMP_EQ(
+        gr,
+        mpz_class( format(r), 16 )
+    );
+}
+
+TEST(poly,next_assign_32_random)
 {
     random_device random;
     random_integer generator { random() };
 
     for (auto i = 0uz; i != 1000; ++i)
     {
-        auto x = array { generator(), generator(), generator(), generator() };
+        auto x = array<unsigned,32uz> {};
+        std::ranges::generate(x,ref(generator));
 
-        // compute with purple
-        auto r = array<unsigned,5> {};
-        r[4] = next_assign<unsigned>( r, x );
-
-        // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gr = ++gx;
-
-        // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
-            "x = " + format(gx) + "\n" +
-            "r = " + format(gr) + "\n"
-        );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
-        );
+        next_assign_test( x );
     }
 }

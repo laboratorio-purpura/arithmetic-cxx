@@ -36,6 +36,8 @@ export namespace purple
 
     /// Normalized division with remainder.
     ///
+    /// Computes by the "Improved division by invariant integers" method.
+    ///
     /// Requires:
     /// x ÷ B < y
     /// y is normalized

@@ -13,7 +13,7 @@ References:
 * MMIXmasters, "MIX to MMIX Conversion", https://mmix.cs.hm.edu/mmixmasters/index.html#MIXtoMMIX
 * Alexander Stepanov, Paul McJones, "Elements of Programming", Addison-Wesley, 2009, ISBN 978-0-321-63537-2
 * Alexander Stepanov, Daniel Rose, "From Mathematics to Generic Programming", Addison Wesley, 2015, ISBN 978-0-321-94204-3
-* Niels Möller, Torbjörn Granlund, "Improved division by invariant integers"
+* Niels Möller, Torbjörn Granlund, "Improved division by invariant integers", IEEE Transactions on Computers, Volume 60, Issue 2, February 2011, DOI: 10.1109/TC.2010.143
 
 Building the library requires these tools.
 
@@ -29,34 +29,22 @@ cmake --preset default
 cmake --build --preset default
 ----
 
-To test the library, run the `purple-arithmetic-test` program.
+To test for quality, run the `purple-arithmetic-test` program.
 
 [source,shell]
 ----
 cmake-build-default/purple-arithmetic-test
 ----
 
-`purple-arithmetic-test` is a Google Test program containing unit tests for the library.
+This is a standard Google Test program, supporting the usual command line options.
 
-To fuzz procedures, use the `purple-arithmetic-fuzz` program.
-
-To fuzz the `square` procedure 1000 times with 8-word numbers:
+To test for performance, run the `purple-arithmetic-bechmark` program.
 
 [source,shell]
 ----
-cmake-build-default/purple-arithmetic-fuzz square 8 1000
+cmake-build-default/purple-arithmetic-benchmark
 ----
 
-Each iteration, the fuzzer generates random numbers, computes both with purple-arithmetic and GMP, and prints a report. If a difference is found, the fuzzer terminates with status 1.
+This is a standard Google Benchmark program, supporting the usual command line options.
 
-Available fuzzers:
-
-* `difference-restricted` _degree_ _iterations_
-* `division-2-1` _iterations_
-* `division-N-1` _iterations_
-* `half` _degree_ _iterations_
-* `product` _degree_ _iterations_
-* `product-N-1` _degree_ _iterations_
-* `square` _degree_ _iterations_
-* `sum` _degree_ _iterations_
-* `twice` _degree_ _iterations_
+Performance is compared against the GMP library.

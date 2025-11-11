@@ -19,26 +19,13 @@
 #include <gmpxx.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 
+using namespace purple;
 using namespace std;
 
 namespace
 {
-    auto format (span<unsigned> integer)
-    {
-        string s;
-        for (auto i = integer.size(); i > 0; --i)
-            s += fmt::format("{:08X}",integer[i-1]);
-        return s;
-    }
-
-    auto format (mpz_class const & integer)
-    {
-        std::stringstream ss;
-        ss << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << integer;
-        return ss.str();
-    }
-
     using random_integer = minstd_rand;
 
     int command_degree (
@@ -130,8 +117,8 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
-            auto gy = mpz_class( format(y), 16 );
+            auto gx = to_mpz(x);
+            auto gy = to_mpz(y);
             auto gr = gx - gy;
 
             // compare
@@ -162,7 +149,7 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
+            auto gx = to_mpz(x);
             auto gr = gx >> 1;
 
             // compare
@@ -193,7 +180,7 @@ namespace
 
             // compute with GMP
 
-            auto gy = mpz_class( format(y), 16 );
+            auto gy = to_mpz(y);
             auto B = mpz_class("100000000",16);
             auto gr = ( B / gy ) % B;
 
@@ -225,7 +212,7 @@ namespace
 
             // compute with GMP
 
-            auto gy = mpz_class( format(y), 16 );
+            auto gy = to_mpz(y);
             auto B = mpz_class("100000000",16);
             auto gr = ( ( ( ( B * B ) - 1 ) / gy ) - B ) % B;
 
@@ -258,8 +245,8 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
-            auto gy = mpz_class( format(y), 16 );
+            auto gx = to_mpz(x);
+            auto gy = to_mpz(y);
             auto gr = gx > gy;
 
             // compare
@@ -292,8 +279,8 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
-            auto gy = mpz_class( format(y), 16 );
+            auto gx = to_mpz(x);
+            auto gy = to_mpz(y);
             auto gr = gx < gy;
 
             // compare
@@ -327,8 +314,8 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
-            auto gy = mpz_class( format(y), 16 );
+            auto gx = to_mpz(x);
+            auto gy = to_mpz(y);
             auto gr = gx * gy;
 
             // compare
@@ -361,7 +348,7 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
+            auto gx = to_mpz(x);
             auto gr = gx * y;
 
             // compare
@@ -399,7 +386,7 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
+            auto gx = to_mpz(x);
             auto gq = gx / y;
             auto gr = gx % y;
 
@@ -436,7 +423,7 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
+            auto gx = to_mpz(x);
             auto gq = gx / y;
             auto gr = gx % y;
 
@@ -469,7 +456,7 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
+            auto gx = to_mpz(x);
             auto gr = gx * gx;
 
             // compare
@@ -502,8 +489,8 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
-            auto gy = mpz_class( format(y), 16 );
+            auto gx = to_mpz(x);
+            auto gy = to_mpz(y);
             auto gr = gx + gy;
 
             // compare
@@ -534,7 +521,7 @@ namespace
 
             // compute with GMP
 
-            auto gx = mpz_class( format(x), 16 );
+            auto gx = to_mpz(x);
             auto gr = gx << 1;
 
             // compare

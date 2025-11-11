@@ -4,176 +4,131 @@
 #include <array>
 #include <random>
 #include <span>
-#include <vector>
 
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
 using std::array;
 using std::ignore;
 using std::span;
 
-// Assertions.
-
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// Tests.
-
-TEST_F(PurpleTest,sum_assign_N_1_capacity)
+TEST_P(PurpleRandomTest,sum_assign_64_1)
 {
-    array<unsigned,1> r1 {};
-    array<unsigned,2> r2 {};
-    array<unsigned,3> r3 {};
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
 
-    // tests required capacity when operands are not compact
+    auto generator = GetParam();
 
-    auto carry = sum_assign<unsigned>( r1, array { 0u, 0u }, 1u );
-    ASSERT_EQ( format(r1), "00000001" );
-    ASSERT_EQ( carry, 0 );
-
-    carry = sum_assign<unsigned>( r1, array { 0xFFFFFFFEu, 0u }, 1u );
-    ASSERT_EQ( format(r1), "FFFFFFFF" );
-    ASSERT_EQ( carry, 0 );
-
-    carry = sum_assign<unsigned>( r1, array { 0xFFFFFFFFu, 0u }, 1u );
-    ASSERT_EQ( format(r1), "00000000" );
-    ASSERT_EQ( carry, 1 );
-
-    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0u }, 1u );
-    ASSERT_EQ( format(r2), "0000000100000000" );
-    ASSERT_EQ( carry, 0 );
-
-    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFEu, 0xFFFFFFFFu }, 1u );
-    ASSERT_EQ( format(r2), "FFFFFFFFFFFFFFFF" );
-    ASSERT_EQ( carry, 0 );
-
-    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, 1u );
-    ASSERT_EQ( format(r2), "00000000" );
-    ASSERT_EQ( carry, 1 );
-
-    carry = sum_assign<unsigned>( r3, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, 1u );
-    ASSERT_EQ( format(r3), "000000010000000000000000" );
-    ASSERT_EQ( carry, 0 );
-}
-
-TEST_F(PurpleTest,sum_assign_64_1_random)
-{
-    for (auto i = 0; i != 1000; ++i)
+    for (auto i = 0; i != 10000; ++i)
     {
-        auto x = array<unsigned,64> {};
-        generate(x);
-
-        auto y = generator();
-
-        // purposeful excess capacity with garbage
-        auto r = array<unsigned,66> {};
-        generate(r);
-
-        // compute with purple
-        ignore = sum_assign<unsigned>( r, x, y );
+        SCOPED_TRACE("i = " + format(i));
 
         // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gr = gx + y;
 
-        // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "y = " + format(y) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
-            "x = " + format(gx) + "\n" +
-            "y = " + format(y) + "\n" +
-            "r = " + format(gr) + "\n"
-        );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
-        );
-    }
-}
+        mpz_class gx {};
+        generator->generate(gx,64,B);
 
-TEST_F(PurpleTest,sum_assign_N_capacity)
-{
-    array<unsigned,1> r1 {};
-    array<unsigned,2> r2 {};
-    array<unsigned,3> r3 {};
+        mpz_class gy {};
+        generator->generate(gy,1,B);
 
-    // tests required capacity when operands are not compact
+        mpz_class gr = gx + gy;
 
-    auto carry = sum_assign<unsigned>( r1, array { 0u, 0u }, array { 1u, 0u } );
-    ASSERT_EQ( format(r1), "00000001" );
-    ASSERT_EQ( carry, 0 );
-
-    carry = sum_assign<unsigned>( r1, array { 0xFFFFFFFEu, 0u }, array { 1u, 0u } );
-    ASSERT_EQ( format(r1), "FFFFFFFF" );
-    ASSERT_EQ( carry, 0 );
-
-    carry = sum_assign<unsigned>( r1, array { 0xFFFFFFFFu, 0u }, array { 1u, 0u } );
-    ASSERT_EQ( format(r1), "00000000" );
-    ASSERT_EQ( carry, 1 );
-
-    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0u }, array { 1u, 0u } );
-    ASSERT_EQ( format(r2), "0000000100000000" );
-    ASSERT_EQ( carry, 0 );
-
-    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFEu, 0xFFFFFFFFu }, array { 1u, 0u } );
-    ASSERT_EQ( format(r2), "FFFFFFFFFFFFFFFF" );
-    ASSERT_EQ( carry, 0 );
-
-    carry = sum_assign<unsigned>( r2, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, array { 1u, 0u } );
-    ASSERT_EQ( format(r2), "00000000" );
-    ASSERT_EQ( carry, 1 );
-
-    carry = sum_assign<unsigned>( r3, array { 0xFFFFFFFFu, 0xFFFFFFFFu }, array { 1u, 0u } );
-    ASSERT_EQ( format(r3), "000000010000000000000000" );
-    ASSERT_EQ( carry, 0 );
-}
-
-TEST_F(PurpleTest,sum_assign_32_32_random)
-{
-    for (auto i = 0; i != 1000; ++i)
-    {
-        auto x = array<unsigned,32> {};
-        generate(x);
-
-        auto y = array<unsigned,32> {};
-        generate(y);
-
-        // purposeful excess capacity with garbage
-        auto r = array<unsigned,34> {};
-        generate(r);
-
-        // compute with purple
-        ignore = sum_assign<unsigned>( r, x, y );
-
-        // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gy = mpz_class( format(y), 16 );
-        auto gr = gx + gy;
-
-        // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "y = " + format(y) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
+        SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
             "y = " + format(gy) + "\n" +
             "r = " + format(gr) + "\n"
         );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
+
+        // compute with purple
+
+        auto x = array<word,64> {};
+        assign(x,gx);
+
+        auto y = array<word,1> {};
+        assign(y,gy);
+
+        // purposeful excess capacity with garbage
+        auto r = array<word,66> {};
+        generator->generate(r);
+
+        ignore = sum_assign<word>( r, x, y[0] );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(r) + "\n"
         );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gy, to_mpz(y) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
+    }
+}
+
+TEST_P(PurpleRandomTest,sum_assign_32_32)
+{
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
+
+    auto generator = GetParam();
+
+    for (auto i = 0; i != 10000; ++i)
+    {
+        SCOPED_TRACE("i = " + format(i));
+
+        // compute with gmp
+
+        mpz_class gx {};
+        generator->generate(gx,32,B);
+
+        mpz_class gy {};
+        generator->generate(gy,32,B);
+
+        mpz_class gr = gx + gy;
+
+        SCOPED_TRACE("gmp:\n"s +
+            "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+
+        // compute with purple
+
+        auto x = array<word,32> {};
+        assign(x,gx);
+
+        auto y = array<word,32> {};
+        assign(y,gy);
+
+        // purposeful excess capacity with garbage
+        auto r = array<word,34> {};
+        generator->generate(r);
+
+        ignore = sum_assign<word>( r, x, y );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(r) + "\n"
+        );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gy, to_mpz(y) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
 }

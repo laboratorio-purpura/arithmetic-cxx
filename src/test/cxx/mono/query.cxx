@@ -10,7 +10,7 @@ using namespace purple;
 using namespace purple::test;
 using namespace std;
 
-TEST(mono,leading_zeros)
+TEST_F(PurpleTest,leading_zeros)
 {
     ASSERT_EQ( leading_zero_bits( 0x00000001u ), 31 );
     ASSERT_EQ( leading_zero_bits( 0x80000000u ), 0  );

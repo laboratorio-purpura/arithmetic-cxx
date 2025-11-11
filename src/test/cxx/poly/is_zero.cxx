@@ -1,85 +1,66 @@
 // SPDX-FileCopyrightText: 2025 Pedro Lamarão <pedro.lamarao@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include <array>
+#include <span>
+#include <tuple>
+
+#include <gmpxx.h>
+
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
-TEST(poly,is_zero_vE)
-{
-    ASSERT_EQ( is_zero<unsigned>(vE), 1 );
-}
+using std::array;
+using std::ignore;
+using std::span;
 
-TEST(poly,is_zero_v0)
-{
-    ASSERT_EQ( is_zero<unsigned>(v0), 1 );
-}
+#define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST(poly,is_zero_v1)
+TEST_P(PurpleRandomTest,is_zero_64)
 {
-    ASSERT_EQ( is_zero<unsigned>(v1), 0 );
-}
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
 
-TEST(poly,is_zero_v2)
-{
-    ASSERT_EQ( is_zero<unsigned>(v2), 0 );
-}
+    auto generator = GetParam();
 
-TEST(poly,is_zero_vL)
-{
-    ASSERT_EQ( is_zero<unsigned>(vL), 0 );
-}
+    for (auto i = 0; i != 10000; ++i)
+    {
+        SCOPED_TRACE("i = " + format(i));
 
-TEST(poly,is_zero_vM)
-{
-    ASSERT_EQ( is_zero<unsigned>(vM), 0 );
-}
+        // compute with gmp
 
-TEST(poly,is_zero_v00)
-{
-    ASSERT_EQ( is_zero<unsigned>(v00), 1 );
-}
+        mpz_class gx {};
+        generator->generate(gx,64,B);
 
-TEST(poly,is_zero_v10)
-{
-    ASSERT_EQ( is_zero<unsigned>(v10), 0 );
-}
+        auto gr = (gx == 0);
 
-TEST(poly,is_zero_v20)
-{
-    ASSERT_EQ( is_zero<unsigned>(v20), 0 );
-}
+        SCOPED_TRACE("gmp:\n"s +
+            "x = " + format(gx) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
 
-TEST(poly,is_zero_vL0)
-{
-    ASSERT_EQ( is_zero<unsigned>(vL0), 0 );
-}
+        // compute with purple
 
-TEST(poly,is_zero_vM0)
-{
-    ASSERT_EQ( is_zero<unsigned>(vM0), 0 );
-}
+        auto x = array<word,64> {};
+        assign(x,gx);
 
-TEST(poly,is_zero_v01)
-{
-    ASSERT_EQ( is_zero<unsigned>(v01), 0 );
-}
+        auto r = is_zero<word>( x );
 
-TEST(poly,is_zero_v02)
-{
-    ASSERT_EQ( is_zero<unsigned>(v02), 0 );
-}
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "r = " + format(r) + "\n"
+        );
 
-TEST(poly,is_zero_v0L)
-{
-    ASSERT_EQ( is_zero<unsigned>(v0L), 0 );
-}
+        // compare
 
-TEST(poly,is_zero_v0M)
-{
-    ASSERT_EQ( is_zero<unsigned>(v0M), 0 );
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
+    }
 }

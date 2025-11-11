@@ -2,58 +2,127 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <array>
-#include <random>
 #include <span>
-#include <vector>
+#include <tuple>
 
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
 using std::array;
 using std::ignore;
 using std::span;
 
-// Assertions.
-
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// Tests.
-
-TEST_F(PurpleTest,square_accumulate_32_random)
+TEST_F(PurpleTest,square_accumulate_regression)
 {
-    for (auto i = 0; i != 1000; ++i)
     {
-        auto x = array<unsigned,32> {};
-        generate(x);
+        constexpr auto B = sizeof(unsigned) * 8;
+        using word = unsigned;
 
-        auto r = array<unsigned,65> {};
-
-        // compute with purple
-        ignore = square_accumulate<unsigned>( r, x );
-
-        // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gr = gx * gx;
-
-        // compare
+        // expected
+        mpz_class gx { "FFFFFFFFFFFFFFFFFFFFFFFF80000000", 16 };
+        mpz_class gr { "FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000000004000000000000000", 16 };
         SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "r = " + format(r) + "\n" +
             "gmp:\n" +
             "x = " + format(gx) + "\n" +
             "r = " + format(gr) + "\n"
         );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
+
+        // actual
+        auto x = array<word,4> {};
+        assign(x,gx);
+        auto r = array<word,9> {};
+        square_accumulate<word>( r, x );
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "x = " + format(x) + "\n" +
+            "r = " + format(r) + "\n"
         );
+
+        // compare
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
+    }
+    {
+        constexpr auto B = sizeof(unsigned) * 8;
+        using word = unsigned;
+
+        // expected
+        mpz_class gx { "FFFFFFFFFFFFFFFF00007FFF80000000", 16 };
+        mpz_class gr { "FFFFFFFFFFFFFFFE0000FFFF00000000FFFF00013FFF80004000000000000000", 16 };
+        SCOPED_TRACE( std::string() +
+            "gmp:\n" +
+            "x = " + format(gx) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+
+        // actual
+        auto x = array<word,4> {};
+        assign(x,gx);
+        auto r = array<word,9> {};
+        square_accumulate<word>( r, x );
+        SCOPED_TRACE( std::string() +
+            "purple:\n" +
+            "x = " + format(x) + "\n" +
+            "r = " + format(r) + "\n"
+        );
+
+        // compare
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
+    }
+}
+
+TEST_P(PurpleRandomTest,square_accumulate_32)
+{
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
+
+    auto generator = GetParam();
+
+    for (auto i = 0; i != 1000; ++i)
+    {
+        SCOPED_TRACE("i = " + format(i));
+
+        // compute with gmp
+
+        mpz_class gx {};
+        generator->generate(gx,32,B);
+
+        mpz_class gr = gx * gx;
+
+        SCOPED_TRACE("gmp:\n"s +
+            "x = " + format(gx) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+
+        // compute with purple
+
+        auto x = array<word,32> {};
+        assign(x,gx);
+
+        auto r = array<word,65> {};
+
+        ignore = square_accumulate<word>( r, x );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "r = " + format(r) + "\n"
+        );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
 }

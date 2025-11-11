@@ -17,7 +17,8 @@
       "name": "sanitize",
       "cacheVariables": {
         "CMAKE_C_FLAGS": "-fsanitize=address -fsanitize=undefined",
-        "CMAKE_CXX_FLAGS": "-fsanitize=address -fsanitize=undefined"
+        "CMAKE_CXX_FLAGS": "-fsanitize=address -fsanitize=undefined",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "FALSE"
       }
     },
     {

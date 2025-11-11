@@ -2,108 +2,73 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <array>
-#include <random>
 #include <span>
+#include <tuple>
 
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
 using std::array;
-using std::random_device;
-using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
+using std::ignore;
 using std::span;
 
-TEST(poly,is_smaller_v0_v0)
-{
-    auto r = is_smaller<unsigned>( span(v0), span(v0) );
-    ASSERT_EQ( r, 0 );
-}
+#define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST(poly,is_smaller_v0_v1)
+TEST_P(PurpleRandomTest,is_smaller_64)
 {
-    auto r = is_smaller<unsigned>( span(v0), span(v1) );
-    ASSERT_EQ( r, 1 );
-}
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
 
-TEST(poly,is_smaller_v0_v01)
-{
-    auto r = is_smaller<unsigned>( span(v0), span(v01) );
-    ASSERT_EQ( r, 1 );
-}
+    auto generator = GetParam();
 
-TEST(poly,is_smaller_v1_v0)
-{
-    auto r = is_smaller<unsigned>( span(v1), span(v0) );
-    ASSERT_EQ( r, 0 );
-}
-
-TEST(poly,is_smaller_v1_v1)
-{
-    auto r = is_smaller<unsigned>( span(v1), span(v1) );
-    ASSERT_EQ( r, 0 );
-}
-
-TEST(poly,is_smaller_v1_v01)
-{
-    auto r = is_smaller<unsigned>( span(v1), span(v01) );
-    ASSERT_EQ( r, 1 );
-}
-
-TEST(poly,is_smaller_v1_v10)
-{
-    auto r = is_smaller<unsigned>( span(v1), span(v10) );
-    ASSERT_EQ( r, 0 );
-}
-
-TEST(poly,is_smaller_v00_v1)
-{
-    auto r = is_smaller<unsigned>( span(v00), span(v1) );
-    ASSERT_EQ( r, 1 );
-}
-
-TEST(poly,is_smaller_v01_v1)
-{
-    auto r = is_smaller<unsigned>( span(v01), span(v1) );
-    ASSERT_EQ( r, 0 );
-}
-
-TEST(poly,is_smaller_v10_v1)
-{
-    auto r = is_smaller<unsigned>( span(v10), span(v1) );
-    ASSERT_EQ( r, 0 );
-}
-
-TEST(poly,is_smaller_D4_random)
-{
-    random_device random;
-    random_integer generator { random() };
-
-    for (auto i = 0uz; i != 10; ++i)
+    for (auto i = 0; i != 10000; ++i)
     {
-        auto x = array { generator(), generator(), generator(), generator() };
-        auto y = array { generator(), generator(), generator(), generator() };
-        auto r = is_smaller<unsigned>( span(x), span(y) );
+        SCOPED_TRACE("i = " + format(i));
 
-        auto gx = mpz_class( format(x), 16 );
-        auto gy = mpz_class( format(y), 16 );
-        auto gr = ( gx < gy ? 1U : 0U );
+        // compute with gmp
 
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "; y = " + format(y) + "\n" +
-            "x < y = " + format(r) + "\n" +
-            "gmp:\n" +
-            "x = " + gx.get_str(16) + "; y = " + gy.get_str(16) + "\n"
-            "x < y = " + format(gr) + "\n"
+        mpz_class gx {};
+        generator->generate(gx,64,B);
+
+        mpz_class gy {};
+        generator->generate(gy,64,B);
+
+        auto gr = (gx < gy);
+
+        SCOPED_TRACE("gmp:\n"s +
+            "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
+            "r = " + format(gr) + "\n"
         );
 
-        ASSERT_EQ( gr, r );
+        // compute with purple
+
+        auto x = array<word,64> {};
+        assign(x,gx);
+
+        auto y = array<word,64> {};
+        assign(y,gy);
+
+        auto r = is_smaller<word>( x, y );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(r) + "\n"
+        );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
 }

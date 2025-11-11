@@ -2,70 +2,79 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <array>
-#include <random>
 #include <span>
+#include <tuple>
 
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
 using std::array;
-using std::random_device;
-using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
+using std::ignore;
 using std::span;
-
-// Assertions.
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST(mono,division_random)
+TEST_P(PurpleRandomTest,division)
 {
-    random_device random;
-    random_integer generator { random() };
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
 
-    for (auto i = 0uz; i != 100; ++i)
+    auto generator = GetParam();
+
+    for (auto i = 0; i != 10000; ++i)
     {
-        // generate random numbers
-        auto x = generator();
-        auto y = generator();
-        // requires not_zero(y)
-        while ( is_zero(y) ) y = generator();
+        SCOPED_TRACE("i = " + format(i));
 
-        // compute with purple
-        auto [ q, r ] = division( x, y );
+        // compute with gmp
 
-        // compute with GMP
-        auto gx = mpz_class( format(x), 16 );
-        auto gy = mpz_class( format(y), 16 );
-        auto gq = gx / gy;
-        auto gr = gx % gy;
+        mpz_class gx {};
+        generator->generate(gx,2,B);
 
-        // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "y = " + format(y) + "\n" +
-            "q = " + format(q) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
+        mpz_class gy {};
+        while (gy == 0)
+            generator->generate(gy,1,B);
+
+        mpz_class gq = gx / gy;
+        mpz_class gr = gx % gy;
+
+        SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
             "y = " + format(gy) + "\n" +
             "q = " + format(gq) + "\n" +
             "r = " + format(gr) + "\n"
         );
-        ASSERT_GMP_EQ(
-            gq,
-            mpz_class( format(q), 16 )
+
+        // compute with purple
+
+        auto x = array<word,2> {};
+        assign(x,gx);
+
+        auto y = array<word,1> {};
+        assign(y,gy);
+
+        auto [ q, r ] = division( x, y[0] );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "q = " + format(q) + "\n" +
+            "r = " + format(r) + "\n"
         );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
-        );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gy, to_mpz(y) );
+        ASSERT_GMP_EQ( gq, to_mpz(q) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
 }

@@ -24,6 +24,27 @@ target_sources(purple-arithmetic
     ${main_cxx_sources}
 )
 
+# utility
+
+add_library(purple-arithmetic-utility)
+
+FILE(GLOB_RECURSE utility_cxx_sources src/utility/cxx/*.cxx)
+FILE(GLOB utility_ixx_sources src/utility/ixx/*.ixx)
+
+target_sources(purple-arithmetic-utility
+        PUBLIC FILE_SET CXX_MODULES FILES
+        ${utility_ixx_sources}
+        PRIVATE
+        ${utility_cxx_sources}
+)
+
+target_link_libraries(purple-arithmetic-utility
+        PRIVATE
+        fmt::fmt
+        gmp::gmp
+        purple-arithmetic
+)
+
 # test
 
 add_executable(purple-arithmetic-test)
@@ -44,6 +65,7 @@ target_link_libraries(purple-arithmetic-test
     gmp::gmp
     GTest::gtest_main
     purple-arithmetic
+    purple-arithmetic-utility
 )
 
 # benchmark
@@ -81,4 +103,5 @@ target_link_libraries(purple-arithmetic-fuzz
     fmt::fmt
     gmp::gmp
     purple-arithmetic
+    purple-arithmetic-utility
 )

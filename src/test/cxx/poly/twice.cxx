@@ -10,85 +10,61 @@
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
 using std::array;
 using std::ignore;
 using std::span;
 
-// Assertions.
-
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// Tests.
-
-TEST_F(PurpleTest,twice_assign_64_1_random)
+TEST_P(PurpleRandomTest,twice_assign_64)
 {
-    for (auto i = 0; i != 1000; ++i)
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
+
+    auto generator = GetParam();
+
+    for (auto i = 0; i != 10000; ++i)
     {
-        auto x = array<unsigned,64> {};
-        generate(x);
-
-        // purposeful excess capacity with garbage
-        auto r = array<unsigned,66> {};
-        generate(r);
-
-        // compute with purple
-        ignore = twice_assign<unsigned>( r, x, 1 );
+        SCOPED_TRACE("i = " + format(i));
 
         // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gr = gx << 1;
 
-        // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
+        mpz_class gx {};
+        generator->generate(gx,64,B);
+
+        mpz_class gr = gx << (B-1);
+
+        SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
             "r = " + format(gr) + "\n"
         );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
-        );
-    }
-}
-
-TEST_F(PurpleTest,twice_assign_64_31_random)
-{
-    for (auto i = 0; i != 1000; ++i)
-    {
-        auto x = array<unsigned,64> {};
-        generate(x);
-
-        // purposeful excess capacity with garbage
-        auto r = array<unsigned,66> {};
-        generate(r);
 
         // compute with purple
-        ignore = twice_assign<unsigned>( r, x, 31 );
 
-        // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gr = gx << 31;
+        auto x = array<word,64> {};
+        assign(x,gx);
+
+        // purposeful excess capacity with garbage
+        auto r = array<word,66> {};
+        generator->generate(r);
+
+        ignore = twice_assign<word>( r, x, (B-1) );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "r = " + format(r) + "\n"
+        );
 
         // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
-            "x = " + format(gx) + "\n" +
-            "r = " + format(gr) + "\n"
-        );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
-        );
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
 }

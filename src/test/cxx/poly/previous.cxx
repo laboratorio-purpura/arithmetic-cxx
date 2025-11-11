@@ -2,77 +2,70 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <array>
-#include <random>
 #include <span>
+#include <tuple>
 
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
 using std::array;
 using std::ignore;
-using std::random_device;
 using std::span;
-
-using random_engine = std::linear_congruential_engine<unsigned,48271ul,0ul,2147483647ul>;
-
-// Assertions.
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// Tests.
-
-TEST_F(PurpleTest,previous_assign_capacity)
+TEST_P(PurpleRandomTest,previous_assign_32)
 {
-    auto r2 = array<unsigned,2> {};
-    unsigned b {};
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
 
-    b = previous_assign<unsigned>( r2, array { 0u } );
-    ASSERT_EQ( format(r2), "FFFFFFFFFFFFFFFF" );
-    ASSERT_EQ( b, 1 );
+    auto generator = GetParam();
 
-    b = previous_assign<unsigned>( r2, array { 0u, 0u } );
-    ASSERT_EQ( format(r2), "FFFFFFFFFFFFFFFF" );
-    ASSERT_EQ( b, 1 );
-}
-
-TEST_F(PurpleTest,previous_assign_32_nonzero_random)
-{
-    for (auto i = 0; i != 1000; ++i)
+    for (auto i = 0; i != 10000; ++i)
     {
-        auto x = array<unsigned,32> {};
-        while ( is_zero<unsigned>( x ) )
-            generate(x);
-
-        // purposeful excess capacity with garbage
-        auto r = array<unsigned,34> {};
-        generate(r);
-
-        // compute with purple
-        ignore = previous_assign<unsigned>( r, x );
+        SCOPED_TRACE("i = " + format(i));
 
         // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gr = --gx;
 
-        // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
+        mpz_class gx {};
+        while (gx == 0)
+            generator->generate(gx,32,B);
+
+        mpz_class gr = gx - 1u;
+
+        SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
             "r = " + format(gr) + "\n"
         );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
+
+        // compute with purple
+
+        auto x = array<word,32> {};
+        assign(x,gx);
+
+        // purposeful excess capacity with garbage
+        auto r = array<word,34> {};
+        generator->generate(r);
+
+        ignore = previous_assign<word>( r, x );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "r = " + format(r) + "\n"
         );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
 }

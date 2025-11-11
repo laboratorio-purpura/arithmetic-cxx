@@ -2,82 +2,82 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <array>
-#include <random>
 #include <span>
-#include <vector>
+#include <tuple>
 
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
 using std::array;
 using std::ignore;
 using std::span;
-
-// Assertions.
+using std::swap;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-// Tests.
-
-TEST_F(PurpleTest,difference_assign_2_2)
+TEST_P(PurpleRandomTest,difference_assign_2_2)
 {
-    auto r = array<unsigned,32> {};
-    auto b = 0u;
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
 
-    b = difference_assign<unsigned,2>( r,
-        array { 0x5F327ECDu, 0x4253ECBFu },
-        array { 0x2EBDE466u, 0x0FCDC1D5u }
-    );
-    ASSERT_EQ( format(r), "32862AEA30749A67" );
-    ASSERT_EQ( b , 0 );
-}
+    auto generator = GetParam();
 
-TEST_F(PurpleTest,difference_assign_2_2_borrowless_random)
-{
-    for (auto i = 0; i != 1000; ++i)
+    for (auto i = 0; i != 10000; ++i)
     {
-        auto x = array<unsigned,2> {};
-        auto y = array<unsigned,2> {};
-
-        while ( not_greater<unsigned,2>( x, y ) ) {
-            generate(x);
-            generate(y);
-        }
-
-        // purposeful excess capacity with garbage
-        auto r = array<unsigned,4> {};
-        generate(r);
-
-        // compute with purple
-        ignore = difference_assign<unsigned,2>( r, x, y );
+        SCOPED_TRACE("i = " + format(i));
 
         // compute with gmp
-        auto gx = mpz_class( format(x), 16 );
-        auto gy = mpz_class( format(y), 16 );
-        auto gr = gx - gy;
 
-        // compare
-        SCOPED_TRACE( std::string() +
-            "i = " + format(i) + "\n" +
-            "purple:\n" +
-            "x = " + format(x) + "\n" +
-            "y = " + format(y) + "\n" +
-            "r = " + format(r) + "\n" +
-            "gmp:\n" +
+        mpz_class gx {};
+        generator->generate(gx,2,B);
+
+        mpz_class gy {};
+        generator->generate(gy,2,B);
+
+        if (gx < gy)
+            swap(gx,gy);
+
+        mpz_class gr = gx - gy;
+
+        SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
             "y = " + format(gy) + "\n" +
             "r = " + format(gr) + "\n"
         );
-        ASSERT_GMP_EQ(
-            gr,
-            mpz_class( format(r), 16 )
+
+        // compute with purple
+
+        auto x = array<word,2> {};
+        assign(x,gx);
+
+        auto y = array<word,2> {};
+        assign(y,gy);
+
+        // purposeful excess capacity with garbage
+        auto r = array<word,4> {};
+        generator->generate(r);
+
+        ignore = difference_assign<word>( r, x, y );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "r = " + format(r) + "\n"
         );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gy, to_mpz(y) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
 }

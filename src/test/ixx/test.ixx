@@ -4,13 +4,9 @@
 module;
 
 #include <array>
-#include <iomanip>
-#include <random>
-#include <span>
-#include <sstream>
+#include <memory>
+#include <string>
 #include <vector>
-
-#include <fmt/format.h>
 
 #include <gtest/gtest.h>
 
@@ -18,49 +14,13 @@ module;
 
 export module purple.test;
 
-using namespace std;
+using std::array;
+using std::span;
+using std::string;
+using std::vector;
 
 export namespace purple::test
 {
-    template <size_t N>
-    auto format (array<unsigned,N> const & integer)
-    {
-        string s;
-        size_t i = integer.size();
-        for (; integer[i-1] == 0 && i > 0; --i)
-            continue;
-        if (i == 0)
-            s = "00000000";
-        for (; i > 0; --i)
-            s += fmt::format("{:08X}",integer[i-1]);
-        return s;
-    }
-
-    auto format (vector<unsigned> const & integer)
-    {
-        string s;
-        size_t i = integer.size();
-        for (; integer[i-1] == 0 && i > 0; --i)
-            continue;
-        if (i == 0)
-            s = "000000000";
-        for (; i > 0; --i)
-            s += fmt::format("{:08X}",integer[i-1]);
-        return s;
-    }
-
-    auto format (unsigned integer)
-    {
-        return fmt::format("{:08X}",integer);
-    }
-
-    auto format (mpz_class const & integer)
-    {
-        std::stringstream ss;
-        ss << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << integer;
-        return ss.str();
-    }
-
     constexpr unsigned L = 0x80000000U;
     constexpr unsigned M = 0xFFFFFFFFU;
 
@@ -86,18 +46,20 @@ export namespace purple::test
     const vector<unsigned> v0L { 0U, L,  };
     const vector<unsigned> v0M { 0U, M,  };
 
-    struct PurpleTest : ::testing::Test
+    struct PurpleTest : ::testing::Test { };
+
+    struct WordGenerator
     {
-        random_device random;
-        linear_congruential_engine<unsigned,48271ul,0ul,2147483647ul> generator { random() };
+        virtual ~WordGenerator () noexcept = default;
 
-        auto generate () {
-            return generator();
-        }
+        virtual auto name () -> string = 0;
 
-        template <typename T, size_t N>
-        void generate (std::array<T,N> & a) {
-            std::ranges::generate(a,std::ref(generator));
-        }
+        virtual void generate (span<unsigned> x) noexcept = 0;
+
+        virtual void generate (mpz_class & x, size_t z, size_t B) noexcept = 0;
     };
+
+    using WordGeneratorPtr = std::shared_ptr<WordGenerator>;
+
+    struct PurpleRandomTest : testing::TestWithParam<WordGeneratorPtr> { };
 }

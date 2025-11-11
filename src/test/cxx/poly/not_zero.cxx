@@ -1,85 +1,66 @@
 // SPDX-FileCopyrightText: 2025 Pedro Lamarão <pedro.lamarao@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include <array>
+#include <span>
+#include <tuple>
+
+#include <gmpxx.h>
+
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
-TEST(poly,not_zero_vE)
-{
-    ASSERT_EQ( not_zero<unsigned>(vE), 0 );
-}
+using std::array;
+using std::ignore;
+using std::span;
 
-TEST(poly,not_zero_v0)
-{
-    ASSERT_EQ( not_zero<unsigned>(v0), 0 );
-}
+#define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST(poly,not_zero_v1)
+TEST_P(PurpleRandomTest,not_zero_64)
 {
-    ASSERT_EQ( not_zero<unsigned>(v1), 1 );
-}
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
 
-TEST(poly,not_zero_v2)
-{
-    ASSERT_EQ( not_zero<unsigned>(v2), 1 );
-}
+    auto generator = GetParam();
 
-TEST(poly,not_zero_vL)
-{
-    ASSERT_EQ( not_zero<unsigned>(vL), 1 );
-}
+    for (auto i = 0; i != 10000; ++i)
+    {
+        SCOPED_TRACE("i = " + format(i));
 
-TEST(poly,not_zero_vM)
-{
-    ASSERT_EQ( not_zero<unsigned>(vM), 1 );
-}
+        // compute with gmp
 
-TEST(poly,not_zero_v00)
-{
-    ASSERT_EQ( not_zero<unsigned>(v00), 0 );
-}
+        mpz_class gx {};
+        generator->generate(gx,64,B);
 
-TEST(poly,not_zero_v10)
-{
-    ASSERT_EQ( not_zero<unsigned>(v10), 1 );
-}
+        auto gr = (gx != 0);
 
-TEST(poly,not_zero_v20)
-{
-    ASSERT_EQ( not_zero<unsigned>(v20), 1 );
-}
+        SCOPED_TRACE("gmp:\n"s +
+            "x = " + format(gx) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
 
-TEST(poly,not_zero_vL0)
-{
-    ASSERT_EQ( not_zero<unsigned>(vL0), 1 );
-}
+        // compute with purple
 
-TEST(poly,not_zero_vM0)
-{
-    ASSERT_EQ( not_zero<unsigned>(vM0), 1 );
-}
+        auto x = array<word,64> {};
+        assign(x,gx);
 
-TEST(poly,not_zero_v01)
-{
-    ASSERT_EQ( not_zero<unsigned>(v01), 1 );
-}
+        auto r = not_zero<word>( x );
 
-TEST(poly,not_zero_v02)
-{
-    ASSERT_EQ( not_zero<unsigned>(v02), 1 );
-}
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "r = " + format(r) + "\n"
+        );
 
-TEST(poly,not_zero_v0L)
-{
-    ASSERT_EQ( not_zero<unsigned>(v0L), 1 );
-}
+        // compare
 
-TEST(poly,not_zero_v0M)
-{
-    ASSERT_EQ( not_zero<unsigned>(v0M), 1 );
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
+    }
 }

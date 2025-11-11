@@ -436,14 +436,17 @@ export namespace purple
     /// Computes by the "Improved division by invariant integers" method.
     ///
     /// Requires:
-    /// x ÷ B < y
     /// y is normalized
+    /// x ÷ B < y
     /// iy = reciprocal_normalized(y)
 
     template <typename Word, size_t Bi>
     requires ( Bi == 2uz )
     auto division_normalized ( span<Word const,Bi> x, Word y, Word iy ) noexcept -> tuple< Word, Word >
     {
+        assert( is_normalized( y ) );
+        assert( is_smaller( x[1], y ) );
+
         // t = ( r[1] × iy ) + x
         auto t = product( x[1], iy );
         ignore = sum_assign<Word,Bi>( t, t, x );

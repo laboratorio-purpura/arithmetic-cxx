@@ -340,6 +340,27 @@ export namespace purple
 
     /// Division with remainder.
     ///
+    /// Requires:
+    /// y is nonzero
+
+    constexpr
+    auto division ( array<unsigned,2> x, unsigned y ) noexcept -> tuple< array<unsigned,2>, unsigned >
+    {
+        constexpr auto B = sizeof(unsigned) * 8;
+        auto x_ = x[0] | ( static_cast< unsigned long long >( x[1] ) << B );
+        auto q = x_ / y;
+        auto r = x_ % y;
+        return {
+            array<unsigned,2> {
+                static_cast< unsigned >( q ),
+                static_cast< unsigned >( q >> B ),
+            },
+            static_cast< unsigned >( r )
+        };
+    }
+
+    /// Division with remainder.
+    ///
     /// Permits aliasing q to x.
     ///
     /// Requires:
@@ -360,7 +381,7 @@ export namespace purple
     auto half ( unsigned x, size_t z ) noexcept -> tuple< unsigned, unsigned >
     {
         auto q = x >> z;
-        auto r = x & ((1 << z) - 1);
+        auto r = x & ((1u << z) - 1u);
         return { q, r };
     }
 
@@ -372,7 +393,7 @@ export namespace purple
     auto half_assign ( unsigned & q, unsigned x, size_t z ) -> unsigned
     {
         auto t = x >> z;
-        auto r = x & ((1 << z) - 1);
+        auto r = x & ((1u << z) - 1u);
         q = t;
         return r;
     }

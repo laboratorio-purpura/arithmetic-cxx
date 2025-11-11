@@ -2,65 +2,72 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <array>
-#include <random>
 #include <span>
+#include <tuple>
 
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
 
 import purple.arithmetic;
+import purple.arithmetic.utility;
 import purple.test;
 
 using namespace purple;
 using namespace purple::test;
+using namespace std::string_literals;
 
 using std::array;
-using std::random_device;
-using random_integer = std::linear_congruential_engine<unsigned, 48271UL, 0UL, 2147483647UL>;
+using std::ignore;
 using std::span;
-
-// Assertions.
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST(duo,reciprocal_normalised_9C8739F05AA157B2)
+TEST_F(PurpleTest,reciprocal_normalised_2_9C8739F05AA157B2)
 {
     auto y = array { 0x5AA157B2U, 0x9C8739F0U };
     auto iy = reciprocal_normalized( y );
     ASSERT_EQ( format(iy), "A2AF5356" );
 }
 
-TEST(duo,reciprocal_normalised_random)
+TEST_P(PurpleRandomTest,reciprocal_normalised_2)
 {
-    random_device random;
-    random_integer generator { random() };
+    constexpr auto B = sizeof(unsigned) * 8;
+    using word = unsigned;
 
-    for (auto i = 0uz; i != 100; ++i)
+    auto generator = GetParam();
+
+    for (auto i = 0uz; i != 10000; ++i)
     {
-        auto y = array { generator(), generator() };
-        // requires is_normalized(y)
-        y[1] |= 0x80000000U;
+        SCOPED_TRACE("i = " + format(i));
 
-        // compute with purple
-        auto iy = reciprocal_normalized( y );
+        // compute with gmp
 
-        // compute with GMP
-        auto gy = mpz_class( format(y), 16 );
+        mpz_class gy {};
+        generator->generate(gy,2,B);
+        mpz_setbit(gy.get_mpz_t(),(2*B)-1);
+
         mpz_class giy = ( mpz_class("FFFFFFFFFFFFFFFFFFFFFFFF",16) / gy ) - mpz_class("100000000",16);
 
-        // compare
-        SCOPED_TRACE( std::string() +
-            "purple:\n" +
-            "y = " + format(y) + "\n" +
-            "iy = " + format(iy) + "\n" +
-            "gmp:\n" +
-            "y = " + format(gy) + "\n"
+        SCOPED_TRACE("gmp:\n"s +
+            "y = " + format(gy) + "\n" +
             "iy = " + format(giy) + "\n"
         );
-        ASSERT_GMP_EQ(
-            giy,
-            mpz_class( format(iy), 16 )
+
+        // compute with purple
+
+        auto y = array<word,2> {};
+        assign(y,gy);
+
+        auto iy = reciprocal_normalized( y );
+
+        SCOPED_TRACE("purple:\n"s +
+            "y = " + format(y) + "\n" +
+            "iy = " + format(iy) + "\n"
         );
+
+        // compare
+
+        ASSERT_GMP_EQ( giy, to_mpz(iy) );
     }
 }

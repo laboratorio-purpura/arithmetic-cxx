@@ -174,11 +174,11 @@ export namespace purple
     auto is_equal_isodegree ( span<Integer const> x, span<Integer const> y ) -> bool
     {
         auto const z = y.size();
-        Integer r {};
-        Integer b {};
-        for (auto i = 0uz; i != z; ++i)
-            tie( r, b ) = difference( x[i], y[i], b );
-        return is_zero(r) & (1U - b);
+        for (auto i = 0uz; i != z; ++i) {
+            if ( not_equal( x[i], y[i] ) )
+                return false;
+        }
+        return true;
     }
 
     /// Tests if equals.
@@ -189,10 +189,13 @@ export namespace purple
         auto const xz = x.size();
         auto const yz = y.size();
         if (xz < yz) return is_equal(y,x);
-        auto r = is_equal_isodegree( x, y );
-        for (auto i = yz; i != xz; ++i)
-            r = r && is_zero( x[i] );
-        return r;
+        if (! is_equal_isodegree( x, y ))
+            return false;
+        for (auto i = yz; i != xz; ++i) {
+            if ( not_zero( x[i] ) )
+                return false;
+        }
+        return true;
     }
 
     /// Tests if *not* equals.
@@ -220,7 +223,7 @@ export namespace purple
     /// Normalized means B ÷ 2 ≤ y[N-1] < B.
 
     template <typename Integer>
-    auto is_normalized ( span<Integer const> y ) noexcept -> Integer
+    auto is_normalized ( span<Integer const> y ) noexcept -> bool
     {
         return is_normalized( y[ y.size() - 1 ] );
     }
@@ -432,47 +435,40 @@ export namespace purple
     /// words(r) ≥ degree(x) × 2
 
     template <typename Integer>
-    auto square_accumulate ( span<Integer> r, span<Integer const> x, Integer excess = Integer(0) ) noexcept -> Integer
+    auto square_accumulate ( span<Integer> r, span<Integer const> x ) noexcept -> Integer
     {
-        auto const xd = x.size();
+        auto const xd = degree(x);
         auto const rz = words(r);
 
         assert( xd >= 1 );
         assert( rz >= xd*2 );
 
+        Integer storage [ 3 ];
+
+        Integer excess {};
         for (auto xi = 0uz; xi != xd; ++xi)
         {
             // xi ^ 2
             {
-                auto ri = xi+xi;
                 // xi ^ 2 + carry
-                auto [ p0, p1 ] = product( x[xi], x[xi], excess );
-                // store
-                auto c = sum_assign( r[ri], r[ri], p0 );
-                excess = p1 + c;
+                auto p = product( x[xi], x[xi] );
+                auto ri = xi+xi;
+                auto rs = r.subspan(ri);
+                excess = sum_assign<Integer>( rs, rs, p );
             }
             // 2 * xi * xj
             for (auto xj = xi + 1uz; xj != xd; ++xj)
             {
-                auto ri = xi+xj;
                 // xi * xj
-                auto [ p0, p1 ] = product( x[xi], x[xj] );
-                // 2 * xi * xj + carry
-                auto [ t00, t01 ] = twice( p0, 1uz, excess );
-                auto [ t10, t11 ] = twice( p1, 1uz );
+                auto p = product( x[xi], x[xj] );
+                // 2 * xi * xj
+                auto t = span<Integer>( storage, 3 );
+                ignore = twice_assign<Integer>( t, p, 1uz );
                 // store
-                auto c0 = sum_assign( r[ri+0], r[ri+0], t00 );
-                auto c1 = sum_assign( r[ri+1], r[ri+1], t01, c0 );
-                auto c2 = sum_assign( r[ri+1], r[ri+1], t10, c1 );
-                auto c3 = sum_assign( r[ri+2], r[ri+2], t11, c2 );
-                excess = c3;
+                auto ri = xi+xj;
+                auto rs = r.subspan(ri);
+                ignore = sum_assign<Integer>( rs, rs, t );
             }
-            // store
-            excess = sum_assign( r[xi+xd], r[xi+xd], excess );
-        }
-        // terminate
-        for (auto i = xd*2; i != rz; ++i) {
-            excess = sum_assign( r[i], Integer(0), excess );
         }
         return excess;
     }
@@ -577,11 +573,15 @@ export namespace purple
         assert( xd >= 1 );
         assert( rz >= xd );
 
-        auto r = x[0] & ((Integer(1) << z) - Integer(1));
-        q[0] = x[0] >> z;
-        for (auto i = 1uz; i != xd; ++i) {
-            q[i-1] |= x[i] << (B - z);
-            q[i] = x[i] >> z;
+        auto r = Integer(0);
+        for (auto i = xd; i != 0; --i) {
+            // halve current word
+            auto r0 = Integer(0);
+            tie( q[i-1], r0 ) = half( x[i-1], z );
+            // add previous remainder
+            auto [ r1, _ ] = twice( r, B - z );
+            tie( q[i-1], ignore ) = sum( q[i-1], r1 );
+            r = r0;
         }
         std::ranges::fill( q.subspan(xd), Integer(0) );
         return r;
@@ -607,6 +607,8 @@ export namespace purple
         assert( not_zero(y) );
         assert( qz >= xd );
 
+        Integer storage [ xd + 1 ];
+
         // normalize operands, then divide with normalized algorithm.
 
         // 1. find normalization factor.
@@ -618,9 +620,10 @@ export namespace purple
         auto [ny,_] = twice( y, factor );
 
         // 2.2 normalize dividend.
-        Integer nx_ [ xd + 1 ];
-        auto nx = span<Integer>( nx_, xd + 1 );
+        auto const nxd = xd + 1;
+        auto nx = span( storage, nxd );
         ignore = twice_assign<Integer>( nx, x, factor );
+        // invariant: { nx[-2], nx[-1] } < y
 
         // 3. divide with normalized.
 
@@ -630,11 +633,9 @@ export namespace purple
 
         auto iy = reciprocal_normalized( ny );
 
-        auto r = Integer(0);
-
-        for (auto i = nx.size(); i != 0; --i) {
-            auto t = array { nx[i-1], r };
-            tie( q[i-1], r ) = division_normalized<Integer,2uz>( t, ny, iy );
+        auto [ _, r ] = division_normalized<Integer,2uz>( array { nx[nxd-1], Integer(0) }, ny, iy );
+        for (auto i = nxd-1; i != 0; --i) {
+            tie( q[i-1], r ) = division_normalized<Integer,2uz>( array { nx[i-1], r }, ny, iy );
         }
 
         // 4. denormalize remainder.
@@ -643,39 +644,41 @@ export namespace purple
         return r;
     }
 
-    /// Restricted division with remainder.
+    /// Division with remainder step.
     ///
-    /// Computes by the classical or "school" method.
+    /// Computes one step of the classical or "school" method.
     ///
     /// Permits aliasing r to x.
     ///
     /// Requirements:
     /// words(x) = words(y) + 1
-    /// words(y) ≥ 1
-    /// x ÷ B < y
+    /// words(y) ≥ 2
     /// y is normalized
-    /// iy = reciprocal_normalized(y)
+    /// x ÷ B < y
     /// words(r) ≥ words(x)
 
     template <typename Integer>
-    void division_restricted_assign ( Integer & q, span<Integer> r, span<Integer const> x, span<Integer const> y, Integer iy )
+    auto division_assign_step ( span<Integer> r, span<Integer const> x, span<Integer const> y ) -> Integer
     {
-        assert( words(x) == words(y) + 1 );
-        assert( is_normalized<Integer>(y) == 1 );
-        assert( is_smaller<Integer>( x.subspan(1), y ) == 1 );
-        assert( words(r) >= words(x) );
+        auto const xz = words(x);
+        auto const yz = words(y);
+        auto const rz = words(r);
 
-        // guess the quotient.
-        // we guess by dividing 2-by-1 the most significant words.
-        // the restriction on the operands guarantee a strict bound on the error.
-        // we detect the error and fix the quotient.
+        assert( xz == yz + 1 );
+        assert( yz >= 2 );
+        assert( is_normalized<Integer>( y ) );
+        assert( is_smaller<Integer>( x.subspan(1), y ) );
+        assert( rz >= xz );
+
+        // guess the quotient by division of the highest words.
+        // restricted operands guarantee strict bound on the error.
 
         // let N = words(y)
         auto N = words(y);
 
         // compute tentative quotient q'
-        auto q_ = Integer(0);
-        auto r_ = Integer(0);
+        auto q_ = array<unsigned,2>{};
+        auto r_ = Integer{};
         {
             // let x' = { x[N-1}, x[N] }
             auto x_ = array { x[N-1], x[N] };
@@ -683,54 +686,54 @@ export namespace purple
             auto y_ = y[N-1];
             // let q' = x' ÷ y'
             // let r' = x' % y'
-            tie( q_, r_ ) = division_normalized<Integer,2>( x_, y_, iy );
+            tie( q_, r_ ) = division( x_, y_ );
         }
         // invariant: q' - 2 ≤ q ≤ q'
 
-        // fix q' > q
+        // reduce q'
         {
             auto carry = Integer(0);
             while (
                 // r_ < B
-                (carry == 0) &&
-                // q' × y[N-2] > { x[N-2], r' }
-                is_greater<Integer>( product( q_, y[N-2] ), array { x[N-2], r_ } )
+                is_zero( carry ) && (
+                    // q' >= B
+                    not_zero( q_[1] ) ||
+                    // q' × y[N-2] > { x[N-2], r' }
+                    is_greater<Integer>( product( q_[0], y[N-2] ), array { x[N-2], r_ } )
+                )
             ) {
                 // q_ ← q_ - 1
-                ignore = previous_assign( q_, q_ );
+                ignore = previous_assign<Integer>( q_, q_ );
                 // r_ ← r_ + y[N-1]
                 carry = sum_assign( r_, r_, y[N-1] );
                 // carry = 1 ⇒ r_ ≥ B
             }
         }
-        // invariant: q' - 1 ≤ q ≤ q'
+        // invariant: q' - 1 ≤ q ≤ q' ≤ B
 
-        // compute remainder
+        // reduce q'
         // r ← x - q' × y
         auto borrow = Integer(0);
         {
             // let t = q' × y
             Integer t_ [ N + 1 ];
             auto t = span<Integer>( t_, N + 1 );
-            // TODO: fix excess propagation
-            assign( t, y );
-            ignore = product_assign<Integer>( t, t, q_ );
+            ignore = product_assign<Integer>( t, y, q_[0] );
             // r ← x - t
             borrow = difference_assign<Integer>( r, x, t );
         }
         // borrow = 1 ⇒ r < 0
-
-        // fix r < 0 ⇒ q' > q
-        if ( borrow == 1 ) {
+        // r < 0 ⇒ q' > q
+        if ( not_zero( borrow ) ) {
             // q ← q - 1
-            ignore = previous_assign( q_, q_ );
+            ignore = previous_assign( q_[0], q_[0] );
             // r ← r + y
             ignore = sum_assign<Integer>( r, r, y );
         }
         // invariant: q' = q
 
         // terminate
-        q = q_;
+        return q_[0];
     }
 
     /// Division with remainder.
@@ -741,6 +744,7 @@ export namespace purple
     ///
     /// Requirements:
     /// degree(x) ≥ degree(y)
+    /// degree(y) ≥ 2
     /// y is nonzero
     /// words(q) ≥ degree(x)
     /// words(r) ≥ degree(x)
@@ -748,15 +752,23 @@ export namespace purple
     template <typename Integer>
     void division_assign ( span<Integer> q, span<Integer> r, span<Integer const> x, span<Integer const> y )
     {
-        assert( x.size() >= y.size() );
-        assert( not_zero<Integer>(y) );
-        assert( q.size() >= x.size() );
-        assert( r.size() >= x.size() + 1 );
+        auto const xd = degree(x);
+        auto const yd = degree(y);
+        auto const qz = words(q);
+        auto const rz = words(r);
+
+        assert( xd >= yd );
+        assert( yd >= 2 );
+        assert( not_zero<Integer>( y ) );
+        assert( qz >= xd );
+        assert( rz >= xd + 1 );
+
+        Integer storage [ yd ];
 
         // normalize the operands, then divide with the normalized algorithm.
 
         // let N = degree(y)
-        auto const N = y.size();
+        auto const N = yd;
 
         // 1. find normalization factor.
         auto factor = leading_zero_bits( y[N-1] );
@@ -764,20 +776,14 @@ export namespace purple
         // 2. normalize dividend and divisor.
 
         // 2.1. normalize divisor.
-        Integer ny_ [N];
-        auto ny = span<Integer>( ny_, N );
+        auto ny = span<Integer>( storage, N );
         ignore = twice_assign<Integer>( ny, y, factor );
 
         // 2.2. normalize dividend.
-        ignore = twice_assign<Integer>( r, x, factor );
-
-        {
-            auto r_ = r.subspan( r.size() - N, N );
-            if ( not_smaller<Integer>( r_, ny ) ) {
-                ignore = next_assign( q[N], q[N] );
-                ignore = difference_assign<Integer>( r_, r_, ny );
-            }
-        }
+        auto const nxd = xd + 1;
+        auto nx = r.subspan( 0, nxd );
+        ignore = twice_assign<Integer>( nx, x, factor );
+        // invariant: { nx[-2], nx[-1] } < y
 
         // 3. divide with normalized operands.
 
@@ -785,25 +791,21 @@ export namespace purple
         // computing each by division of N+1 degree dividend by N degree divisor.
         // normalization of operands is key.
 
-        // let m <- degree(x) - degree(y)
-        auto M = r.size() - ny.size();
-        // invariant: m ≥ 1
-
-        auto iy = reciprocal_normalized( ny[N-1] );
+        // let M <- degree(nx) - degree(ny)
+        auto M = nxd - yd;
+        // invariant: M ≥ 1
 
         // for j from m to 0 excluding:
         for (auto j = M; j > 0; --j)
         {
-            assert( is_smaller<Integer>( r.subspan( j,N ), ny ) );
-
             // let x' = { x[j+n], x[j+n-1}, ..., x[j] }
-            auto r_ = r.subspan( j-1, N+1 );
+            auto x_ = nx.subspan( j-1, N+1 );
 
-            division_restricted_assign<Integer>( q[j-1], r_, r_, ny, iy );
+            q[j-1] = division_assign_step<Integer>( x_, x_, ny );
         }
 
         // 4. denormalize remainder.
-        ignore = half_assign<Integer>( r, r, factor );
+        ignore = half_assign<Integer>( nx, nx, factor );
     }
 }
 

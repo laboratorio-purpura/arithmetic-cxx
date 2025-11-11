@@ -385,6 +385,48 @@ namespace
 
     BENCHMARK(purple_twice_N_1)->RangeMultiplier(2)->Range(8,64);
 
+    // square N
+
+    void gmp_square_N (benchmark::State& state)
+    {
+        auto words = state.range(0);
+
+        mpz_class x = gmp_random.get_z_bits(words*64);
+
+        mpz_class r {};
+        mpz_realloc2(r.get_mpz_t(),((2*words)+1)*64);
+
+        for (auto _ : state)
+        {
+            mpz_pow_ui(r.get_mpz_t(),x.get_mpz_t(),2);
+
+            benchmark::DoNotOptimize(r);
+        }
+    }
+
+    BENCHMARK(gmp_square_N)->RangeMultiplier(2)->Range(8,64);
+
+    void purple_square_N (benchmark::State& state)
+    {
+        auto words = state.range(0);
+
+        auto x = vector<unsigned>(words);
+        generate(x,ref(cxx_random_engine));
+
+        auto r = vector<unsigned>((2*words)+1);
+
+        for (auto _ : state)
+        {
+            purple::clear<unsigned>(r);
+
+            purple::square_accumulate<unsigned>(r,x);
+
+            benchmark::DoNotOptimize(r);
+        }
+    }
+
+    BENCHMARK(purple_square_N)->RangeMultiplier(2)->Range(8,64);
+
     // previous
 
     void gmp_previous (benchmark::State& state)

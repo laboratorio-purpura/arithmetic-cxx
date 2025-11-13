@@ -8,7 +8,15 @@ The `purple-arithmetic` library contains procedures for arithmetics with "long" 
 
 This is an educational project with the purpose of learning and sharing algorithmic mathematics.
 
-This library is defined in a C++26 module.
+This library is defined as a C++26 module in link:src/main/ixx[].
+
+Notable module partitions:
+
+* link:src/main/ixx/word.concept.ixx[word.concept.ixx]: `concept Word<W>`
+* link:src/main/ixx/word.type.ixx[word.type.ixx]: `type template word<B>` base 2^`B`
+* link:src/main/ixx/bi.ixx[bi.ixx]: bi-`Word` arithmetics
+* link:src/main/ixx/tri.ixx[tri.ixx]: tri-`Word` arithmetics
+* link:src/main/ixx/multi.ixx[multi.ixx]: multi-`Word` arithmetics
 
 References:
 

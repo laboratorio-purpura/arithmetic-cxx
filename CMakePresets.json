@@ -2,27 +2,34 @@
   "version": 6,
   "configurePresets": [
     {
-      "name": "default",
+      "name": "base",
+      "hidden": true,
       "generator": "Ninja",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "TRUE",
         "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "${sourceDir}/conan_provider.cmake"
       }
     },
     {
-      "inherits": "default",
-      "name": "sanitize",
+      "inherits": "base",
+      "name": "default",
       "cacheVariables": {
-        "CMAKE_C_FLAGS": "-fsanitize=address -fsanitize=undefined",
-        "CMAKE_CXX_FLAGS": "-fsanitize=address -fsanitize=undefined",
-        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "FALSE"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "TRUE"
       }
     },
     {
-      "inherits": "default",
+      "inherits": "base",
+      "name": "sanitize",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_C_FLAGS": "-fsanitize=address -fsanitize=undefined",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address -fsanitize=undefined"
+      }
+    },
+    {
+      "inherits": "base",
       "name": "debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"

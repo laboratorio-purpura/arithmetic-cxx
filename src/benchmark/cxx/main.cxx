@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <random>
 #include <ranges>
 #include <span>
@@ -14,22 +15,35 @@
 import purple.arithmetic;
 
 using std::array;
-using std::default_random_engine;
 using std::ignore;
-using std::ranges::generate;
-using std::random_device;
 using std::span;
 using std::vector;
 
-using random_integer = std::linear_congruential_engine<unsigned,48271UL,0UL,2147483647UL>;
-
 namespace
 {
-    random_device cxx_random_device {};
+    constexpr auto bits = sizeof(nullptr) * CHAR_BIT;
 
-    default_random_engine cxx_random_engine { cxx_random_device() };
+    using word = purple::word<bits>;
 
-    gmp_randclass gmp_random { gmp_randinit_default };
+    std::random_device cxx_random_device {};
+
+    template <size_t B> struct primitive {};
+    template <> struct primitive <8> { using type = uint8_t; };
+    template <> struct primitive <16> { using type = uint16_t; };
+    template <> struct primitive <32> { using type = uint32_t; };
+    template <> struct primitive <64> { using type = uint64_t; };
+
+    std::independent_bits_engine< std::mt19937_64, bits, primitive<bits>::type > cxx_random_engine {
+        cxx_random_device()
+    };
+
+    void generate (vector<word> & v) {
+        std::ranges::generate( v, [] { return word { cxx_random_engine() }; } );
+    }
+
+    gmp_randclass gmp_random {
+        gmp_randinit_default
+    };
 
     struct gmp_random_seeder_t {
         gmp_random_seeder_t () noexcept {
@@ -38,7 +52,7 @@ namespace
     }
     gmp_random_seeder;
 
-    static_assert( sizeof(mp_limb_t) == 8, "unexpected size of mp_limb_t" );
+    static_assert( sizeof(mp_limb_t) == sizeof(word), "unexpected size of mp_limb_t" );
 
     // assign
 
@@ -46,10 +60,10 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),words*64);
+        mpz_realloc2(r.get_mpz_t(),words*bits);
 
         for (auto _ : state)
         {
@@ -65,14 +79,14 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto r = vector<unsigned>(words);
+        auto r = vector<word>(words);
 
         for (auto _ : state)
         {
-            purple::assign<unsigned>(r,x);
+            purple::assign<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }
@@ -86,10 +100,10 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),(words+1)*64);
+        mpz_realloc2(r.get_mpz_t(),(words+1)*bits);
 
         for (auto _ : state)
         {
@@ -105,14 +119,14 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto r = vector<unsigned>(words+1);
+        auto r = vector<word>(words+1);
 
         for (auto _ : state)
         {
-            purple::next_assign<unsigned>(r,x);
+            purple::next_assign<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }
@@ -126,13 +140,13 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
-        mpz_class y_ = gmp_random.get_z_bits(64u);
+        mpz_class y_ = gmp_random.get_z_bits(bits);
         auto y = y_.get_ui();
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),(words+1)*64);
+        mpz_realloc2(r.get_mpz_t(),(words+1)*bits);
 
         for (auto _ : state)
         {
@@ -148,16 +162,16 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto y = cxx_random_engine();
+        auto y = word { cxx_random_engine() };
 
-        auto r = vector<unsigned>(words+1);
+        auto r = vector<word>(words+1);
 
         for (auto _ : state)
         {
-            purple::sum_assign<unsigned>(r,x,y);
+            purple::sum_assign<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -171,12 +185,12 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
-        mpz_class y = gmp_random.get_z_bits(words*64);
+        mpz_class y = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),(words+1)*64);
+        mpz_realloc2(r.get_mpz_t(),(words+1)*bits);
 
         for (auto _ : state)
         {
@@ -192,17 +206,17 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto y = vector<unsigned>(words);
-        generate(y,ref(cxx_random_engine));
+        auto y = vector<word>(words);
+        generate(y);
 
-        auto r = vector<unsigned>(words+1);
+        auto r = vector<word>(words+1);
 
         for (auto _ : state)
         {
-            purple::sum_assign<unsigned>(r,x,y);
+            purple::sum_assign<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -216,12 +230,12 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(2*words*64);
+        mpz_class x = gmp_random.get_z_bits(2*words*bits);
 
-        mpz_class y = gmp_random.get_z_bits(words*64);
+        mpz_class y = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),(2*words+1)*64);
+        mpz_realloc2(r.get_mpz_t(),(2*words+1)*bits);
 
         for (auto _ : state)
         {
@@ -237,17 +251,17 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(2*words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(2*words);
+        generate(x);
 
-        auto y = vector<unsigned>(words);
-        generate(y,ref(cxx_random_engine));
+        auto y = vector<word>(words);
+        generate(y);
 
-        auto r = vector<unsigned>((2*words)+1);
+        auto r = vector<word>((2*words)+1);
 
         for (auto _ : state)
         {
-            purple::sum_assign<unsigned>(r,x,y);
+            purple::sum_assign<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -261,13 +275,13 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
-        mpz_class y_ = gmp_random.get_z_bits(64u);
+        mpz_class y_ = gmp_random.get_z_bits(bits);
         auto y = y_.get_ui();
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),(words+1)*64);
+        mpz_realloc2(r.get_mpz_t(),(words+1)*bits);
 
         for (auto _ : state)
         {
@@ -283,16 +297,16 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto y = cxx_random_engine();
+        auto y = word { cxx_random_engine() };
 
-        auto r = vector<unsigned>(words+1);
+        auto r = vector<word>(words+1);
 
         for (auto _ : state)
         {
-            purple::product_assign<unsigned>(r,x,y);
+            purple::product_assign<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -306,12 +320,12 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
-        mpz_class y = gmp_random.get_z_bits(words*64);
+        mpz_class y = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),((2*words)+1)*64);
+        mpz_realloc2(r.get_mpz_t(),((2*words)+1)*bits);
 
         for (auto _ : state)
         {
@@ -327,17 +341,17 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto y = vector<unsigned>(words);
-        generate(y,ref(cxx_random_engine));
+        auto y = vector<word>(words);
+        generate(y);
 
-        auto r = vector<unsigned>((2*words)+1);
+        auto r = vector<word>((2*words)+1);
 
         for (auto _ : state)
         {
-            purple::product_accumulate<unsigned>(r,x,y);
+            purple::product_accumulate<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -351,10 +365,10 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),(words+1)*64);
+        mpz_realloc2(r.get_mpz_t(),(words+1)*bits);
 
         for (auto _ : state)
         {
@@ -370,14 +384,14 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto r = vector<unsigned>(words+1);
+        auto r = vector<word>(words+1);
 
         for (auto _ : state)
         {
-            purple::twice_assign<unsigned>(r,x,31uz);
+            purple::twice_assign<word>(r,x,31uz);
 
             benchmark::DoNotOptimize(r);
         }
@@ -391,10 +405,10 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),((2*words)+1)*64);
+        mpz_realloc2(r.get_mpz_t(),((2*words)+1)*bits);
 
         for (auto _ : state)
         {
@@ -410,16 +424,16 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto r = vector<unsigned>((2*words)+1);
+        auto r = vector<word>((2*words)+1);
 
         for (auto _ : state)
         {
-            purple::clear<unsigned>(r);
+            purple::clear<word>(r);
 
-            purple::square_accumulate<unsigned>(r,x);
+            purple::square_accumulate<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }
@@ -433,10 +447,10 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),words*64);
+        mpz_realloc2(r.get_mpz_t(),words*bits);
 
         for (auto _ : state)
         {
@@ -452,14 +466,14 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto r = vector<unsigned>(words);
+        auto r = vector<word>(words);
 
         for (auto _ : state)
         {
-            purple::previous_assign<unsigned>(r,x);
+            purple::previous_assign<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }
@@ -473,13 +487,13 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
-        mpz_class y_ = gmp_random.get_z_bits(64u);
+        mpz_class y_ = gmp_random.get_z_bits(bits);
         auto y = y_.get_ui();
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),words*64);
+        mpz_realloc2(r.get_mpz_t(),words*bits);
 
         for (auto _ : state)
         {
@@ -495,16 +509,16 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto y = cxx_random_engine();
+        auto y = word { cxx_random_engine() };
 
-        auto r = vector<unsigned>(words);
+        auto r = vector<word>(words);
 
         for (auto _ : state)
         {
-            purple::difference_assign<unsigned>(r,x,y);
+            purple::difference_assign<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -518,12 +532,12 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
-        mpz_class y = gmp_random.get_z_bits(words*64);
+        mpz_class y = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),words*64);
+        mpz_realloc2(r.get_mpz_t(),words*bits);
 
         for (auto _ : state)
         {
@@ -539,17 +553,17 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto y = vector<unsigned>(words);
-        generate(y,ref(cxx_random_engine));
+        auto y = vector<word>(words);
+        generate(y);
 
-        auto r = vector<unsigned>(words);
+        auto r = vector<word>(words);
 
         for (auto _ : state)
         {
-            purple::difference_assign<unsigned>(r,x,y);
+            purple::difference_assign<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -563,12 +577,12 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(2*words*64);
+        mpz_class x = gmp_random.get_z_bits(2*words*bits);
 
-        mpz_class y = gmp_random.get_z_bits(words*64);
+        mpz_class y = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),2*words*64);
+        mpz_realloc2(r.get_mpz_t(),2*words*bits);
 
         for (auto _ : state)
         {
@@ -584,17 +598,17 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(2*words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(2*words);
+        generate(x);
 
-        auto y = vector<unsigned>(words);
-        generate(y,ref(cxx_random_engine));
+        auto y = vector<word>(words);
+        generate(y);
 
-        auto r = vector<unsigned>(2*words);
+        auto r = vector<word>(2*words);
 
         for (auto _ : state)
         {
-            purple::difference_assign<unsigned>(r,x,y);
+            purple::difference_assign<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -608,13 +622,13 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
-        mpz_class y_ = gmp_random.get_z_bits(64u);
+        mpz_class y_ = gmp_random.get_z_bits(bits);
         auto y = y_.get_ui();
 
         mpz_class q {};
-        mpz_realloc2(q.get_mpz_t(),words*64);
+        mpz_realloc2(q.get_mpz_t(),words*bits);
 
         for (auto _ : state)
         {
@@ -631,16 +645,16 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto y = cxx_random_engine();
+        auto y = word { cxx_random_engine() };
 
-        auto q = vector<unsigned>(words);
+        auto q = vector<word>(words);
 
         for (auto _ : state)
         {
-            auto r = purple::division_assign<unsigned>(q,x,y);
+            auto r = purple::division_assign<word>(q,x,y);
 
             benchmark::DoNotOptimize(q);
             benchmark::DoNotOptimize(r);
@@ -655,15 +669,15 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(2*words*64);
+        mpz_class x = gmp_random.get_z_bits(2*words*bits);
 
-        mpz_class y = gmp_random.get_z_bits(words*64);
+        mpz_class y = gmp_random.get_z_bits(words*bits);
 
         mpz_class q {};
-        mpz_realloc2(q.get_mpz_t(),((2*words)+1)*64);
+        mpz_realloc2(q.get_mpz_t(),((2*words)+1)*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),((2*words)+1)*64);
+        mpz_realloc2(r.get_mpz_t(),((2*words)+1)*bits);
 
         for (auto _ : state)
         {
@@ -679,18 +693,18 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(2*words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(2*words);
+        generate(x);
 
-        auto y = vector<unsigned>(words);
-        generate(y,ref(cxx_random_engine));
+        auto y = vector<word>(words);
+        generate(y);
 
-        auto q = vector<unsigned>((2*words)+1);
-        auto r = vector<unsigned>((2*words)+1);
+        auto q = vector<word>((2*words)+1);
+        auto r = vector<word>((2*words)+1);
 
         for (auto _ : state)
         {
-            purple::division_assign<unsigned>(q,r,x,y);
+            purple::division_assign<word>(q,r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -704,10 +718,10 @@ namespace
     {
         auto words = state.range(0);
 
-        mpz_class x = gmp_random.get_z_bits(words*64);
+        mpz_class x = gmp_random.get_z_bits(words*bits);
 
         mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),words*64);
+        mpz_realloc2(r.get_mpz_t(),words*bits);
 
         for (auto _ : state)
         {
@@ -723,14 +737,14 @@ namespace
     {
         auto words = state.range(0);
 
-        auto x = vector<unsigned>(words);
-        generate(x,ref(cxx_random_engine));
+        auto x = vector<word>(words);
+        generate(x);
 
-        auto r = vector<unsigned>(words);
+        auto r = vector<word>(words);
 
         for (auto _ : state)
         {
-            purple::half_assign<unsigned>(r,x,31uz);
+            purple::half_assign<word>(r,x,31uz);
 
             benchmark::DoNotOptimize(r);
         }

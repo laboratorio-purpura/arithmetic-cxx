@@ -5,6 +5,8 @@ module;
 
 #include <array>
 #include <memory>
+#include <mutex>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -14,52 +16,112 @@ module;
 
 export module purple.test;
 
+import purple.arithmetic;
+import purple.arithmetic.utility;
+
 using std::array;
 using std::span;
 using std::string;
+using std::tuple;
 using std::vector;
 
 export namespace purple::test
 {
-    constexpr unsigned L = 0x80000000U;
-    constexpr unsigned M = 0xFFFFFFFFU;
+    struct PurpleTest : testing::Test { };
 
-    const vector<unsigned> vE {};
+    template <typename T>
+    struct PurpleRandomTest : testing::Test {};
+}
 
-    const vector<unsigned> v0 { 0U };
-    const vector<unsigned> v1 { 1U };
-    const vector<unsigned> v2 { 2U };
-    const vector<unsigned> v3 { 2U };
-    const vector<unsigned> vL { L  };
-    const vector<unsigned> vM { M  };
+struct gmp_random
+{
+    static std::once_flag once;
 
-    const vector<unsigned> v00 { 0U, 0U };
-    const vector<unsigned> v10 { 1U, 0U };
-    const vector<unsigned> v20 { 2U, 0U };
-    const vector<unsigned> v30 { 2U, 0U };
-    const vector<unsigned> vL0 { L,  0U };
-    const vector<unsigned> vM0 { M,  0U };
+    static gmp_randstate_t state;
 
-    const vector<unsigned> v01 { 0U, 1U, };
-    const vector<unsigned> v02 { 0U, 2U, };
-    const vector<unsigned> v03 { 0U, 2U, };
-    const vector<unsigned> v0L { 0U, L,  };
-    const vector<unsigned> v0M { 0U, M,  };
-
-    struct PurpleTest : ::testing::Test { };
-
-    struct WordGenerator
+    static void init ()
     {
-        virtual ~WordGenerator () noexcept = default;
+        std::call_once( once, [] {
+            std::random_device random;
+            gmp_randinit_default( state );
+            gmp_randseed_ui( state, random() );
+        });
+    }
+};
 
-        virtual auto name () -> string = 0;
+std::once_flag gmp_random::once {};
 
-        virtual void generate (span<unsigned> x) noexcept = 0;
+gmp_randstate_t gmp_random::state {};
 
-        virtual void generate (mpz_class & x, size_t z, size_t B) noexcept = 0;
-    };
+struct gmp_rrandomb : gmp_random
+{
+    static auto name () -> string { return "gmp_rrandomb"; };
 
-    using WordGeneratorPtr = std::shared_ptr<WordGenerator>;
+    template <size_t B>
+    static void generate (span<purple::word<B>> x) noexcept
+    {
+        init();
+        auto const xz = x.size();
+        mpz_class t {};
+        mpz_rrandomb(t.get_mpz_t(),state,xz*B);
+        purple::assign(x,t);
+    }
 
-    struct PurpleRandomTest : testing::TestWithParam<WordGeneratorPtr> { };
+    template <size_t B, size_t Z>
+    static void generate (array<purple::word<B>,Z> & x) noexcept
+    {
+        generate<B>( span(x) );
+    }
+
+    static void generate (mpz_class & x, size_t z, size_t B) noexcept
+    {
+        init();
+        mpz_rrandomb(x.get_mpz_t(),state,z*B);
+    }
+};
+
+struct gmp_urandomb : gmp_random
+{
+    static auto name () -> string { return "gmp_urandomb"; };
+
+    template <size_t B>
+    static void generate (span<purple::word<B>> x) noexcept
+    {
+        init();
+        auto const xz = x.size();
+        mpz_class t {};
+        mpz_urandomb(t.get_mpz_t(),state,xz*B);
+        purple::assign(x,t);
+    }
+
+    template <size_t B, size_t Z>
+    static void generate (array<purple::word<B>,Z> & x) noexcept
+    {
+        generate<B>( span(x) );
+    }
+
+    static void generate (mpz_class & x, size_t z, size_t B) noexcept
+    {
+        init();
+        mpz_urandomb(x.get_mpz_t(),state,z*B);
+    }
+};
+
+template <size_t Z>
+struct bits : std::integral_constant<size_t,Z> {};
+
+using Types = ::testing::Types<
+    tuple< bits<8>,  gmp_rrandomb >,
+    tuple< bits<8>,  gmp_urandomb >,
+    tuple< bits<16>, gmp_rrandomb >,
+    tuple< bits<16>, gmp_urandomb >,
+    tuple< bits<32>, gmp_rrandomb >,
+    tuple< bits<32>, gmp_urandomb >,
+    tuple< bits<64>, gmp_rrandomb >,
+    tuple< bits<64>, gmp_urandomb >
+>;
+
+export namespace purple::test
+{
+    TYPED_TEST_SUITE(PurpleRandomTest,Types);
 }

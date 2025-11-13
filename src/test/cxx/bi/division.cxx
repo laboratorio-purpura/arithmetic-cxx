@@ -23,7 +23,7 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleRandomTest,division_assign_3_2)
+TYPED_TEST(PurpleRandomTest,division_normalized_2_1)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -37,11 +37,11 @@ TYPED_TEST(PurpleRandomTest,division_assign_3_2)
         // compute with gmp
 
         mpz_class gy {};
-        generator::generate(gy,2,B);
-        mpz_setbit(gy.get_mpz_t(),(2*B)-1);
+        generator::generate(gy,1,B);
+        mpz_setbit(gy.get_mpz_t(),B-1);
 
         mpz_class gx {};
-        generator::generate(gx,3,B);
+        generator::generate(gx,2,B);
         if ((gx >> B) >= gy)
             gx = gx - (gy << B);
         assert( (gx >> B) < gy );
@@ -58,15 +58,15 @@ TYPED_TEST(PurpleRandomTest,division_assign_3_2)
 
         // compute with purple
 
-        auto x = array<word,3> {};
+        auto x = array<word,2> {};
         assign(x,gx);
 
-        auto y = array<word,2> {};
+        auto y = array<word,1> {};
         assign(y,gy);
 
-        auto iy = reciprocal_normalized<word,2>( y );
+        auto iy = reciprocal_normalized( y[0] );
 
-        auto [ q, r ] = division_normalized<word,3,2>( x, y, iy );
+        auto [ q, r ] = division_normalized<word,2>( x, y[0], iy );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

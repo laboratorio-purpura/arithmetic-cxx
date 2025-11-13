@@ -2,16 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <algorithm>
-#include <cstdio>
 #include <functional>
-#include <iomanip>
-#include <iostream>
 #include <random>
-#include <ranges>
 #include <span>
-#include <sstream>
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include <fmt/format.h>
@@ -22,15 +16,39 @@ import purple.arithmetic;
 import purple.arithmetic.utility;
 
 using namespace purple;
-using namespace std;
+
+using std::array;
+using std::function;
+using std::ignore;
+using std::span;
+using std::string_view;
+using std::vector;
 
 namespace
 {
-    using random_integer = minstd_rand;
+    constexpr auto bits = sizeof(nullptr) * CHAR_BIT;
+
+    using word = purple::word<bits>;
+
+    std::random_device random_device {};
+
+    template <size_t B> struct primitive {};
+    template <> struct primitive <8> { using type = uint8_t; };
+    template <> struct primitive <16> { using type = uint16_t; };
+    template <> struct primitive <32> { using type = uint32_t; };
+    template <> struct primitive <64> { using type = uint64_t; };
+
+    std::independent_bits_engine< std::mt19937_64, bits, primitive<bits>::type > random_engine {
+        random_device()
+    };
+    
+    void generate (span<word> s) {
+        std::ranges::generate( s, [] { return word { random_engine() }; });        
+    }
 
     int command_degree (
         string_view name, span<char const *> args,
-        function<bool (unsigned degree, unsigned iteration, random_integer& random)> f
+        function<bool (unsigned degree, unsigned iteration)> f
     )
     {
         if (args.size() < 3) {
@@ -50,15 +68,12 @@ namespace
             return 1;
         }
 
-        random_device random;
-        random_integer integers { random() };
-
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
 
         for (auto i = 0; i != iterations; ++i)
         {
-            if (! f(degree,i,integers))
+            if (! f(degree,i))
                 return 1;
         }
 
@@ -67,7 +82,7 @@ namespace
 
     int command (
         string_view name, span<char const *> args,
-        function<bool (unsigned iteration, random_integer& random)> f
+        function<bool (unsigned iteration)> f
     )
     {
         if (args.size() < 2) {
@@ -81,15 +96,12 @@ namespace
             return 1;
         }
 
-        random_device random;
-        random_integer integers { random() };
-
         fmt::println("obase=16;");
         fmt::println("ibase=16;");
 
         for (auto i = 0; i != iterations; ++i)
         {
-            if (! f(i,integers))
+            if (! f(i))
                 return 1;
         }
 
@@ -98,22 +110,22 @@ namespace
 
     int difference_restricted (span<char const *> args)
     {
-        return command_degree("difference-restricted",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("difference-restricted",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
-            auto y = vector<unsigned>(degree);
-            ranges::generate(y,ref(random));
+            auto y = vector<word>(degree);
+            generate(y);
 
-            if ( purple::is_smaller<unsigned>(x,y) ) x.swap(y);
+            if ( purple::is_smaller<word>(x,y) ) x.swap(y);
 
             // compute with purple
 
-            auto r = vector<unsigned>(degree);
-            auto b = purple::difference_assign<unsigned>(r,x,y);
+            auto r = vector<word>(degree);
+            auto b = purple::difference_assign<word>(r,x,y);
 
             // compute with GMP
 
@@ -129,23 +141,23 @@ namespace
             fmt::println("expected = {}",format(gr));
             fmt::println("actual = {}",format(r));
 
-            return ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int half (span<char const *> args)
     {
-        return command_degree("half",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("half",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
             // compute with purple
 
-            auto r = vector<unsigned>(degree);
-            purple::half_assign<unsigned>(r,x,1);
+            auto r = vector<word>(degree);
+            purple::half_assign<word>(r,x,1);
 
             // compute with GMP
 
@@ -159,20 +171,19 @@ namespace
             fmt::println("expected = {}",format(gr));
             fmt::println("actual = {}",format(r));
 
-            return ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int reciprocal_nonzero_1 (span<char const *> args)
     {
-        return command("reciprocal-nonzero",args,[] (auto i, auto& random)
+        return command("reciprocal",args,[] (auto i)
         {
             // generate numbers
 
-            auto y = random();
-
-            // requires nonzero
-            if ( purple::is_zero(y) ) y = random();
+            auto y = word{};
+            if ( purple::is_zero(y) )
+                y = word { random_engine() };
 
             // compute with purple
 
@@ -191,20 +202,18 @@ namespace
             fmt::println("expected = {}",format(gr));
             fmt::println("actual = {}",format(r));
 
-            return ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int reciprocal_normalized_1 (span<char const *> args)
     {
-        return command("reciprocal-normalised",args,[] (auto i, auto& random)
+        return command("reciprocal-normalised",args,[] (auto i)
         {
             // generate numbers
 
-            auto y = random();
-
-            // requires normalized
-            y |= 0x80000000U;
+            auto y = word { random_engine() };
+            y.v |= 0x80000000U; // TODO
 
             // compute with purple
 
@@ -223,25 +232,25 @@ namespace
             fmt::println("expected = {}",format(gr));
             fmt::println("actual = {}",format(r));
 
-            return ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int is_greater (span<char const *> args)
     {
-        return command_degree("is-greater",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("is-greater",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
-            auto y = vector<unsigned>(degree);
-            ranges::generate(y,ref(random));
+            auto y = vector<word>(degree);
+            generate(y);
 
             // compute with purple
 
-            auto r = purple::is_greater<unsigned>(x,y);
+            auto r = purple::is_greater<word>(x,y);
 
             // compute with GMP
 
@@ -263,19 +272,19 @@ namespace
 
     int is_smaller (span<char const *> args)
     {
-        return command_degree("is-smaller",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("is-smaller",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
-            auto y = vector<unsigned>(degree);
-            ranges::generate(y,ref(random));
+            auto y = vector<word>(degree);
+            generate(y);
 
             // compute with purple
 
-            auto r = purple::is_smaller<unsigned>(x,y);
+            auto r = purple::is_smaller<word>(x,y);
 
             // compute with GMP
 
@@ -297,20 +306,20 @@ namespace
 
     int product (span<char const *> args)
     {
-        return command_degree("product",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("product",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
-            auto y = vector<unsigned>(degree);
-            ranges::generate(y,ref(random));
+            auto y = vector<word>(degree);
+            generate(y);
 
             // compute with purple
 
-            auto r = vector<unsigned>((degree*2)+1);
-            r[degree*2] = purple::product_accumulate<unsigned>(r,x,y);
+            auto r = vector<word>((degree*2)+1);
+            r[degree*2] = purple::product_accumulate<word>(r,x,y);
 
             // compute with GMP
 
@@ -326,30 +335,31 @@ namespace
             fmt::println("expected = {}",format(gr));
             fmt::println("actual = {}",format(r));
 
-            return ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int product_N_1 (span<char const *> args)
     {
-        return command_degree("product-N-1",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("product-N-1",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
-            auto y = random();
+            auto y = word { random_engine() };
 
             // compute with purple
 
-            auto r = vector<unsigned>(degree+1);
-            r[degree] = purple::product_assign<unsigned>(r,x,y);
+            auto r = vector<word>(degree+1);
+            r[degree] = purple::product_assign<word>(r,x,y);
 
             // compute with GMP
 
             auto gx = to_mpz(x);
-            auto gr = gx * y;
+            auto gy = to_mpz(y);
+            auto gr = gx * gy;
 
             // compare
 
@@ -359,100 +369,98 @@ namespace
             fmt::println("expected = {}",format(gr));
             fmt::println("actual = {}",format(r));
 
-            return ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int division_2_1 (span<char const *> args)
     {
-        return command("ratio-2-1",args,[] (auto iteration, auto& random)
+        return command("ratio-2-1",args,[] (auto iteration)
         {
             // generate numbers
 
-            auto x = array<unsigned,2>();
-            ranges::generate(x,ref(random));
+            auto y = word { random_engine() };
+            y.v |= 0x80000000u; // TODO
 
-            // requires y is normalized
-            auto y = random();
-            y |= 0x80000000u;
-
-            // requires x ÷ B < y
-            while ( purple::not_smaller( x[1], y ) ) x[1] = random();
+            auto x = array<word,2>();
+            generate(x);
+            if ( purple::not_smaller( x[1], y ) )
+                ignore = difference_assign( x[1], x[1], y );
 
             // compute with purple
 
             auto iy = purple::reciprocal_normalized(y);
-            auto [q,r] = purple::division_normalized<unsigned,2>(x,y,iy);
+            auto [q,r] = purple::division_normalized<word,2>(x,y,iy);
 
             // compute with GMP
 
             auto gx = to_mpz(x);
-            auto gq = gx / y;
-            auto gr = gx % y;
+            auto gy = to_mpz(y);
+            auto gq = gx / gy;
+            auto gr = gx % gy;
 
             // compare
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
-            fmt::println("y = {:08X};",y);
+            fmt::println("y = {};",format(y));
             fmt::println("expected, q = {}, r = {}",format(gq),format(gr));
             fmt::println("actual, q = {}, r = {}",format(q),format(r));
 
-            return ::cmp( gq, mpz_class( format(q), 16 ) ) == 0 &&
-                ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gq, to_mpz(q) ) == 0 && ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int division_N_1 (span<char const *> args)
     {
-        return command_degree("division-N-1",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("division-N-1",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
-            auto y = 0u;
+            auto y = word{0u};
             while ( purple::is_zero(y) )
-                y = random();
+                y = word { random_engine() };
 
             // compute with purple
 
-            auto q = vector<unsigned>(degree+1);
-            auto r = purple::division_assign<unsigned>(span(q),x,y);
+            auto q = vector<word>(degree+1);
+            auto r = purple::division_assign<word>(span(q),x,y);
 
             // compute with GMP
 
             auto gx = to_mpz(x);
-            auto gq = gx / y;
-            auto gr = gx % y;
+            auto gy = to_mpz(y);
+            auto gq = gx / gy;
+            auto gr = gx % gy;
 
             // compare
 
             fmt::println("i = {};",iteration);
             fmt::println("x = {};",format(x));
-            fmt::println("y = {:08X};",y);
+            fmt::println("y = {};",format(y));
             fmt::println("expected, q = {}, r = {}",format(gq),format(gr));
             fmt::println("actual, q = {}, r = {}",format(q),format(r));
 
-            return ::cmp( gq, mpz_class( format(q), 16 ) ) == 0 &&
-                ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gq, to_mpz(q) ) == 0 && ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int square (span<char const *> args)
     {
-        return command_degree("square",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("square",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
             // compute with purple
 
-            auto r = vector<unsigned>(degree*2);
-            auto e = purple::square_accumulate<unsigned>(r,x);
+            auto r = vector<word>(degree*2);
+            auto e = purple::square_accumulate<word>(r,x);
 
             // compute with GMP
 
@@ -466,26 +474,26 @@ namespace
             fmt::println("expected = {}",format(gr));
             fmt::println("actual = {}",format(r));
 
-            return ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int sum (span<char const *> args)
     {
-        return command_degree("sum",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("sum",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
-            auto y = vector<unsigned>(degree);
-            ranges::generate(y,ref(random));
+            auto y = vector<word>(degree);
+            generate(y);
 
             // compute with purple
 
-            auto r = vector<unsigned>(degree+1);
-            r[degree] = purple::sum_assign<unsigned>(r,x,y);
+            auto r = vector<word>(degree+1);
+            r[degree] = purple::sum_assign<word>(r,x,y);
 
             // compute with GMP
 
@@ -501,23 +509,23 @@ namespace
             fmt::println("expected = {}",format(gr));
             fmt::println("actual = {}",format(r));
 
-            return ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 
     int twice (span<char const *> args)
     {
-        return command_degree("twice",args,[] (auto degree, auto iteration, auto& random)
+        return command_degree("twice",args,[] (auto degree, auto iteration)
         {
             // generate numbers
 
-            auto x = vector<unsigned>(degree);
-            ranges::generate(x,ref(random));
+            auto x = vector<word>(degree);
+            generate(x);
 
             // compute with purple
 
-            auto r = vector<unsigned>(degree+1);
-            r[degree] = purple::twice_assign<unsigned>(r,x,1uz);
+            auto r = vector<word>(degree+1);
+            r[degree] = purple::twice_assign<word>(r,x,1uz);
 
             // compute with GMP
 
@@ -531,7 +539,7 @@ namespace
             fmt::println("purple = {}",format(r));
             fmt::println("gmp = {}",format(gr));
 
-            return ::cmp( gr, mpz_class( format(r), 16 ) ) == 0;
+            return ::cmp( gr, to_mpz(r) ) == 0;
         });
     }
 

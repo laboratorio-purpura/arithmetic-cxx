@@ -62,11 +62,9 @@ TYPED_TEST(PurpleRandomTest,difference_assign_64_1)
         auto y = array<word,1> {};
         assign(y,gy);
 
-        // purposeful excess capacity with garbage
-        auto r = array<word,66> {};
-        generator::generate(r);
+        auto r = array<word,65> {};
 
-        ignore = difference_assign<word>( r, x, y[0] );
+        r[64] = difference_assign<word>( r, x, y[0] );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -120,11 +118,9 @@ TYPED_TEST(PurpleRandomTest,difference_assign_32_32)
         auto y = array<word,32> {};
         assign(y,gy);
 
-        // purposeful excess capacity with garbage
-        auto r = array<word,34> {};
-        generator::generate(r);
+        auto r = array<word,33> {};
 
-        ignore = difference_assign<word>( r, x, y );
+        r[32] = difference_assign<word>( r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

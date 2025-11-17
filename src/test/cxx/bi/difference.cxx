@@ -62,9 +62,7 @@ TYPED_TEST(PurpleRandomTest,difference_assign_2_2)
         auto y = array<word,2> {};
         assign(y,gy);
 
-        // purposeful excess capacity with garbage
-        auto r = array<word,4> {};
-        generator::generate(r);
+        auto r = array<word,2> {};
 
         ignore = difference_assign<word>( r, x, y );
 

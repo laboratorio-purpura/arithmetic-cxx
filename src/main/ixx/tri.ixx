@@ -7,13 +7,13 @@ module;
 #include <span>
 #include <tuple>
 
-/// Tri-degree nonnegative integer arithmetics.
+/// Tri-word nonnegative integer arithmetics.
 ///
 /// Let a *word* be a nonnegative integer in a binary base B.
 ///
-/// By tri-degree integers we mean integers represented with three words.
+/// By tri-word integers we mean integers represented with three words.
 ///
-/// This module partition defines procedures with tri-degree integer operands.
+/// This module partition defines procedures with tri-word integer operands.
 
 export module purple.arithmetic:tri;
 

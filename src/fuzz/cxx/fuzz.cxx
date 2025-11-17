@@ -318,8 +318,8 @@ namespace
 
             // compute with purple
 
-            auto r = vector<word>((degree*2)+1);
-            r[degree*2] = purple::product_accumulate<word>(r,x,y);
+            auto r = vector<word>(degree*2);
+            purple::product_accumulate<word>(r,x,y);
 
             // compute with GMP
 
@@ -460,7 +460,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree*2);
-            auto e = purple::square_accumulate<word>(r,x);
+            purple::square_accumulate<word>(r,x);
 
             // compute with GMP
 

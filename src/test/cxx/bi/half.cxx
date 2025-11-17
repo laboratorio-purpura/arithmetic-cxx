@@ -51,9 +51,7 @@ TYPED_TEST(PurpleRandomTest,half_assign_2)
         auto x = array<word,2> {};
         assign(x,gx);
 
-        // purposeful excess capacity with garbage
-        auto r = array<word,4> {};
-        generator::generate(r);
+        auto r = array<word,2> {};
 
         ignore = half_assign<word>( r, x, (B-1) );
 

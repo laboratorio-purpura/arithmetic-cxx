@@ -111,9 +111,9 @@ TYPED_TEST(PurpleRandomTest,square_accumulate_32)
         auto x = array<word,32> {};
         assign(x,gx);
 
-        auto r = array<word,65> {};
+        auto r = array<word,64> {};
 
-        ignore = square_accumulate<word>( r, x );
+        square_accumulate<word>( r, x );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

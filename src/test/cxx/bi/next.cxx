@@ -51,11 +51,9 @@ TYPED_TEST(PurpleRandomTest,next_assign_2)
         auto x = array<word,2> {};
         assign(x,gx);
 
-        // purposeful excess capacity with garbage
-        auto r = array<word,4> {};
-        generator::generate(r);
+        auto r = array<word,3> {};
 
-        ignore = next_assign<word,2>( r, x );
+        r[2] = next_assign<word,2>( r, x );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

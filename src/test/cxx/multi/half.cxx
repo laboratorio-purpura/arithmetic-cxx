@@ -58,11 +58,11 @@ TYPED_TEST(PurpleRandomTest,half_assign_64)
         mpz_class gx {};
         generator::generate(gx,64,B);
 
-        mpz_class gr = gx >> (B-1);
+        mpz_class gq = gx >> (B-1);
 
         SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
-            "r = " + format(gr) + "\n"
+            "q = " + format(gq) + "\n"
         );
 
         // compute with purple
@@ -70,20 +70,18 @@ TYPED_TEST(PurpleRandomTest,half_assign_64)
         auto x = array<word,64> {};
         assign(x,gx);
 
-        // purposeful excess capacity with garbage
-        auto r = array<word,66> {};
-        generator::generate(r);
+        auto q = array<word,64> {};
 
-        ignore = half_assign<word>( r, x, (B-1) );
+        ignore = half_assign<word>( q, x, (B-1) );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
-            "r = " + format(r) + "\n"
+            "q = " + format(q) + "\n"
         );
 
         // compare
 
         ASSERT_GMP_EQ( gx, to_mpz(x) );
-        ASSERT_GMP_EQ( gr, to_mpz(r) );
+        ASSERT_GMP_EQ( gq, to_mpz(q) );
     }
 }

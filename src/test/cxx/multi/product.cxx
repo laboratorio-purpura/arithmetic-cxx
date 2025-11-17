@@ -59,11 +59,9 @@ TYPED_TEST(PurpleRandomTest,product_assign_64_1)
         auto y = array<word,1> {};
         assign(y,gy);
 
-        // purposeful excess capacity with garbage
         auto r = array<word,65> {};
-        generator::generate(r);
 
-        ignore = product_assign<word>( r, x, y[0] );
+        r[64] = product_assign<word>( r, x, y[0] );
 
         SCOPED_TRACE( std::string() +
             "purple:\n" +
@@ -99,11 +97,15 @@ TYPED_TEST(PurpleRandomTest,product_accumulate_32_32)
         mpz_class gy {};
         generator::generate(gy,32,B);
 
-        mpz_class gr = gx * gy;
+        mpz_class gz {};
+        generator::generate(gy,32,B);
+
+        mpz_class gr = ( gx * gy ) + gz;
 
         SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
             "y = " + format(gy) + "\n" +
+            "z = " + format(gy) + "\n" +
             "r = " + format(gr) + "\n"
         );
 
@@ -115,9 +117,10 @@ TYPED_TEST(PurpleRandomTest,product_accumulate_32_32)
         auto y = array<word,32> {};
         assign(y,gy);
 
-        auto r = array<word,65> {};
+        auto r = array<word,64> {};
+        assign(r,gz);
 
-        ignore = product_accumulate<word>( r, x, y );
+        product_accumulate<word>( r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

@@ -58,11 +58,9 @@ TYPED_TEST(PurpleRandomTest,sum_assign_2_1)
         auto y = array<word,1> {};
         assign(y,gy);
 
-        // purposeful excess capacity with garbage
-        auto r = array<word,4> {};
-        generator::generate(r);
+        auto r = array<word,3> {};
 
-        ignore = sum_assign<word,2>( r, x, y[0] );
+        r[2] = sum_assign<word,2>( r, x, y[0] );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -113,11 +111,9 @@ TYPED_TEST(PurpleRandomTest,sum_assign_2_2)
         auto y = array<word,2> {};
         assign(y,gy);
 
-        // purposeful excess capacity with garbage
-        auto r = array<word,4> {};
-        generator::generate(r);
+        auto r = array<word,3> {};
 
-        ignore = sum_assign<word,2>( r, x, y );
+        r[2] = sum_assign<word,2>( r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

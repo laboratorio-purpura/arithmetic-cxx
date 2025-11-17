@@ -9,13 +9,13 @@ module;
 #include <span>
 #include <tuple>
 
-/// Bi-degree nonnegative integer arithmetics.
+/// Bi-word nonnegative integer arithmetics.
 ///
 /// Let a *word* be a nonnegative integer in a binary base B.
 ///
-/// By bi-degree integers we mean integers represented with two words.
+/// By bi-word integers we mean integers represented with two words.
 ///
-/// This module partition defines procedures with bi-degree integer operands.
+/// This module partition defines procedures with bi-word integer operands.
 
 export module purple.arithmetic:bi;
 
@@ -29,32 +29,6 @@ using std::tuple;
 
 export namespace purple
 {
-    /// Query procedures.
-
-    /// Count of significant words.
-
-    template <Word W, size_t Bi>
-    auto degree ( span<W const,Bi> x ) noexcept -> size_t
-    {
-        auto i = x.size();
-        while (i > 1 && is_zero( x[i-1] )) --i;
-        return i;
-    }
-
-    /// Count of words.
-
-    template <Word W, size_t Bi>
-    auto words ( span<W const,Bi> x ) noexcept -> size_t
-    {
-        return x.size();
-    }
-
-    template <Word W, size_t Bi>
-    auto words ( span<W,Bi> x ) noexcept -> size_t
-    {
-        return x.size();
-    }
-
     /// Test procedures.
 
     /// Tests if zero.
@@ -137,7 +111,7 @@ export namespace purple
     requires ( Bi == 2uz )
     auto is_smaller ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> bool
     {
-        auto carry = W(0);
+        auto carry = W{0u};
         tie( ignore, carry ) = difference( x[0], y[0], carry );
         tie( ignore, carry ) = difference( x[1], y[1], carry );
         return not_zero( carry );
@@ -149,7 +123,7 @@ export namespace purple
     requires ( Bi == 2uz )
     auto not_smaller ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> bool
     {
-        auto carry = W(0);
+        auto carry = W{0u};
         tie( ignore, carry ) = difference( x[0], y[0], carry );
         tie( ignore, carry ) = difference( x[1], y[1], carry );
         return is_zero( carry );
@@ -161,7 +135,7 @@ export namespace purple
     requires ( Bi == 2uz )
     auto is_greater ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> W
     {
-        auto carry = W(0);
+        auto carry = W{0u};
         tie( ignore, carry ) = difference( y[0], x[0], carry );
         tie( ignore, carry ) = difference( y[1], x[1], carry );
         return not_zero( carry );
@@ -173,7 +147,7 @@ export namespace purple
     requires ( Bi == 2uz )
     auto not_greater ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> bool
     {
-        auto carry = W(0);
+        auto carry = W{0u};
         tie( ignore, carry ) = difference( y[0], x[0], carry );
         tie( ignore, carry ) = difference( y[1], x[1], carry );
         return is_zero( carry );
@@ -208,6 +182,8 @@ export namespace purple
     /// Normalized reciprocal approximation.
     ///
     /// Reciprocal is the multiplicative inverse.
+    ///
+    /// Computes by the "improved division by invariant integers" method.
     ///
     /// Requires:
     /// y is normalized
@@ -249,98 +225,90 @@ export namespace purple
 
     /// Next with carry.
     ///
+    /// Requires:
+    /// size(r) ≥ 2
+    ///
     /// Permits aliasing r to x.
     ///
-    /// Requires:
-    /// words(r) ≥ degree(x)
+    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
+    ///
+    /// @return carry bit.
 
-    template <typename Word, size_t Bi>
+    template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto next_assign ( span<Word> r, span<Word const,Bi> x, Word carry = Word(0) ) -> Word
+    auto next_assign ( span<W> r, span<W const,Bi> x, W carry = W{0u} ) -> W
     {
-        auto const xd = degree(x);
-        auto const rz = words(r);
+        assert( size(r) >= 2 );
 
         carry = next_assign( r[0], x[0], carry );
-        for (auto i = 1uz; i != xd; ++i)
-            carry = sum_assign( r[i], x[i], Word(0), carry );
-        for (auto i = xd; i != rz; ++i)
-            carry = sum_assign( r[i], Word(0), Word(0), carry );
+        carry = sum_assign( r[1], x[1], carry );
         return carry;
     }
 
     /// Sum with carry.
     ///
+    /// Requires:
+    /// size(r) ≥ 2
+    ///
     /// Permits aliasing r to x.
     ///
-    /// Requires:
-    /// words(r) ≥ degree(x)
+    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
+    ///
+    /// @return borrow bit.
 
-    template <typename Word, size_t Bi>
+    template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto sum_assign ( span<Word> r, span<Word const,Bi> x, Word y, Word carry = Word(0) ) noexcept -> Word
+    auto sum_assign ( span<W> r, span<W const,Bi> x, W y, W carry = W{0u} ) noexcept -> W
     {
-        auto const xd = degree(x);
-        auto const rz = words(r);
+        assert( size(r) >= 2 );
 
         carry = sum_assign( r[0], x[0], y, carry );
-        for (auto i = 1uz; i != xd; ++i)
-            carry = sum_assign( r[i], x[i], Word(0), carry );
-        for (auto i = xd; i != rz; ++i)
-            carry = sum_assign( r[i], Word(0), Word(0), carry );
+        carry = sum_assign( r[1], x[1], carry );
         return carry;
     }
 
     /// Sum with carry.
     ///
+    /// Requires:
+    /// size(r) ≥ 2
+    ///
     /// Permits aliasing r to x.
     ///
-    /// Requires:
-    /// words(r) ≥ degree(x)
+    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
+    ///
+    /// @return borrow bit.
 
-    template <typename Word, size_t Bi>
+    template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto sum_assign ( span<Word> r, span<Word const,Bi> x, span<Word const,Bi> y, Word carry = Word(0) ) noexcept -> Word
+    auto sum_assign ( span<W> r, span<W const,Bi> x, span<W const,Bi> y, W carry = W{0u} ) noexcept -> W
     {
-        using std::swap;
+        assert( size(r) >= 2 );
 
-        auto const xd = degree(x);
-        auto const yd = degree(y);
-        auto const rz = words(r);
-
-        if (xd < yd)
-            return sum_assign(r,y,x,carry);
-
-        for (auto i = 0uz; i != yd; ++i)
-            carry = sum_assign( r[i], x[i], y[i], carry );
-        for (auto i = yd; i != xd; ++i)
-            carry = sum_assign( r[i], x[i], Word(0), carry );
-        for (auto i = xd; i != rz; ++i)
-            carry = sum_assign( r[i], Word(0), Word(0), carry );
+        carry = sum_assign( r[0], x[0], y[0], carry );
+        carry = sum_assign( r[1], x[1], y[1], carry );
         return carry;
     }
 
     /// Twice with excess.
     ///
+    /// Requires:
+    /// z < log2(B)
+    /// size(r) ≥ 2
+    ///
     /// Permits aliasing r to x.
     ///
-    /// Requires:
-    /// z < bits
-    /// words(r) ≥ degree(x)
+    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
+    ///
+    /// @return excess word.
 
-    template <typename Word, size_t Bi>
+    template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto twice_assign ( span<Word> r, span<Word const,Bi> x, size_t z, Word excess = Word(0) ) noexcept -> Word
+    auto twice_assign ( span<W> r, span<W const,Bi> x, size_t z, W excess = W{0u} ) noexcept -> W
     {
-        auto const xd = degree(x);
-        auto const rz = words(r);
+        assert( size(r) >= 2 );
 
-        assert( rz >= xd );
-
-        for (auto i = 0uz; i != xd; ++i)
-            excess = twice_assign( r[i], x[i], z, excess );
-        for (auto i = xd; i != rz; ++i)
-            excess = sum_assign( r[i], Word(0), excess );
+        excess = twice_assign( r[0], x[0], z, excess );
+        excess = twice_assign( r[1], x[1], z, excess );
         return excess;
     }
 
@@ -350,81 +318,73 @@ export namespace purple
 
     /// Difference with borrow.
     ///
+    /// Requires:
+    /// size(r) ≥ 2
+    ///
     /// Permits aliasing r to x.
     ///
-    /// Requires:
-    /// words(r) ≥ degree(x)
+    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
+    ///
+    /// @return borrow bit.
 
-    template <typename Word, size_t Bi>
+    template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto difference_assign ( span<Word> r, span<Word const,Bi> x, Word y, Word borrow = Word(0) ) noexcept -> Word
+    auto difference_assign ( span<W> r, span<W const,Bi> x, W y, W borrow = W{0u} ) noexcept -> W
     {
-        auto const xd = degree(x);
-        auto const rz = words(r);
-
-        assert( rz >= xd );
+        assert( size(r) >= 2 );
 
         borrow = difference_assign( r[0], x[0], y, borrow );
-        for (auto i = 1uz; i != xd; ++i)
-            borrow = difference_assign( r[i], x[i], borrow );
-        for (auto i = xd; i != rz; ++i)
-            borrow = difference_assign( r[i], Word(0), borrow );
+        borrow = difference_assign( r[1], x[1], y, borrow );
         return borrow;
     }
 
     /// Difference with borrow.
     ///
+    /// Requires:
+    /// size(r) ≥ 2
+    ///
     /// Permits aliasing r to x.
     ///
-    /// Requires:
-    /// words(r) ≥ degree(x)
+    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
+    ///
+    /// @return borrow bit.
 
-    template <typename Word, size_t Bi>
+    template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto difference_assign ( span<Word> r, span<Word const,Bi> x, span<Word const,Bi> y, Word borrow = Word(0) ) noexcept -> Word
+    auto difference_assign ( span<W> r, span<W const,Bi> x, span<W const,Bi> y, W borrow = W{0u} ) noexcept -> W
     {
-        auto const xd = x.size();
-        auto const yd = y.size();
-        auto const rz = words(r);
+        assert( size(r) >= 2 );
 
-        if (xd < yd)
-            return difference_assign( r, y, x, borrow );
-
-        assert( xd >= yd );
-        assert( yd >= 1 );
-        assert( rz >= xd );
-
-        for (auto i = 0uz; i != yd; ++i)
-            borrow = difference_assign( r[i], x[i], y[i], borrow );
-        for (auto i = yd; i != xd; ++i)
-            borrow = difference_assign( r[i], x[i], borrow );
-        for (auto i = xd; i != rz; ++i)
-            borrow = difference_assign( r[i], Word(0), borrow );
+        borrow = difference_assign( r[0], x[0], y[0], borrow );
+        borrow = difference_assign( r[1], x[1], y[1], borrow );
         return borrow;
     }
 
-    /// Half N times with remainder.
+    /// Half with remainder.
+    ///
+    /// Requires:
+    /// z < log2(B)
+    /// size(q) ≥ 2
     ///
     /// Permits aliasing r to x.
     ///
-    /// Requires:
-    /// words(q) ≥ degree(x)
+    /// Stores 2 words into counted range [ `begin(q)`, 2 ).
+    ///
+    /// @return remainder word.
 
-    template <typename Word, size_t Bi>
+    template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto half_assign ( span<Word> q, span<Word const,Bi> x, size_t z = 1 ) noexcept -> Word
+    auto half_assign ( span<W> q, span<W const,Bi> x, size_t z = 1 ) noexcept -> W
     {
-        auto const B = sizeof(Word) * 8uz;
-        auto const xd = degree(x);
-        auto const rz = words(q);
+        auto const B = sizeof(W) * 8uz;
 
-        std::ranges::fill( q, Word(0) );
+        assert( size(q) >= 2 );
 
-        auto r1 = Word(0u);
+        auto r1 = W{0u};
         tie( q[1], r1 ) = half( x[1], z );
         tie( r1, ignore ) = twice( r1, B-z );
 
-        auto r0 = Word(0);
+        auto r0 = W{0u};
         tie( q[0], r0 ) = half( x[0], z );
         tie( q[0], ignore ) = sum( q[0], r1 );
 

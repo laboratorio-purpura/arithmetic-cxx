@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(purple-arithmetic VERSION 0.2.0 LANGUAGES C CXX)
+project(purple-arithmetics VERSION 0.3.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(CMAKE_CXX_STANDARD 26)

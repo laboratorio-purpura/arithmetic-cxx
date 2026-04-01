@@ -10,14 +10,6 @@ Este é um projeto educacional com o propósito de aprendizado e compartilhament
 
 Esta biblioteca está definida como um módulo C++26 em link:src/main/ixx[].
 
-Partições de módulo notáveis:
-
-* link:src/main/ixx/word.concept.ixx[word.concept.ixx]: `concept Word<W>`
-* link:src/main/ixx/word.type.ixx[word.type.ixx]: `type template word<B>` base 2^`B`
-* link:src/main/ixx/bi.ixx[bi.ixx]: aritmética bi-`Word`
-* link:src/main/ixx/tri.ixx[tri.ixx]: aritmética tri-`Word`
-* link:src/main/ixx/multi.ixx[multi.ixx]: aritmética multi-`Word`
-
 Referências:
 
 * Donald E. Knuth, "The Art of Computer Programming", volume 2, "Seminumerical Algorithms", third edition, ISBN 0-201-89684-2

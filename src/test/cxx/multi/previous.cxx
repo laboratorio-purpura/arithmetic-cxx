@@ -54,7 +54,7 @@ TYPED_TEST(PurpleRandomTest,previous_assign_32)
 
         auto r = array<word,33> {};
 
-        r[32] = previous_assign<word>( r, x );
+        r[32] = decrement<word>( r, x );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

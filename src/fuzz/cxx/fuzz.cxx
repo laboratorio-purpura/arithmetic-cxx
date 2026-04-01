@@ -125,7 +125,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree);
-            auto b = purple::difference_assign<word>(r,x,y);
+            auto b = purple::subtract<word>(r,x,y);
 
             // compute with GMP
 
@@ -157,7 +157,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree);
-            purple::half_assign<word>(r,x,1);
+            purple::halve<word>(r,x,1);
 
             // compute with GMP
 
@@ -319,7 +319,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree*2);
-            purple::product_accumulate<word>(r,x,y);
+            purple::multiply<word>(r,x,y);
 
             // compute with GMP
 
@@ -353,7 +353,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree+1);
-            r[degree] = purple::product_assign<word>(r,x,y);
+            r[degree] = purple::multiply<word>(r,x,y);
 
             // compute with GMP
 
@@ -385,7 +385,7 @@ namespace
             auto x = array<word,2>();
             generate(x);
             if ( purple::not_smaller( x[1], y ) )
-                ignore = difference_assign( x[1], x[1], y );
+                ignore = subtract( x[1], x[1], y );
 
             // compute with purple
 
@@ -493,7 +493,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree+1);
-            r[degree] = purple::sum_assign<word>(r,x,y);
+            r[degree] = purple::add<word>(r,x,y);
 
             // compute with GMP
 
@@ -525,7 +525,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree+1);
-            r[degree] = purple::twice_assign<word>(r,x,1uz);
+            r[degree] = purple::double_<word>(r,x,1uz);
 
             // compute with GMP
 

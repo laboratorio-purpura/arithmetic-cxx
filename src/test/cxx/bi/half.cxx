@@ -53,7 +53,7 @@ TYPED_TEST(PurpleRandomTest,half_assign_2)
 
         auto r = array<word,2> {};
 
-        ignore = half_assign<word>( r, x, (B-1) );
+        ignore = halve<word>( r, x, (B-1) );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

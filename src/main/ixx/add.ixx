@@ -25,12 +25,12 @@ export namespace purple
 
     template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto sum_assign ( span<W> r, span<W const,Bi> x, W y, W carry = W{0u} ) noexcept -> W
+    auto add ( span<W> r, span<W const,Bi> x, W y, W carry = W{0u} ) noexcept -> W
     {
         assert( size(r) >= 2 );
 
-        carry = sum_assign( r[0], x[0], y, carry );
-        carry = sum_assign( r[1], x[1], carry );
+        carry = add( r[0], x[0], y, carry );
+        carry = add( r[1], x[1], carry );
         return carry;
     }
 
@@ -47,12 +47,12 @@ export namespace purple
 
     template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto sum_assign ( span<W> r, span<W const,Bi> x, span<W const,Bi> y, W carry = W{0u} ) noexcept -> W
+    auto add ( span<W> r, span<W const,Bi> x, span<W const,Bi> y, W carry = W{0u} ) noexcept -> W
     {
         assert( size(r) >= 2 );
 
-        carry = sum_assign( r[0], x[0], y[0], carry );
-        carry = sum_assign( r[1], x[1], y[1], carry );
+        carry = add( r[0], x[0], y[0], carry );
+        carry = add( r[1], x[1], y[1], carry );
         return carry;
     }
 
@@ -68,16 +68,16 @@ export namespace purple
     /// @return carry bit.
 
     template <Word W>
-    auto sum_assign ( span<W> r, span<W const> x, W y, W carry = W(0) ) noexcept -> W
+    auto add ( span<W> r, span<W const> x, W y, W carry = W(0) ) noexcept -> W
     {
         auto const xz = size(x);
         assert( xz >= 1 );
         auto const rz = size(r);
         assert( rz >= xz );
 
-        carry = sum_assign( r[0], x[0], y, carry );
+        carry = add( r[0], x[0], y, carry );
         for (auto i = 1uz; i != xz; ++i)
-            carry = sum_assign( r[i], x[i], carry );
+            carry = add( r[i], x[i], carry );
         return carry;
     }
 
@@ -93,7 +93,7 @@ export namespace purple
     /// @return carry bit.
 
     template <Word W>
-    auto sum_assign ( span<W> r, span<W const> x, span<W const> y, W carry = W(0) ) noexcept -> W
+    auto add ( span<W> r, span<W const> x, span<W const> y, W carry = W(0) ) noexcept -> W
     {
         auto const yz = size(y);
         assert( yz >= 1 );
@@ -103,9 +103,9 @@ export namespace purple
         assert( rz >= xz );
 
         for (auto i = 0uz; i != yz; ++i)
-            carry = sum_assign( r[i], x[i], y[i], carry );
+            carry = add( r[i], x[i], y[i], carry );
         for (auto i = yz; i != xz; ++i)
-            carry = sum_assign( r[i], x[i], carry );
+            carry = add( r[i], x[i], carry );
         return carry;
     }
 }

@@ -86,7 +86,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::assign<word>(r,x);
+            r = x;
 
             benchmark::DoNotOptimize(r);
         }
@@ -126,7 +126,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::next_assign<word>(r,x);
+            purple::increment<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }
@@ -171,7 +171,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::sum_assign<word>(r,x,y);
+            purple::add<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -216,7 +216,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::sum_assign<word>(r,x,y);
+            purple::add<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -261,7 +261,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::sum_assign<word>(r,x,y);
+            purple::add<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -306,7 +306,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::product_assign<word>(r,x,y);
+            purple::multiply<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -351,7 +351,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::product_accumulate<word>(r,x,y);
+            purple::multiply<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -391,7 +391,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::twice_assign<word>(r,x,31uz);
+            purple::double_<word>(r,x,31uz);
 
             benchmark::DoNotOptimize(r);
         }
@@ -431,7 +431,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::clear<word>(r);
+            for (auto& it : r) it = word{}; // TODO: clear(r)
 
             purple::square_accumulate<word>(r,x);
 
@@ -473,7 +473,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::previous_assign<word>(r,x);
+            purple::decrement<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }
@@ -518,7 +518,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::difference_assign<word>(r,x,y);
+            purple::subtract<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -563,7 +563,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::difference_assign<word>(r,x,y);
+            purple::subtract<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -608,7 +608,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::difference_assign<word>(r,x,y);
+            purple::subtract<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -744,7 +744,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::half_assign<word>(r,x,31uz);
+            purple::halve<word>(r,x,31uz);
 
             benchmark::DoNotOptimize(r);
         }

@@ -33,7 +33,7 @@ export namespace purple
 
         // t = ( r[1] × iy ) + x
         auto t = product( x[1], iy );
-        ignore = sum_assign<W,Bi>( t, t, x );
+        ignore = add<W,Bi>( t, t, x );
         // q = ( t[1] + 1 ) mod B
         auto [ q, _ ] = sum( t[1], W(1) );
         // r = ( x - ( q × y ) ) mod B
@@ -41,13 +41,13 @@ export namespace purple
         auto [ r, _ ] = difference( x[0], qy[0] );
         // if r > t[0] : q = ( q - 1 ) mod B; r = ( r + y ) mod B
         if ( is_greater( r, t[0] ) ) {
-            ignore = previous_assign( q, q );
-            ignore = sum_assign( r, r, y );
+            ignore = decrement( q, q );
+            ignore = add( r, r, y );
         }
         // if r >= y : q = ( q + 1 ) mod B; r = ( r - y ) mod B
         if ( not_smaller( r, y ) ) [[unlikely]] {
-            ignore = next_assign( q, q );
-            ignore = difference_assign( r, r, y );
+            ignore = increment( q, q );
+            ignore = subtract( r, r, y );
         }
         // terminate
         return { q, r };
@@ -70,7 +70,7 @@ export namespace purple
         auto q = product( iy, x[2] );
         // 2. <q1,q0> ← <q1,q0> + <u2,u1>
         auto x12 = array { x[1], x[2] };
-        ignore = sum_assign<W,Bi>( q, q, x12 );
+        ignore = add<W,Bi>( q, q, x12 );
         // 3. r1 ← (u1 - q1.d1) % B
         auto q1y1 = product( q[1], y[1] );
         auto [ r1, _ ] = difference( x[1], q1y1[0] );
@@ -78,23 +78,23 @@ export namespace purple
         auto t = product( y[0], q[1] );
         // 5. <r1,r0> ← (<r1,x0> - <t1,t0> - <d1,d0>) % B^2
         auto r = array { x[0], r1 };
-        ignore = difference_assign<W,2>( r, r, t );
-        ignore = difference_assign<W,2>( r, r, y );
+        ignore = subtract<W,2>( r, r, t );
+        ignore = subtract<W,2>( r, r, y );
         // 6. q1 ← (q1 + 1) % B
-        ignore = sum_assign( q[1], q[1], W(1) );
+        ignore = add( q[1], q[1], W(1) );
         // 7. if r1 ≥ q0
         if ( not_smaller( r[1], q[0] ) ) {
             // 8. q1 ← (q1 - 1) % B
-            ignore = previous_assign( q[1], q[1] );
+            ignore = decrement( q[1], q[1] );
             // 9. <r1,r0> ← (<r1,r0> + <d1,d0>) % B^2
-            ignore = sum_assign<W,Bi>( r, r, y );
+            ignore = add<W,Bi>( r, r, y );
         }
         // 10. if <r1,r0> ≥ <d1,d0>
         if ( not_smaller<W,Bi>( r, y ) ) [[unlikely]] {
             // 11. q1 ← q1 + 1
-            ignore = next_assign( q[1], q[1] );
+            ignore = increment( q[1], q[1] );
             // 12. <r1,r0> ← <r1,r0> - <d1,d0>
-            ignore = difference_assign<W,Bi>( r, r, y );
+            ignore = subtract<W,Bi>( r, r, y );
         }
         return { q[1], r };
     }
@@ -135,7 +135,7 @@ export namespace purple
         // 2.2 normalize dividend.
         auto const nxd = xz + 1;
         auto nx = span( storage, nxd );
-        nx[nxd-1] = twice_assign<W>( nx, x, factor );
+        nx[nxd-1] = double_<W>( nx, x, factor );
         // invariant: { nx[-2], nx[-1] } < y
 
         // 3. divide with normalized.
@@ -152,7 +152,7 @@ export namespace purple
         }
 
         // 4. denormalize remainder.
-        ignore = half_assign( r, r, factor );
+        ignore = halve( r, r, factor );
 
         return r;
     }
@@ -216,9 +216,9 @@ export namespace purple
                 )
             ) {
                 // q_ ← q_ - 1
-                ignore = previous_assign<W>( q_, q_ );
+                ignore = decrement<W>( q_, q_ );
                 // r_ ← r_ + y[yz-1]
-                carry = sum_assign( r_, r_, y[yz-1] );
+                carry = add( r_, r_, y[yz-1] );
                 // carry = 1 ⇒ r_ ≥ B
             }
         }
@@ -231,17 +231,17 @@ export namespace purple
             // let t = q' × y
             W t_ [ yz + 1 ];
             auto t = span<W>( t_, yz + 1 );
-            t[yz] = product_assign<W>( t, y, q_[0] );
+            t[yz] = multiply<W>( t, y, q_[0] );
             // r ← x - t
-            borrow = difference_assign<W>( r, x, t );
+            borrow = subtract<W>( r, x, t );
         }
         // borrow = 1 ⇒ r < 0
         // r < 0 ⇒ q' > q
         if ( not_zero( borrow ) ) {
             // q ← q - 1
-            ignore = previous_assign( q_[0], q_[0] );
+            ignore = decrement( q_[0], q_[0] );
             // r ← r + y
-            ignore = sum_assign<W>( r, r, y );
+            ignore = add<W>( r, r, y );
         }
         // invariant: q' = q
 
@@ -293,13 +293,13 @@ export namespace purple
 
         // 2.1. normalize divisor.
         auto ny = span<W>( storage, N );
-        ignore = twice_assign<W>( ny, y, factor );
+        ignore = double_<W>( ny, y, factor );
         // invariant: carry is zero
 
         // 2.2. normalize dividend.
         auto const nxd = xz + 1;
         auto nx = r.subspan( 0, nxd );
-        nx[nxd-1] = twice_assign<W>( nx, x, factor );
+        nx[nxd-1] = double_<W>( nx, x, factor );
         // invariant: { nx[-2], nx[-1] } < y
 
         // 3. divide with normalized operands.
@@ -322,6 +322,6 @@ export namespace purple
         }
 
         // 4. denormalize remainder.
-        ignore = half_assign<W>( nx, nx, factor );
+        ignore = halve<W>( nx, nx, factor );
     }
 }

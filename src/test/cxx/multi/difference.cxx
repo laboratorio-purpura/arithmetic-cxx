@@ -64,7 +64,7 @@ TYPED_TEST(PurpleRandomTest,difference_assign_64_1)
 
         auto r = array<word,65> {};
 
-        r[64] = difference_assign<word>( r, x, y[0] );
+        r[64] = subtract<word>( r, x, y[0] );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -120,7 +120,7 @@ TYPED_TEST(PurpleRandomTest,difference_assign_32_32)
 
         auto r = array<word,33> {};
 
-        r[32] = difference_assign<word>( r, x, y );
+        r[32] = subtract<word>( r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

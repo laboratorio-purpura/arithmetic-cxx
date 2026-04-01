@@ -25,7 +25,7 @@ export namespace purple
     /// @return excess word.
 
     template <Word W>
-    auto product_assign ( span<W> r, span<W const> x, W y, W excess = W(0) ) noexcept -> W
+    auto multiply ( span<W> r, span<W const> x, W y, W excess = W(0) ) noexcept -> W
     {
         auto const xz = size(x);
         assert( xz >= 1 );
@@ -33,7 +33,7 @@ export namespace purple
         assert( rz >= xz );
 
         for (auto i = 0uz; i != xz; ++i)
-            excess = product_assign( r[i], x[i], y, excess );
+            excess = multiply( r[i], x[i], y, excess );
         return excess;
     }
 
@@ -45,7 +45,7 @@ export namespace purple
     /// Stores rd = size(x) + size(y) words into counted range [ begin(r), rd ).
 
     template <Word W>
-    void product_accumulate ( span<W> r, span<W const> x, span<W const> y ) noexcept
+    void multiply ( span<W> r, span<W const> x, span<W const> y ) noexcept
     {
         auto const xz = size(x);
         assert( xz >= 1 );
@@ -64,8 +64,8 @@ export namespace purple
                 auto p = product( x[i], y[j], excess );
                 // store into r[i+j]
                 auto ri = i+j;
-                auto c = sum_assign( r[ri], r[ri], p[0] );
-                ignore = sum_assign( excess, p[1], c );
+                auto c = add( r[ri], r[ri], p[0] );
+                ignore = add( excess, p[1], c );
             }
             // store excess into r
             r[xz+j] = excess;

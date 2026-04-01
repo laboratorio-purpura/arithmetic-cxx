@@ -26,12 +26,12 @@ export namespace purple
 
     template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto twice_assign ( span<W> r, span<W const,Bi> x, size_t z, W excess = W{0u} ) noexcept -> W
+    auto double_ ( span<W> r, span<W const,Bi> x, size_t z, W excess = W{0u} ) noexcept -> W
     {
         assert( size(r) >= 2 );
 
-        excess = twice_assign( r[0], x[0], z, excess );
-        excess = twice_assign( r[1], x[1], z, excess );
+        excess = double_( r[0], x[0], z, excess );
+        excess = double_( r[1], x[1], z, excess );
         return excess;
     }
 
@@ -48,7 +48,7 @@ export namespace purple
     /// @return excess word.
 
     template <Word W>
-    auto twice_assign ( span<W> r, span<W const> x, size_t z, W excess = W(0) ) noexcept -> W
+    auto double_ ( span<W> r, span<W const> x, size_t z, W excess = W(0) ) noexcept -> W
     {
         auto const xz = size(x);
         assert( xz >= 1 );
@@ -56,7 +56,7 @@ export namespace purple
         assert( rz >= xz );
 
         for (auto i = 0uz; i != xz; ++i)
-            excess = twice_assign( r[i], x[i], z, excess );
+            excess = double_( r[i], x[i], z, excess );
         return excess;
     }
 }

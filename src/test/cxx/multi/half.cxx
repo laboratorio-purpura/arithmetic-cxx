@@ -35,7 +35,7 @@ TEST_F(PurpleTest,half_assign_regression)
 
         auto q = array<word,5> {};
         auto r = array<word,5> {};
-        half_assign<word>( q, x, 0uz );
+        halve<word>( q, x, 0uz );
         SCOPED_TRACE("result: q = " + format(q));
 
         ASSERT_GMP_EQ( to_mpz(qe), to_mpz(q) );
@@ -72,7 +72,7 @@ TYPED_TEST(PurpleRandomTest,half_assign_64)
 
         auto q = array<word,64> {};
 
-        ignore = half_assign<word>( q, x, (B-1) );
+        ignore = halve<word>( q, x, (B-1) );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

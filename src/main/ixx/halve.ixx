@@ -27,7 +27,7 @@ export namespace purple
 
     template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto half_assign ( span<W> q, span<W const,Bi> x, size_t z = 1 ) noexcept -> W
+    auto halve ( span<W> q, span<W const,Bi> x, size_t z = 1 ) noexcept -> W
     {
         auto const B = sizeof(W) * 8uz;
 
@@ -56,7 +56,7 @@ export namespace purple
     /// @return remainder word.
 
     template <Word W>
-    auto half_assign ( span<W> q, span<W const> x, size_t z ) noexcept -> W
+    auto halve ( span<W> q, span<W const> x, size_t z ) noexcept -> W
     {
         auto const B = sizeof(W) * 8uz;
         auto const xz = size(x);

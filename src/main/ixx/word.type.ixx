@@ -207,7 +207,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto next_assign ( word<B> & r, word<B> x ) noexcept -> word<B>
+    auto increment ( word<B> & r, word<B> x ) noexcept -> word<B>
     {
         unsigned _BitInt(1) c = __builtin_add_overflow(x.v,1,&r.v);
         return { c };
@@ -218,7 +218,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto next_assign ( word<B> & r, word<B> x, word<B> c ) noexcept -> word<B>
+    auto increment ( word<B> & r, word<B> x, word<B> c ) noexcept -> word<B>
     {
         unsigned _BitInt(1) c1 = __builtin_add_overflow(x.v,1,&r.v);
         unsigned _BitInt(1) c2 = __builtin_add_overflow(r.v,c.v,&r.v);
@@ -251,7 +251,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto sum_assign ( word<B> & r, word<B> x, word<B> y ) noexcept -> word<B>
+    auto add ( word<B> & r, word<B> x, word<B> y ) noexcept -> word<B>
     {
         unsigned _BitInt(1) c = __builtin_add_overflow(x.v,y.v,&r.v);
         return { c };
@@ -262,7 +262,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto sum_assign ( word<B> & r, word<B> x, word<B> y, word<B> c ) noexcept -> word<B>
+    auto add ( word<B> & r, word<B> x, word<B> y, word<B> c ) noexcept -> word<B>
     {
         unsigned _BitInt(1) c1 = __builtin_add_overflow(x.v,y.v,&r.v);
         unsigned _BitInt(1) c2 = __builtin_add_overflow(r.v,c.v,&r.v);
@@ -300,7 +300,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto product_assign ( word<B> & r, word<B> x, word<B> y ) noexcept -> word<B>
+    auto multiply ( word<B> & r, word<B> x, word<B> y ) noexcept -> word<B>
     {
         unsigned _BitInt(2*B) x_ { x.v };
         unsigned _BitInt(2*B) t = x_ * y.v;
@@ -313,7 +313,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto product_assign ( word<B> & r, word<B> x, word<B> y, word<B> excess ) noexcept -> word<B>
+    auto multiply ( word<B> & r, word<B> x, word<B> y, word<B> excess ) noexcept -> word<B>
     {
         unsigned _BitInt(2*B) x_ { x.v };
         unsigned _BitInt(2*B) t = ( x_ * y.v ) + excess.v;
@@ -361,7 +361,7 @@ export namespace purple
     /// z < B
 
     template <size_t B>
-    auto twice_assign ( word<B> & r, word<B> x, size_t z ) noexcept -> word<B>
+    auto double_ ( word<B> & r, word<B> x, size_t z ) noexcept -> word<B>
     {
         unsigned _BitInt(2*B) x_ { x.v };
         unsigned _BitInt(2*B) t = ( x_ << z );
@@ -377,7 +377,7 @@ export namespace purple
     /// z < B
 
     template <size_t B>
-    auto twice_assign ( word<B> & r, word<B> x, size_t z, word<B> excess ) noexcept -> word<B>
+    auto double_ ( word<B> & r, word<B> x, size_t z, word<B> excess ) noexcept -> word<B>
     {
         unsigned _BitInt(2*B) x_ { x.v };
         unsigned _BitInt(2*B) t = ( x_ << z ) + excess.v;
@@ -415,7 +415,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto previous_assign ( word<B> & r, word<B> x ) noexcept -> word<B>
+    auto decrement ( word<B> & r, word<B> x ) noexcept -> word<B>
     {
         unsigned _BitInt(1) c = __builtin_sub_overflow(x.v,1,&r.v);
         return { c };
@@ -426,7 +426,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto previous_assign ( word<B> & r, word<B> x, word<B> b ) noexcept -> word<B>
+    auto decrement ( word<B> & r, word<B> x, word<B> b ) noexcept -> word<B>
     {
         unsigned _BitInt(1) c1 = __builtin_sub_overflow(x.v,1,&r.v);
         unsigned _BitInt(1) c2 = __builtin_sub_overflow(r.v,b.v,&r.v);
@@ -459,7 +459,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto difference_assign ( word<B> & r, word<B> x, word<B> y ) noexcept -> word<B>
+    auto subtract ( word<B> & r, word<B> x, word<B> y ) noexcept -> word<B>
     {
         unsigned _BitInt(1) c = __builtin_sub_overflow(x.v,y.v,&r.v);
         return { c };
@@ -470,7 +470,7 @@ export namespace purple
     /// Permits aliasing r to x.
 
     template <size_t B>
-    auto difference_assign ( word<B> & r, word<B> x, word<B> y, word<B> b ) noexcept -> word<B>
+    auto subtract ( word<B> & r, word<B> x, word<B> y, word<B> b ) noexcept -> word<B>
     {
         unsigned _BitInt(1) c1 = __builtin_sub_overflow(x.v,y.v,&r.v);
         unsigned _BitInt(1) c2 = __builtin_sub_overflow(r.v,b.v,&r.v);
@@ -523,7 +523,7 @@ export namespace purple
     /// Permits aliasing q to x.
 
     template <size_t B>
-    auto half_assign ( word<B> & q, word<B> x, size_t z ) noexcept -> word<B>
+    auto halve ( word<B> & q, word<B> x, size_t z ) noexcept -> word<B>
     {
         constexpr unsigned _BitInt(B) one { 1 };
         unsigned _BitInt(B) q_ = x.v >> z;

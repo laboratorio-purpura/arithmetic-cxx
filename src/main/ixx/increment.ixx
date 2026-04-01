@@ -25,12 +25,12 @@ export namespace purple
 
     template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto next_assign ( span<W> r, span<W const,Bi> x, W carry = W{0u} ) -> W
+    auto increment ( span<W> r, span<W const,Bi> x, W carry = W{0u} ) -> W
     {
         assert( size(r) >= 2 );
 
-        carry = next_assign( r[0], x[0], carry );
-        carry = sum_assign( r[1], x[1], carry );
+        carry = increment( r[0], x[0], carry );
+        carry = add( r[1], x[1], carry );
         return carry;
     }
 
@@ -46,16 +46,16 @@ export namespace purple
     /// @return carry bit.
 
     template <Word W>
-    auto next_assign ( span<W> r, span<W const> x, W carry = W(0) ) -> W
+    auto increment ( span<W> r, span<W const> x, W carry = W(0) ) -> W
     {
         auto const xz = size(x);
         assert( xz >= 1 );
         auto const rz = size(r);
         assert( rz >= xz );
 
-        carry = next_assign( r[0], x[0], carry );
+        carry = increment( r[0], x[0], carry );
         for (auto i = 1uz; i != xz; ++i)
-            carry = sum_assign( r[i], x[i], carry );
+            carry = add( r[i], x[i], carry );
         return carry;
     }
 }

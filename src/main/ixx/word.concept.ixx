@@ -73,40 +73,40 @@ namespace purple
 
         { next(w) } noexcept -> same_as< array<W,2> >;
         { next(w,w) } noexcept -> same_as< array<W,2> >;
-        { next_assign(r,w) } noexcept -> same_as<W>;
-        { next_assign(r,w,w) } noexcept -> same_as<W>;
+        { increment(r,w) } noexcept -> same_as<W>;
+        { increment(r,w,w) } noexcept -> same_as<W>;
 
         { sum(w,w) } noexcept -> same_as< array<W,2> >;
         { sum(w,w,w) } noexcept -> same_as< array<W,2> >;
-        { sum_assign(r,w,w) } noexcept -> same_as<W>;
-        { sum_assign(r,w,w,w) } noexcept -> same_as<W>;
+        { add(r,w,w) } noexcept -> same_as<W>;
+        { add(r,w,w,w) } noexcept -> same_as<W>;
 
         { product(w,w) } noexcept -> same_as< array<W,2> >;
         { product(w,w,w) } noexcept -> same_as< array<W,2> >;
-        { product_assign(r,w,w) } noexcept -> same_as<W>;
-        { product_assign(r,w,w,w) } noexcept -> same_as<W>;
+        { multiply(r,w,w) } noexcept -> same_as<W>;
+        { multiply(r,w,w,w) } noexcept -> same_as<W>;
 
         { twice(w,z) } noexcept -> same_as< array<W,2> >;
         { twice(w,z,w) } noexcept -> same_as< array<W,2> >;
-        { twice_assign(r,w,z) } noexcept -> same_as<W>;
-        { twice_assign(r,w,z,w) } noexcept -> same_as<W>;
+        { double_(r,w,z) } noexcept -> same_as<W>;
+        { double_(r,w,z,w) } noexcept -> same_as<W>;
 
         /// Reduce procedures.
 
         { previous(w) } noexcept -> same_as< array<W,2> >;
         { previous(w,w) } noexcept -> same_as< array<W,2> >;
-        { previous_assign(r,w) } noexcept -> same_as<W>;
-        { previous_assign(r,w,w) } noexcept -> same_as<W>;
+        { decrement(r,w) } noexcept -> same_as<W>;
+        { decrement(r,w,w) } noexcept -> same_as<W>;
 
         { difference(w,w) } noexcept -> same_as< array<W,2> >;
         { difference(w,w,w) } noexcept -> same_as< array<W,2> >;
-        { difference_assign(r,w,w) } noexcept -> same_as<W>;
-        { difference_assign(r,w,w,w) } noexcept -> same_as<W>;
+        { subtract(r,w,w) } noexcept -> same_as<W>;
+        { subtract(r,w,w,w) } noexcept -> same_as<W>;
 
         { division(w,w) } noexcept -> same_as< tuple<W,W> >;
         { division(w2,w) } noexcept -> same_as< tuple<array<W,2>,W> >;
 
         { half(w,z) } noexcept -> same_as< tuple<W,W> >;
-        { half_assign(r,w,z) } noexcept -> same_as<W>;
+        { halve(r,w,z) } noexcept -> same_as<W>;
     };
 }

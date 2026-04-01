@@ -24,16 +24,16 @@ export namespace purple
     /// @return borrow bit.
 
     template <Word W>
-    auto previous_assign ( span<W> r, span<W const> x, W borrow = W(0) ) -> W
+    auto decrement ( span<W> r, span<W const> x, W borrow = W(0) ) -> W
     {
         auto const xz = size(x);
         assert( xz >= 1 );
         auto const rz = size(r);
         assert( rz >= xz );
 
-        borrow = previous_assign( r[0], x[0], borrow );
+        borrow = decrement( r[0], x[0], borrow );
         for (auto i = 1uz; i != xz; ++i)
-            borrow = difference_assign( r[i], x[i], borrow );
+            borrow = subtract( r[i], x[i], borrow );
         return borrow;
     }
 

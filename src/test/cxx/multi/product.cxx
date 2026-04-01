@@ -61,7 +61,7 @@ TYPED_TEST(PurpleRandomTest,product_assign_64_1)
 
         auto r = array<word,65> {};
 
-        r[64] = product_assign<word>( r, x, y[0] );
+        r[64] = multiply<word>( r, x, y[0] );
 
         SCOPED_TRACE( std::string() +
             "purple:\n" +
@@ -120,7 +120,7 @@ TYPED_TEST(PurpleRandomTest,product_accumulate_32_32)
         auto r = array<word,64> {};
         assign(r,gz);
 
-        product_accumulate<word>( r, x, y );
+        multiply<word>( r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

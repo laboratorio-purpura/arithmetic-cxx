@@ -64,7 +64,7 @@ TYPED_TEST(PurpleRandomTest,difference_assign_2_2)
 
         auto r = array<word,2> {};
 
-        ignore = difference_assign<word>( r, x, y );
+        ignore = subtract<word>( r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

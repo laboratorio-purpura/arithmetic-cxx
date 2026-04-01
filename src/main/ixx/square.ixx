@@ -39,7 +39,7 @@ export namespace purple
                 // store
                 auto ri = xi+xi;
                 auto rs = r.subspan(ri);
-                ignore = sum_assign<W>( rs, rs, p );
+                ignore = add<W>( rs, rs, p );
             }
             // 2 * xi * xj
             for (auto xj = xi + 1uz; xj != xz; ++xj)
@@ -48,11 +48,11 @@ export namespace purple
                 auto p = product( x[xi], x[xj] );
                 // 2 * xi * xj
                 auto t = span<W>( storage, 3 );
-                t[2] = twice_assign<W>( t, p, 1uz );
+                t[2] = double_<W>( t, p, 1uz );
                 // store
                 auto ri = xi+xj;
                 auto rs = r.subspan(ri);
-                ignore = sum_assign<W>( rs, rs, t );
+                ignore = add<W>( rs, rs, t );
             }
         }
     }

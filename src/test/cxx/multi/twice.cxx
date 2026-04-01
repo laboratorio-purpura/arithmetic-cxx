@@ -53,7 +53,7 @@ TYPED_TEST(PurpleRandomTest,twice_assign_64)
 
         auto r = array<word,65> {};
 
-        r[64] = twice_assign<word>( r, x, (B-1) );
+        r[64] = double_<word>( r, x, (B-1) );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

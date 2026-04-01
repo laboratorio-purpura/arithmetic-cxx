@@ -53,7 +53,7 @@ TYPED_TEST(PurpleRandomTest,next_assign_2)
 
         auto r = array<word,3> {};
 
-        r[2] = next_assign<word,2>( r, x );
+        r[2] = increment<word,2>( r, x );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

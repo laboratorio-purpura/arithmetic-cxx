@@ -9,29 +9,41 @@ export module purple.arithmetic:zero;
 
 import :word_concept;
 
-export namespace purple
+namespace purple
 {
-    /// Tests if zero.
+    using std::size;
 
+    /// Tests if an integer is zero.
+
+    export
     template <Word W>
     auto is_zero ( span<W const> x ) noexcept -> bool
     {
-        bool r = true;
-        auto const xz = x.size();
-        for (auto i = 0u; i != xz; ++i)
-            r = r && is_zero(x[i]);
-        return r;
+        auto const xz = size(x);
+
+        // integer is zero if and only if every word is zero
+        for (auto i = 0u; i != xz; ++i) {
+            if ( not_zero( x[i] ) )
+                return false;
+        }
+
+        return true;
     }
 
-    /// Tests if *not* zero.
+    /// Tests if an integer is not zero.
 
+    export
     template <Word W>
     auto not_zero ( span<W const> x ) noexcept -> bool
     {
-        bool r = false;
-        auto const xz = x.size();
-        for (auto i = 0u; i != xz; ++i)
-            r = r || not_zero(x[i]);
-        return r;
+        auto const xz = size(x);
+
+    	// integer is not zero if and only if any word is nonzero
+        for (auto i = 0u; i != xz; ++i) {
+            if ( not_zero( x[i] ) )
+                return true;
+        }
+
+        return false;
     }
 }

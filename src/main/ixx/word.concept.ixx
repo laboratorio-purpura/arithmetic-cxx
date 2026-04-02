@@ -55,7 +55,7 @@ namespace purple
 
         /// Comparison procedures.
 
-        { is_equal(w,w) } noexcept -> convertible_to<bool>;
+        { are_equal(w,w) } noexcept -> convertible_to<bool>;
         { not_equal(w,w) } noexcept -> convertible_to<bool>;
 
         { is_smaller(w,w) } noexcept -> convertible_to<bool>;

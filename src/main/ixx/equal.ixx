@@ -19,7 +19,7 @@ namespace purple
 
     export
     template <Word W>
-    auto is_equal ( span<W const> x, span<W const> y ) -> bool
+    auto are_equal ( span<W const> x, span<W const> y ) -> bool
     {
         auto const xz = size(x);
         auto const yz = size(y);
@@ -50,6 +50,6 @@ namespace purple
     template <Word W>
     auto not_equal ( span<W const> x, span<W const> y ) -> bool
     {
-        return ! is_equal( x, y );
+        return ! are_equal( x, y );
     }
 }

@@ -99,7 +99,7 @@ export namespace purple
     /// Tests if equal.
 
     template <size_t B>
-    auto is_equal (word<B> x, word<B> y) noexcept -> bool
+    auto are_equal (word<B> x, word<B> y) noexcept -> bool
     {
         return x.v == y.v;
     }

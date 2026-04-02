@@ -51,7 +51,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64)
         auto x = array<word,64> {};
         assign(x,gx);
 
-        auto r = is_equal<word>( x, x );
+        auto r = are_equal<word>( x, x );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -100,7 +100,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64_64)
         auto y = array<word,64> {};
         assign(y,gy);
 
-        auto r = is_equal<word>( x, y );
+        auto r = are_equal<word>( x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

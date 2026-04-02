@@ -11,18 +11,6 @@ import :word_concept;
 
 export namespace purple
 {
-    /// Tests if equal.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto is_equal ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> bool
-    {
-        bool r = true;
-        r = r && is_equal( x[0], y[0] );
-        r = r && is_equal( x[1], y[1] );
-        return r;
-    }
-
     /// Tests if equals.
     ///
     /// Requires:
@@ -54,18 +42,6 @@ export namespace purple
                 return false;
         }
         return true;
-    }
-
-    /// Tests if *not* equal.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto not_equal ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> bool
-    {
-        bool r = false;
-        r = r || not_equal( x[0], y[0] );
-        r = r || not_equal( x[1], y[1] );
-        return r;
     }
 
     /// Tests if *not* equals.

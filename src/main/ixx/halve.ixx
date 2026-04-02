@@ -16,37 +16,6 @@ export namespace purple
     /// Half with remainder.
     ///
     /// Requires:
-    /// z < log2(B)
-    /// size(q) ≥ 2
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores 2 words into counted range [ `begin(q)`, 2 ).
-    ///
-    /// @return remainder word.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto halve ( span<W> q, span<W const,Bi> x, size_t z = 1 ) noexcept -> W
-    {
-        auto const B = sizeof(W) * 8uz;
-
-        assert( size(q) >= 2 );
-
-        auto r1 = W{0u};
-        tie( q[1], r1 ) = half( x[1], z );
-        tie( r1, ignore ) = twice( r1, B-z );
-
-        auto r0 = W{0u};
-        tie( q[0], r0 ) = half( x[0], z );
-        tie( q[0], ignore ) = sum( q[0], r1 );
-
-        return r0;
-    }
-
-    /// Half with remainder.
-    ///
-    /// Requires:
     /// size(q) ≥ size(x)
     ///
     /// Permits aliasing r to x.

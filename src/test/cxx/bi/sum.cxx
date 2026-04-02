@@ -60,7 +60,7 @@ TYPED_TEST(PurpleRandomTest,sum_assign_2_1)
 
         auto r = array<word,3> {};
 
-        r[2] = add<word,2>( r, x, y[0] );
+        r[2] = add<word>( r, x, y[0] );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -113,7 +113,7 @@ TYPED_TEST(PurpleRandomTest,sum_assign_2_2)
 
         auto r = array<word,3> {};
 
-        r[2] = add<word,2>( r, x, y );
+        r[2] = add<word>( r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

@@ -45,7 +45,7 @@ export namespace purple
         if ( is_smaller( p, t[1] ) ) {
             tie( v, ignore ) = previous( v );
             auto tp = array { t[0], p };
-            if ( not_smaller<W,2>( tp, y ) ) {
+            if ( not_smaller<W>( tp, y ) ) {
                 tie( v, ignore ) = previous( v );
             }
         }

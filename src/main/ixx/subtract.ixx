@@ -15,50 +15,6 @@ export namespace purple
     /// Difference with borrow.
     ///
     /// Requires:
-    /// size(r) ≥ 2
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
-    ///
-    /// @return borrow bit.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto subtract ( span<W> r, span<W const,Bi> x, W y, W borrow = W{0u} ) noexcept -> W
-    {
-        assert( size(r) >= 2 );
-
-        borrow = subtract( r[0], x[0], y, borrow );
-        borrow = subtract( r[1], x[1], y, borrow );
-        return borrow;
-    }
-
-    /// Difference with borrow.
-    ///
-    /// Requires:
-    /// size(r) ≥ 2
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
-    ///
-    /// @return borrow bit.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto subtract ( span<W> r, span<W const,Bi> x, span<W const,Bi> y, W borrow = W{0u} ) noexcept -> W
-    {
-        assert( size(r) >= 2 );
-
-        borrow = subtract( r[0], x[0], y[0], borrow );
-        borrow = subtract( r[1], x[1], y[1], borrow );
-        return borrow;
-    }
-
-    /// Difference with borrow.
-    ///
-    /// Requires:
     /// size(r) ≥ size(x)
     ///
     /// Permits aliasing r to x.

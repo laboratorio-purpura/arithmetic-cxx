@@ -15,50 +15,6 @@ export namespace purple
     /// Sum with carry.
     ///
     /// Requires:
-    /// size(r) ≥ 2
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
-    ///
-    /// @return borrow bit.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto add ( span<W> r, span<W const,Bi> x, W y, W carry = W{0u} ) noexcept -> W
-    {
-        assert( size(r) >= 2 );
-
-        carry = add( r[0], x[0], y, carry );
-        carry = add( r[1], x[1], carry );
-        return carry;
-    }
-
-    /// Sum with carry.
-    ///
-    /// Requires:
-    /// size(r) ≥ 2
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores 2 words into counted range [ `begin(r)`, 2 ).
-    ///
-    /// @return borrow bit.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto add ( span<W> r, span<W const,Bi> x, span<W const,Bi> y, W carry = W{0u} ) noexcept -> W
-    {
-        assert( size(r) >= 2 );
-
-        carry = add( r[0], x[0], y[0], carry );
-        carry = add( r[1], x[1], y[1], carry );
-        return carry;
-    }
-
-    /// Sum with carry.
-    ///
-    /// Requires:
     /// size(r) ≥ size(x)
     ///
     /// Permits aliasing r to x.

@@ -14,18 +14,6 @@ import :word_concept;
 export namespace purple
 {
     /// Tests if smaller.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto is_smaller ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> bool
-    {
-        auto carry = W{0u};
-        tie( ignore, carry ) = difference( x[0], y[0], carry );
-        tie( ignore, carry ) = difference( x[1], y[1], carry );
-        return not_zero( carry );
-    }
-
-    /// Tests if smaller.
     ///
     /// Requires:
     /// size(x) = size(y)
@@ -54,18 +42,6 @@ export namespace purple
         for (auto i = yz; i != xz; ++i)
             c = c && is_zero( x[i] );
         return c;
-    }
-
-    /// Tests if *not* smaller.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto not_smaller ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> bool
-    {
-        auto carry = W{0u};
-        tie( ignore, carry ) = difference( x[0], y[0], carry );
-        tie( ignore, carry ) = difference( x[1], y[1], carry );
-        return is_zero( carry );
     }
 
     /// Tests if *not* smaller.

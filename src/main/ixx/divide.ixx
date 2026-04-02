@@ -33,7 +33,7 @@ export namespace purple
 
         // t = ( r[1] × iy ) + x
         auto t = product( x[1], iy );
-        ignore = add<W,Bi>( t, t, x );
+        ignore = add<W>( t, t, x );
         // q = ( t[1] + 1 ) mod B
         auto [ q, _ ] = sum( t[1], W(1) );
         // r = ( x - ( q × y ) ) mod B
@@ -70,7 +70,7 @@ export namespace purple
         auto q = product( iy, x[2] );
         // 2. <q1,q0> ← <q1,q0> + <u2,u1>
         auto x12 = array { x[1], x[2] };
-        ignore = add<W,Bi>( q, q, x12 );
+        ignore = add<W>( q, q, x12 );
         // 3. r1 ← (u1 - q1.d1) % B
         auto q1y1 = product( q[1], y[1] );
         auto [ r1, _ ] = difference( x[1], q1y1[0] );
@@ -78,8 +78,8 @@ export namespace purple
         auto t = product( y[0], q[1] );
         // 5. <r1,r0> ← (<r1,x0> - <t1,t0> - <d1,d0>) % B^2
         auto r = array { x[0], r1 };
-        ignore = subtract<W,2>( r, r, t );
-        ignore = subtract<W,2>( r, r, y );
+        ignore = subtract<W>( r, r, t );
+        ignore = subtract<W>( r, r, y );
         // 6. q1 ← (q1 + 1) % B
         ignore = add( q[1], q[1], W(1) );
         // 7. if r1 ≥ q0
@@ -87,14 +87,14 @@ export namespace purple
             // 8. q1 ← (q1 - 1) % B
             ignore = decrement( q[1], q[1] );
             // 9. <r1,r0> ← (<r1,r0> + <d1,d0>) % B^2
-            ignore = add<W,Bi>( r, r, y );
+            ignore = add<W>( r, r, y );
         }
         // 10. if <r1,r0> ≥ <d1,d0>
-        if ( not_smaller<W,Bi>( r, y ) ) [[unlikely]] {
+        if ( not_smaller<W>( r, y ) ) [[unlikely]] {
             // 11. q1 ← q1 + 1
             ignore = increment( q[1], q[1] );
             // 12. <r1,r0> ← <r1,r0> - <d1,d0>
-            ignore = subtract<W,Bi>( r, r, y );
+            ignore = subtract<W>( r, r, y );
         }
         return { q[1], r };
     }

@@ -13,17 +13,6 @@ import :word_concept;
 export namespace purple
 {
     /// Tests if greater.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto is_greater ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> W
-    {
-        auto carry = W{0u};
-        tie( ignore, carry ) = difference( y[0], x[0], carry );
-        tie( ignore, carry ) = difference( y[1], x[1], carry );
-        return not_zero( carry );
-    }
-    /// Tests if greater.
     ///
     /// Requires:
     /// size(x) = size(y)
@@ -46,18 +35,6 @@ export namespace purple
         for (auto i = yz; i != xz; ++i)
             c = c || not_zero( x[i] );
         return c;
-    }
-
-    /// Tests if *not* greater.
-
-    template <Word W, size_t Bi>
-    requires ( Bi == 2uz )
-    auto not_greater ( span<W const,Bi> x, span<W const,Bi> y ) noexcept -> bool
-    {
-        auto carry = W{0u};
-        tie( ignore, carry ) = difference( y[0], x[0], carry );
-        tie( ignore, carry ) = difference( y[1], x[1], carry );
-        return is_zero( carry );
     }
 
     /// Tests if *not* greater.

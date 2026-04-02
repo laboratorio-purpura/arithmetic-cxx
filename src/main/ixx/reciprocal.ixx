@@ -10,42 +10,55 @@ export module purple.arithmetic:reciprocal;
 
 import :word_concept;
 
-export namespace purple
+namespace purple
 {
-    /// Normalized reciprocal approximation.
-    ///
-    /// Reciprocal is the multiplicative inverse.
-    ///
-    /// Computes by the "improved division by invariant integers" method.
+    /// Computes an approximation to the multiplicative inverse of a "normalised" two-word integer.
     ///
     /// Requires:
-    /// y is normalized
+    /// y is "normalised".
+    /// Otherwise, the result is undefined.
+    ///
+    /// This implementation applies the "Improved division by invariant integers" method.
 
+    export
     template <Word W, size_t Bi>
     requires ( Bi == 2uz )
     auto reciprocal_normalized ( span<W const,Bi> y ) noexcept -> W
     {
+        // 1. v ← RECIPROCAL_WORD(d1)
         auto v = reciprocal_normalized( y[1] );
-        // p ← ( y[1] * v ) % B
+        // We have β^2 − d1 ≤ (β + v).d1 < β^2
+        // 2. p ← d1.v mod β
         auto [ p, _ ] = product ( y[1], v );
-        // p ← ( p + y[0] ) % B
+	    // 3. p ← (p + d0) mod β
         tie( p, ignore ) = sum( p, y[0] );
+    	    // 4. if p < d0
         if ( is_smaller( p, y[0] ) ) {
+	    	// 5. v ← v − 1
             tie( v, ignore ) = previous( v );
+	    	// 6. if p ≥ d1
             if ( not_smaller( p, y[1] ) ) {
+	    		// 7. v ← v − 1
                 tie( v, ignore ) = previous( v );
+	    		// 8. p ← p − d1
                 tie( p, ignore ) = difference( p, y[1] );
             }
-            // p ← ( p - y[1] ) % B
+    		// 9. p ← (p − d1) mod β
             tie( p, ignore ) = difference( p, y[1] );
         }
+        // We have β^2 − d1 ≤ (β + v) . d1 + d0 < β^2.
+        // 10. <t1, t0> ← v.d0
         auto t = product( v, y[0] );
-        // p ← ( p + t[1] ) % B
+		// 11. p ← (p + t1) mod β
         tie( p, ignore ) = sum( p, t[1] );
+		// 12. if p < t1
         if ( is_smaller( p, t[1] ) ) {
+			// 13. v ← v − 1
             tie( v, ignore ) = previous( v );
+			// 14. if <p, t0> ≥ <d1, d0>
             auto tp = array { t[0], p };
             if ( not_smaller<W>( tp, y ) ) {
+				// 15. v ← v − 1
                 tie( v, ignore ) = previous( v );
             }
         }

@@ -3,53 +3,52 @@
 
 module;
 
+#include <algorithm>
 #include <span>
-#include <tuple>
 
 export module purple.arithmetic:greater;
 
 import :word_concept;
 
-export namespace purple
+namespace purple
 {
-    /// Tests if greater.
-    ///
-    /// Requires:
-    /// size(x) = size(y)
+    using std::size;
+    using std::ranges::min;
 
-    template <Word W>
-    auto is_greater_isodegree ( span<W const> x, span<W const> y ) -> bool
-    {
-        return is_smaller_isodegree( y, x );
-    }
+    /// Tests if an integer is greater than another.
 
-    /// Tests if greater.
-
+    export
     template <Word W>
     auto is_greater ( span<W const> x, span<W const> y ) -> bool
     {
-        auto const xz = x.size();
-        auto const yz = y.size();
-        if (xz < yz) return is_smaller( y, x );
-        auto c = is_greater_isodegree( x.subspan(0,y.size()), y );
-        for (auto i = yz; i != xz; ++i)
-            c = c || not_zero( x[i] );
-        return c;
+        auto const xz = size(x);
+        auto const yz = size(y);
+
+        auto const z = min( xz, yz );
+
+        for (auto i = xz; i > z; --i) {
+            if ( not_zero( x[i-1] ) )
+                return true;
+        }
+
+        for (auto i = yz; i > z; --i) {
+            if ( not_zero( y[i-1] ) )
+                return false;
+        }
+
+        for (auto i = z; i > 0; --i) {
+            if ( is_smaller( x[i-1], y[i-1] ) )
+                return false;
+            if ( is_greater( x[i-1], y[i-1] ) )
+                return true;
+        }
+
+        return false;
     }
 
-    /// Tests if *not* greater.
-    ///
-    /// Requires:
-    /// size(x) = size(y)
+    /// Tests if an integer is not greater than another.
 
-    template <Word W>
-    auto not_greater_isodegree ( span<W const> x, span<W const> y ) -> bool
-    {
-        return ! is_smaller_isodegree( y, x );
-    }
-
-    /// Tests if *not* greater.
-
+    export
     template <Word W>
     auto not_greater ( span<W const> x, span<W const> y ) -> bool
     {

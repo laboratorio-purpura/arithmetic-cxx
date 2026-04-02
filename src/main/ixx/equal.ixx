@@ -3,60 +3,50 @@
 
 module;
 
+#include <algorithm>
 #include <span>
 
 export module purple.arithmetic:equal;
 
 import :word_concept;
 
-export namespace purple
+namespace purple
 {
-    /// Tests if equals.
-    ///
-    /// Requires:
-    /// size(x) = size(y)
+    using std::size;
+    using std::ranges::min;
 
+    /// Tests if two integers are equal.
+
+    export
     template <Word W>
-    auto is_equal_isodegree ( span<W const> x, span<W const> y ) -> bool
+    auto is_equal ( span<W const> x, span<W const> y ) -> bool
     {
-        auto const z = y.size();
+        auto const xz = size(x);
+        auto const yz = size(y);
+
+        auto const z = min( xz, yz );
+
         for (auto i = 0uz; i != z; ++i) {
             if ( not_equal( x[i], y[i] ) )
                 return false;
         }
-        return true;
-    }
 
-    /// Tests if equals.
-
-    template <Word W>
-    auto is_equal ( span<W const> x, span<W const> y ) -> bool
-    {
-        auto const xz = x.size();
-        auto const yz = y.size();
-        if (xz < yz) return is_equal(y,x);
-        if (! is_equal_isodegree( x, y ))
-            return false;
-        for (auto i = yz; i != xz; ++i) {
+        for (auto i = z; i != xz; ++i) {
             if ( not_zero( x[i] ) )
                 return false;
         }
+
+        for (auto i = z; i != yz; ++i) {
+            if ( not_zero( y[i] ) )
+                return false;
+        }
+
         return true;
     }
 
-    /// Tests if *not* equals.
-    ///
-    /// Requires:
-    /// size(x) = size(y)
+    /// Tests if two integers are not equal.
 
-    template <Word W>
-    auto not_equal_isodegree ( span<W const> x, span<W const> y ) -> bool
-    {
-        return ! is_equal_isodegree( x, y );
-    }
-
-    /// Tests if *not* equals.
-
+    export
     template <Word W>
     auto not_equal ( span<W const> x, span<W const> y ) -> bool
     {

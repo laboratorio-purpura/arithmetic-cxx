@@ -3,37 +3,46 @@
 
 module;
 
-#include <cassert>
+#include <algorithm>
 #include <span>
 
 export module purple.arithmetic:increment;
 
 import :word_concept;
 
-export namespace purple
+namespace purple
 {
-    /// Next with carry.
-    ///
-    /// Requires:
-    /// size(r) ≥ size(x)
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores rd = size(x) words into counted range [ begin(r), rd ).
-    ///
-    /// @return carry bit.
+    using std::size;
+    using std::ranges::min;
 
+    /// Computes the successor of an integer.
+    ///
+    /// Decrement stores into successor the size(successor) least significant words of the result.
+    /// It permits aliasing successor to x, in which case it becomes "decrement accumulate".
+    ///
+    /// This implementation applies the "school" method described in Knuth, section 4.3.1.
+
+    export
     template <Word W>
-    auto increment ( span<W> r, span<W const> x, W carry = W(0) ) -> W
+    auto increment ( span<W> successor, span<W const> x ) -> W
     {
-        auto const xz = size(x);
-        assert( xz >= 1 );
-        auto const rz = size(r);
-        assert( rz >= xz );
+        auto carry = W{0};
 
-        carry = increment( r[0], x[0], carry );
-        for (auto i = 1uz; i != xz; ++i)
-            carry = add( r[i], x[i], carry );
+        auto const rz = size(successor);
+        auto const xz = size(x);
+
+        // count of result words to compute
+        auto const z = min({ rz, xz });
+
+        // increment x[0],
+        // propagating carry
+        if (z > 0)
+            carry = increment( successor[0], x[0], carry );
+
+        // propagate carry
+        for (auto i = 1uz; i != z; ++i)
+            carry = add( successor[i], x[i], carry );
+
         return carry;
     }
 }

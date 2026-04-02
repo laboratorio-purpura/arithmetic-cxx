@@ -3,65 +3,83 @@
 
 module;
 
-#include <cassert>
+#include <algorithm>
 #include <span>
 
 export module purple.arithmetic:add;
 
 import :word_concept;
 
-export namespace purple
+namespace purple
 {
-    /// Sum with carry.
-    ///
-    /// Requires:
-    /// size(r) ≥ size(x)
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores rd = size(x) words into counted range [ begin(r), rd ).
-    ///
-    /// @return carry bit.
+    using std::size;
+    using std::ranges::min;
 
+    /// Computes the sum of two integers.
+    ///
+    /// Add stores into sum the size(sum) least significant words of the result.
+    /// It permits aliasing sum to x, in which case it becomes "add accumulate".
+    ///
+    /// This implementation applies the "school" method described in Knuth, section 4.3.1.
+
+    export
     template <Word W>
-    auto add ( span<W> r, span<W const> x, W y, W carry = W(0) ) noexcept -> W
+    auto add ( span<W> sum, span<W const> x, W y ) noexcept -> W
     {
-        auto const xz = size(x);
-        assert( xz >= 1 );
-        auto const rz = size(r);
-        assert( rz >= xz );
+        auto carry = W{0};
 
-        carry = add( r[0], x[0], y, carry );
-        for (auto i = 1uz; i != xz; ++i)
-            carry = add( r[i], x[i], carry );
+        auto const sz = size(sum);
+        auto const xz = size(x);
+
+        // count of result words to compute
+        auto const z = min({ sz, xz });
+
+        // add x[0] and y,
+        // propagating carry
+        if (z > 0)
+            carry = add( sum[0], x[0], y, W{0} );
+
+        // propagate carry through x
+        for (auto i = 1uz; i != z; ++i)
+            carry = add( sum[i], x[i], W{0}, carry );
+
         return carry;
     }
 
-    /// Sum with carry.
+    /// Computes the sum of two integers.
     ///
-    /// Requires:
-    /// size(r) ≥ size(x) ≥ size(y)
+    /// Add stores into sum the size(sum) least significant words of the result.
+    /// It permits aliasing sum to x, in which case it becomes "add accumulate".
     ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores rd = size(x) words into counted range [ begin(r), rd ).
-    ///
-    /// @return carry bit.
+    /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
+    export
     template <Word W>
-    auto add ( span<W> r, span<W const> x, span<W const> y, W carry = W(0) ) noexcept -> W
+    auto add ( span<W> sum, span<W const> x, span<W const> y ) noexcept -> W
     {
-        auto const yz = size(y);
-        assert( yz >= 1 );
-        auto const xz = size(x);
-        assert( xz >= yz );
-        auto const rz = size(r);
-        assert( rz >= xz );
+        auto carry = W{0};
 
-        for (auto i = 0uz; i != yz; ++i)
-            carry = add( r[i], x[i], y[i], carry );
-        for (auto i = yz; i != xz; ++i)
-            carry = add( r[i], x[i], carry );
+        auto const sz = size(sum);
+        auto const xz = size(x);
+        auto const yz = size(y);
+
+        // count of result words to compute
+        auto const z = min({ sz, xz, yz });
+
+        // add x and y word by word,
+        // from least to most significant,
+        // propagating carry
+        for (auto i = 0uz; i != z; ++i)
+            carry = add( sum[i], x[i], y[i], carry );
+
+        // either propagate carry through x
+        for (auto i = z; i < xz; ++i)
+            carry = add( sum[i], x[i], W{0}, carry );
+
+        // or propagate carry through y
+        for (auto i = z; i < yz; ++i)
+            carry = add( sum[i], W{0}, y[i], carry );
+
         return carry;
     }
 }

@@ -3,38 +3,46 @@
 
 module;
 
-#include <cassert>
+#include <algorithm>
 #include <span>
 
 export module purple.arithmetic:decrement;
 
 import :word_concept;
 
-export namespace purple
+namespace purple
 {
-    /// Previous with borrow.
-    ///
-    /// Requires:
-    /// size(r) ≥ size(x)
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores rd = size(x) words into counted range [ begin(r), rd ).
-    ///
-    /// @return borrow bit.
+    using std::size;
+    using std::ranges::min;
 
+    /// Computes the predecessor of an integer.
+    ///
+    /// Decrement stores into predecessor the size(predecessor) least significant words of the result.
+    /// It permits aliasing predecessor to x, in which case it becomes "decrement accumulate".
+    ///
+    /// This implementation applies the "school" method described in Knuth, section 4.3.1.
+
+    export
     template <Word W>
-    auto decrement ( span<W> r, span<W const> x, W borrow = W(0) ) -> W
+    auto decrement ( span<W> predecessor, span<W const> x ) -> W
     {
-        auto const xz = size(x);
-        assert( xz >= 1 );
-        auto const rz = size(r);
-        assert( rz >= xz );
+        auto borrow = W{0};
 
-        borrow = decrement( r[0], x[0], borrow );
-        for (auto i = 1uz; i != xz; ++i)
-            borrow = subtract( r[i], x[i], borrow );
+        auto const rz = size(predecessor);
+        auto const xz = size(x);
+
+        // count of result words to compute
+        auto const z = min({ rz, xz });
+
+        // decrement x[0],
+        // propagating borrow
+        if (z > 0)
+            borrow = decrement( predecessor[0], x[0], borrow );
+
+        // propagate borrow
+        for (auto i = 1uz; i != z; ++i)
+            borrow = subtract( predecessor[i], x[i], borrow );
+
         return borrow;
     }
-
 }

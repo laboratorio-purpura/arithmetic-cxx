@@ -3,6 +3,7 @@
 
 module;
 
+#include <algorithm>
 #include <cassert>
 #include <span>
 #include <tuple>
@@ -11,38 +12,49 @@ export module purple.arithmetic:halve;
 
 import :word_concept;
 
-export namespace purple
+namespace purple
 {
-    /// Half with remainder.
-    ///
-    /// Requires:
-    /// size(q) ≥ size(x)
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores rd = size(x) words into counted range [ begin(r), rd ).
-    ///
-    /// @return remainder word.
+    using std::ignore;
+    using std::size;
+    using std::ranges::min;
+    using std::tie;
 
+    /// Computes half (to a power) of an integer.
+    ///
+    /// Halve stores into quotient the size(quotient) least significant words of the result.
+    /// It permits aliasing quotient to x, in which case it becomes "halve accumulate".
+    ///
+    /// This implementation applies the "binary shift" method.
+
+    export
     template <Word W>
-    auto halve ( span<W> q, span<W const> x, size_t z ) noexcept -> W
+    auto halve ( span<W> quotient, span<W const> x, size_t y ) noexcept -> W
     {
-        auto const B = sizeof(W) * 8uz;
-        auto const xz = size(x);
-        assert( xz >= 1 );
-        auto const rz = size(q);
-        assert( rz >= xz );
+        constexpr auto Bits = sizeof(W) * 8;
 
-        auto r = W(0);
-        for (auto i = xz; i != 0; --i) {
-            // halve current word
-            auto r0 = W(0);
-            tie( q[i-1], r0 ) = half( x[i-1], z );
-            // add previous remainder
-            auto [ r1, _ ] = twice( r, B - z );
-            tie( q[i-1], ignore ) = sum( q[i-1], r1 );
-            r = r0;
+        auto remainder = W{0};
+
+        auto const pz = size(quotient);
+        auto const xz = size(x);
+
+        // TODO: lift this restriction
+        assert(y < Bits);
+
+        // count of result words to compute
+        auto const z = min({ pz, xz });
+
+        // halve word by word,
+        // from most to least significant,
+        // propagating remainder<
+        for (auto i = z; i > 0; --i)
+        {
+    		// x[i] ÷ 2^y
+            auto [ q, r ] = half( x[i-1], y );
+            // store quotient, propagate remainder
+            tie( quotient[i-1], ignore ) = sum( q, remainder );
+            tie( remainder, ignore ) = twice( r, Bits - y );
         }
-        return r;
+
+        return remainder;
     }
 }

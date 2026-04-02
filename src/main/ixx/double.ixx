@@ -3,6 +3,7 @@
 
 module;
 
+#include <algorithm>
 #include <cassert>
 #include <span>
 
@@ -10,30 +11,42 @@ export module purple.arithmetic:double_;
 
 import :word_concept;
 
-export namespace purple
+namespace purple
 {
-    /// Twice with excess.
-    ///
-    /// Requires:
-    /// z < log2(B)
-    /// size(r) ≥ size(x)
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores rd = size(x) words into counted range [ begin(r), rd ).
-    ///
-    /// @return excess word.
+    using std::size;
+    using std::ranges::min;
 
+    /// Computes twice (to a power) of an integer.
+    ///
+    /// Double adds into product the size(product) least significant words of the result.
+    /// It permits aliasing product to x, in which case it becomes "double accumulate".
+    ///
+    /// This implementation applies the "binary shift" method.
+
+    export
     template <Word W>
-    auto double_ ( span<W> r, span<W const> x, size_t z, W excess = W(0) ) noexcept -> W
+    auto double_ ( span<W> product, span<W const> x, size_t y ) noexcept -> W
     {
-        auto const xz = size(x);
-        assert( xz >= 1 );
-        auto const rz = size(r);
-        assert( rz >= xz );
+        constexpr auto Bits = sizeof(W) * 8;
 
-        for (auto i = 0uz; i != xz; ++i)
-            excess = double_( r[i], x[i], z, excess );
+        auto excess = W{0};
+
+        auto const pz = size(product);
+        auto const xz = size(x);
+
+        // TODO: lift this restriction
+        assert(y < Bits);
+
+        // count of result words to compute
+        auto const z = min({ pz, xz });
+
+        // double word by word,
+        // from least to most significant,
+        // propagating excess
+        for (auto i = 0uz; i != z; ++i)
+            excess = double_( product[i], x[i], y, excess );
+
         return excess;
     }
+
 }

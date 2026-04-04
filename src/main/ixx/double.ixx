@@ -6,6 +6,7 @@ module;
 #include <algorithm>
 #include <cassert>
 #include <span>
+#include <tuple>
 
 export module purple.arithmetic:double_;
 
@@ -15,6 +16,7 @@ namespace purple
 {
     using std::size;
     using std::ranges::min;
+    using std::tie;
 
     /// Computes twice (to a power) of an integer.
     ///
@@ -44,7 +46,7 @@ namespace purple
         // from least to most significant,
         // propagating excess
         for (auto i = 0uz; i != z; ++i)
-            excess = double_( product[i], x[i], y, excess );
+            tie( product[i], excess ) = twice( x[i], y, excess );
 
         return excess;
     }

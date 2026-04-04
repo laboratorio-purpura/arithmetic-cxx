@@ -32,22 +32,22 @@ export namespace purple
         assert( is_smaller( x[1], y ) );
 
         // t = ( r[1] × iy ) + x
-        auto t = product( x[1], iy );
+        auto t = product( x[1], iy, W{0} );
         ignore = add<W>( t, t, x );
         // q = ( t[1] + 1 ) mod B
-        auto [ q, _ ] = sum( t[1], W(1) );
+        auto [ q, _ ] = sum( t[1], W{1}, W{0} );
         // r = ( x - ( q × y ) ) mod B
-        auto qy = product( q, y );
-        auto [ r, _ ] = difference( x[0], qy[0] );
+        auto qy = product( q, y, W{0} );
+        auto [ r, _ ] = difference( x[0], qy[0], W{0} );
         // if r > t[0] : q = ( q - 1 ) mod B; r = ( r + y ) mod B
         if ( is_greater( r, t[0] ) ) {
-            ignore = decrement( q, q );
-            ignore = add( r, r, y );
+            tie( q, ignore ) = previous( q, W{0} );
+            tie( r, ignore ) = sum( r, y, W{0} );
         }
         // if r >= y : q = ( q + 1 ) mod B; r = ( r - y ) mod B
         if ( not_smaller( r, y ) ) [[unlikely]] {
-            ignore = increment( q, q );
-            ignore = subtract( r, r, y );
+            tie( q, ignore ) = next( q, W{0} );
+            tie( r, ignore ) = difference( r, y, W{0} );
         }
         // terminate
         return { q, r };
@@ -67,32 +67,32 @@ export namespace purple
     auto division_normalized ( span<W const,Tri> x, span<W const,Bi> y, W iy ) noexcept -> tuple< W, array<W,Bi> >
     {
         // 1. <q1,q0> ← v.u2
-        auto q = product( iy, x[2] );
+        auto q = product( iy, x[2], W{0} );
         // 2. <q1,q0> ← <q1,q0> + <u2,u1>
         auto x12 = array { x[1], x[2] };
         ignore = add<W>( q, q, x12 );
         // 3. r1 ← (u1 - q1.d1) % B
-        auto q1y1 = product( q[1], y[1] );
-        auto [ r1, _ ] = difference( x[1], q1y1[0] );
+        auto q1y1 = product( q[1], y[1], W{0} );
+        auto [ r1, _ ] = difference( x[1], q1y1[0], W{0} );
         // 4. <t1,t0> ← d0.q1
-        auto t = product( y[0], q[1] );
+        auto t = product( y[0], q[1], W{0} );
         // 5. <r1,r0> ← (<r1,x0> - <t1,t0> - <d1,d0>) % B^2
         auto r = array { x[0], r1 };
         ignore = subtract<W>( r, r, t );
         ignore = subtract<W>( r, r, y );
         // 6. q1 ← (q1 + 1) % B
-        ignore = add( q[1], q[1], W(1) );
+        tie( q[1], ignore ) = sum( q[1], W{1}, W{0} );
         // 7. if r1 ≥ q0
         if ( not_smaller( r[1], q[0] ) ) {
             // 8. q1 ← (q1 - 1) % B
-            ignore = decrement( q[1], q[1] );
+            tie( q[1], ignore ) = previous( q[1], W{0} );
             // 9. <r1,r0> ← (<r1,r0> + <d1,d0>) % B^2
             ignore = add<W>( r, r, y );
         }
         // 10. if <r1,r0> ≥ <d1,d0>
         if ( not_smaller<W>( r, y ) ) [[unlikely]] {
             // 11. q1 ← q1 + 1
-            ignore = increment( q[1], q[1] );
+            tie( q[1], ignore ) = next( q[1], W{0} );
             // 12. <r1,r0> ← <r1,r0> - <d1,d0>
             ignore = subtract<W>( r, r, y );
         }
@@ -130,7 +130,7 @@ export namespace purple
         // 2. normalize dividend and divisor.
 
         // 2.1. normalize divisor.
-        auto [ ny, _ ] = twice( y, factor );
+        auto [ ny, _ ] = twice( y, factor, W{0} );
 
         // 2.2 normalize dividend.
         auto const nxd = xz + 1;
@@ -152,7 +152,7 @@ export namespace purple
         }
 
         // 4. denormalize remainder.
-        ignore = halve( r, r, factor );
+        tie( r, ignore ) = half( r, factor );
 
         return r;
     }
@@ -212,13 +212,13 @@ export namespace purple
                     // q' >= B
                     not_zero( q_[1] ) ||
                     // q' × y[yz-2] > { x[yz-2], r' }
-                    is_greater<W>( product( q_[0], y[yz-2] ), array { x[yz-2], r_ } )
+                    is_greater<W>( product( q_[0], y[yz-2], W{0} ), array { x[yz-2], r_ } )
                 )
             ) {
                 // q_ ← q_ - 1
                 ignore = decrement<W>( q_, q_ );
                 // r_ ← r_ + y[yz-1]
-                carry = add( r_, r_, y[yz-1] );
+                tie( r_, carry ) = sum( r_, y[yz-1], W{0} );
                 // carry = 1 ⇒ r_ ≥ B
             }
         }
@@ -239,7 +239,7 @@ export namespace purple
         // r < 0 ⇒ q' > q
         if ( not_zero( borrow ) ) {
             // q ← q - 1
-            ignore = decrement( q_[0], q_[0] );
+            tie( q_[0], ignore ) = previous( q_[0], W{0} );
             // r ← r + y
             ignore = add<W>( r, r, y );
         }

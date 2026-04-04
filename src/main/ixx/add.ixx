@@ -5,6 +5,7 @@ module;
 
 #include <algorithm>
 #include <span>
+#include <tuple>
 
 export module purple.arithmetic:add;
 
@@ -14,6 +15,7 @@ namespace purple
 {
     using std::size;
     using std::ranges::min;
+    using std::tie;
 
     /// Computes the sum of two integers.
     ///
@@ -24,11 +26,15 @@ namespace purple
 
     export
     template <Word W>
-    auto add ( span<W> sum, span<W const> x, W y ) noexcept -> W
+    auto add ( span<W> sum, span<W const> x, W y ) noexcept -> W;
+
+    export
+    template <Word W>
+    auto add ( span<W> result, span<W const> x, W y ) noexcept -> W
     {
         auto carry = W{0};
 
-        auto const sz = size(sum);
+        auto const sz = size(result);
         auto const xz = size(x);
 
         // count of result words to compute
@@ -37,11 +43,11 @@ namespace purple
         // add x[0] and y,
         // propagating carry
         if (z > 0)
-            carry = add( sum[0], x[0], y, W{0} );
+            tie( result[0], carry ) = sum( x[0], y, W{0} );
 
         // propagate carry through x
         for (auto i = 1uz; i != z; ++i)
-            carry = add( sum[i], x[i], W{0}, carry );
+            tie( result[i], carry ) = sum( x[i], W{0}, carry );
 
         return carry;
     }
@@ -55,11 +61,14 @@ namespace purple
 
     export
     template <Word W>
-    auto add ( span<W> sum, span<W const> x, span<W const> y ) noexcept -> W
+    auto add ( span<W> sum, span<W const> x, span<W const> y ) noexcept -> W;
+
+    template <Word W>
+    auto add ( span<W> result, span<W const> x, span<W const> y ) noexcept -> W
     {
         auto carry = W{0};
 
-        auto const sz = size(sum);
+        auto const sz = size(result);
         auto const xz = size(x);
         auto const yz = size(y);
 
@@ -70,15 +79,15 @@ namespace purple
         // from least to most significant,
         // propagating carry
         for (auto i = 0uz; i != z; ++i)
-            carry = add( sum[i], x[i], y[i], carry );
+            tie( result[i], carry ) = sum( x[i], y[i], carry );
 
         // either propagate carry through x
         for (auto i = z; i < xz; ++i)
-            carry = add( sum[i], x[i], W{0}, carry );
+            tie( result[i], carry ) = sum( x[i], W{0}, carry );
 
         // or propagate carry through y
         for (auto i = z; i < yz; ++i)
-            carry = add( sum[i], W{0}, y[i], carry );
+            tie( result[i], carry ) = sum( W{0}, y[i], carry );
 
         return carry;
     }

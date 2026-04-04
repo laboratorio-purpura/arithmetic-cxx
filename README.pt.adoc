@@ -1,5 +1,6 @@
 = purple-arithmetic
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
+:icons: font
 :lang: pt
 
 For this text in english, see link:README.adoc[].

@@ -175,37 +175,6 @@ namespace
         });
     }
 
-    int reciprocal_nonzero_1 (span<char const *> args)
-    {
-        return command("reciprocal",args,[] (auto i)
-        {
-            // generate numbers
-
-            auto y = word{};
-            if ( purple::is_zero(y) )
-                y = word { random_engine() };
-
-            // compute with purple
-
-            auto r = purple::reciprocal(y);
-
-            // compute with GMP
-
-            auto gy = to_mpz(y);
-            auto B = mpz_class("100000000",16);
-            auto gr = ( B / gy ) % B;
-
-            // compare
-
-            fmt::println("i = {};",i);
-            fmt::println("y = {}",format(y));
-            fmt::println("expected = {}",format(gr));
-            fmt::println("actual = {}",format(r));
-
-            return ::cmp( gr, to_mpz(r) ) == 0;
-        });
-    }
-
     int reciprocal_normalized_1 (span<char const *> args)
     {
         return command("reciprocal-normalised",args,[] (auto i)
@@ -385,7 +354,7 @@ namespace
             auto x = array<word,2>();
             generate(x);
             if ( purple::not_smaller( x[1], y ) )
-                ignore = subtract( x[1], x[1], y );
+                tie( x[1], ignore ) = difference( x[1], y, word{0} );
 
             // compute with purple
 
@@ -555,8 +524,6 @@ namespace
             return difference_restricted(args);
         else if (command == "half")
             return half(args);
-        else if (command == "reciprocal-nonzero-1")
-            return reciprocal_nonzero_1(args);
         else if (command == "reciprocal-normalized-1")
             return reciprocal_normalized_1(args);
         else if (command == "is-greater")

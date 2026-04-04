@@ -35,7 +35,7 @@ export namespace purple
             // xi ^ 2
             {
                 // xi ^ 2 + carry
-                auto p = product( x[xi], x[xi] );
+                auto p = product( x[xi], x[xi], W{0} );
                 // store
                 auto ri = xi+xi;
                 auto rs = r.subspan(ri);
@@ -45,7 +45,7 @@ export namespace purple
             for (auto xj = xi + 1uz; xj != xz; ++xj)
             {
                 // xi * xj
-                auto p = product( x[xi], x[xj] );
+                auto p = product( x[xi], x[xj], W{0} );
                 // 2 * xi * xj
                 auto t = span<W>( storage, 3 );
                 t[2] = double_<W>( t, p, 1uz );

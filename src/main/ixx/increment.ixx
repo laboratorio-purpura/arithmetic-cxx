@@ -5,6 +5,7 @@ module;
 
 #include <algorithm>
 #include <span>
+#include <tuple>
 
 export module purple.arithmetic:increment;
 
@@ -14,6 +15,7 @@ namespace purple
 {
     using std::size;
     using std::ranges::min;
+    using std::tie;
 
     /// Computes the successor of an integer.
     ///
@@ -37,11 +39,11 @@ namespace purple
         // increment x[0],
         // propagating carry
         if (z > 0)
-            carry = increment( successor[0], x[0], carry );
+            tie( successor[0], carry ) = next( x[0], carry );
 
         // propagate carry
         for (auto i = 1uz; i != z; ++i)
-            carry = add( successor[i], x[i], carry );
+            tie( successor[i], carry ) = sum( x[i], W{0}, carry );
 
         return carry;
     }

@@ -144,52 +144,9 @@ export namespace purple
         return x.v <= y.v;
     }
 
-    /// Transform procedures.
-
-    /// Reciprocal approximation.
-    ///
-    /// Reciprocal is the multiplicative inverse.
-    ///
-    /// Requires:
-    /// y is nonzero
-
-    template <size_t B>
-    auto reciprocal ( word<B> y ) noexcept -> word<B>
-    {
-        // ( B - 1 ) ÷ y
-        return { 0xFFFFFFFFu / y.v };
-    }
-
-    /// Normalized reciprocal approximation.
-    ///
-    /// Reciprocal is the multiplicative inverse.
-    ///
-    /// Requires:
-    /// y is normalized
-
-    template <size_t B>
-    auto reciprocal_normalized ( word<B> y ) noexcept -> word<B>
-    {
-        // ( ( ( B^2 - 1 ) ÷ y ) ÷ B ) - B
-        unsigned _BitInt(2*B) t ( -1 );
-        auto x = ( ( t - y.v ) << B ) | t;
-        auto q = x / y.v;
-        return { static_cast< unsigned _BitInt(B) >( q ) };
-    }
-
     /// Expand procedures.
     ///
     /// These procedures increase values, producing a "carry" or an "excess".
-
-    /// Next with carry.
-
-    template <size_t B>
-    auto next ( word<B> x ) noexcept -> array< word<B>, 2 >
-    {
-        unsigned _BitInt(B) r {};
-        unsigned _BitInt(1) c = __builtin_add_overflow(x.v,1,&r);
-        return { r, c };
-    }
 
     /// Next with carry.
 
@@ -198,41 +155,8 @@ export namespace purple
     {
         unsigned _BitInt(B) r {};
         unsigned _BitInt(1) c1 = __builtin_add_overflow(x.v,1,&r);
-        unsigned _BitInt(1) c2 = __builtin_add_overflow(r.v,c.v,&r.v);
+        unsigned _BitInt(1) c2 = __builtin_add_overflow(r,c.v,&r);
         return { r, c1 | c2 };
-    }
-
-    /// Next with carry.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto increment ( word<B> & r, word<B> x ) noexcept -> word<B>
-    {
-        unsigned _BitInt(1) c = __builtin_add_overflow(x.v,1,&r.v);
-        return { c };
-    }
-
-    /// Next with carry.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto increment ( word<B> & r, word<B> x, word<B> c ) noexcept -> word<B>
-    {
-        unsigned _BitInt(1) c1 = __builtin_add_overflow(x.v,1,&r.v);
-        unsigned _BitInt(1) c2 = __builtin_add_overflow(r.v,c.v,&r.v);
-        return { c1 | c2 };
-    }
-
-    /// Sum with carry.
-
-    template <size_t B>
-    auto sum ( word<B> x, word<B> y ) noexcept -> array< word<B>, 2 >
-    {
-        unsigned _BitInt(B) r {};
-        unsigned _BitInt(1) c = __builtin_add_overflow(x.v,y.v,&r);
-        return { r, c };
     }
 
     /// Sum with carry.
@@ -246,42 +170,6 @@ export namespace purple
         return { r, c1 | c2 };
     }
 
-    /// Sum with carry.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto add ( word<B> & r, word<B> x, word<B> y ) noexcept -> word<B>
-    {
-        unsigned _BitInt(1) c = __builtin_add_overflow(x.v,y.v,&r.v);
-        return { c };
-    }
-
-    /// Sum with carry.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto add ( word<B> & r, word<B> x, word<B> y, word<B> c ) noexcept -> word<B>
-    {
-        unsigned _BitInt(1) c1 = __builtin_add_overflow(x.v,y.v,&r.v);
-        unsigned _BitInt(1) c2 = __builtin_add_overflow(r.v,c.v,&r.v);
-        return { c1 | c2 };
-    }
-
-    /// Product with excess.
-
-    template <size_t B>
-    auto product ( word<B> x, word<B> y ) noexcept -> array< word<B>, 2 >
-    {
-        unsigned _BitInt(2*B) x_ { x.v };
-        unsigned _BitInt(2*B) r = x_ * y.v;
-        return {
-            static_cast< unsigned _BitInt(B) >( r ),
-            static_cast< unsigned _BitInt(B) >( r >> B )
-        };
-    }
-
     /// Product with excess.
 
     template <size_t B>
@@ -289,48 +177,6 @@ export namespace purple
     {
         unsigned _BitInt(2*B) x_ { x.v };
         unsigned _BitInt(2*B) r = ( x_ * y.v ) + excess.v;
-        return {
-            static_cast< unsigned _BitInt(B) >( r ),
-            static_cast< unsigned _BitInt(B) >( r >> B )
-        };
-    }
-
-    /// Product with excess.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto multiply ( word<B> & r, word<B> x, word<B> y ) noexcept -> word<B>
-    {
-        unsigned _BitInt(2*B) x_ { x.v };
-        unsigned _BitInt(2*B) t = x_ * y.v;
-        r = word<B> { static_cast< unsigned _BitInt(B) >( t ) };
-        return { static_cast< unsigned _BitInt(B) >( t >> B ) };
-    }
-
-    /// Product with excess.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto multiply ( word<B> & r, word<B> x, word<B> y, word<B> excess ) noexcept -> word<B>
-    {
-        unsigned _BitInt(2*B) x_ { x.v };
-        unsigned _BitInt(2*B) t = ( x_ * y.v ) + excess.v;
-        r = word<B> { static_cast< unsigned _BitInt(B) >( t ) };
-        return { static_cast< unsigned _BitInt(B) >( t >> B ) };
-    }
-
-    /// Twice with excess.
-    ///
-    /// Requires:
-    /// z < B
-
-    template <size_t B>
-    auto twice ( word<B> x, size_t z ) noexcept -> array< word<B>, 2uz >
-    {
-        unsigned _BitInt(2*B) x_ { x.v };
-        unsigned _BitInt(2*B) r = ( x_ << z );
         return {
             static_cast< unsigned _BitInt(B) >( r ),
             static_cast< unsigned _BitInt(B) >( r >> B )
@@ -353,51 +199,9 @@ export namespace purple
         };
     }
 
-    /// Twice with excess.
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Requires:
-    /// z < B
-
-    template <size_t B>
-    auto double_ ( word<B> & r, word<B> x, size_t z ) noexcept -> word<B>
-    {
-        unsigned _BitInt(2*B) x_ { x.v };
-        unsigned _BitInt(2*B) t = ( x_ << z );
-        r = word<B> { static_cast< unsigned _BitInt(B) >( t ) };
-        return { static_cast< unsigned _BitInt(B) >( t >> B ) };
-    }
-
-    /// Twice with excess.
-    ///
-    /// Permits aliasing r to x.
-    ///
-    /// Requires:
-    /// z < B
-
-    template <size_t B>
-    auto double_ ( word<B> & r, word<B> x, size_t z, word<B> excess ) noexcept -> word<B>
-    {
-        unsigned _BitInt(2*B) x_ { x.v };
-        unsigned _BitInt(2*B) t = ( x_ << z ) + excess.v;
-        r = word<B> { static_cast< unsigned _BitInt(B) >( t ) };
-        return { static_cast< unsigned _BitInt(B) >( t >> B ) };
-    }
-
     /// Reduce procedures.
     ///
     /// These procedures decrease values, requiring a "borrow" or leaving a "remainder".
-
-    /// Previous with borrow.
-
-    template <size_t B>
-    auto previous ( word<B> x ) noexcept -> array< word<B>, 2 >
-    {
-        unsigned _BitInt(B) r {};
-        unsigned _BitInt(1) c = __builtin_sub_overflow(x.v,1,&r);
-        return { r, c };
-    }
 
     /// Previous with borrow.
 
@@ -406,41 +210,8 @@ export namespace purple
     {
         unsigned _BitInt(B) r {};
         unsigned _BitInt(1) c1 = __builtin_sub_overflow(x.v,1,&r);
-        unsigned _BitInt(1) c2 = __builtin_sub_overflow(r.v,b.v,&r.v);
+        unsigned _BitInt(1) c2 = __builtin_sub_overflow(r,b.v,&r);
         return { r, c1 | c2 };
-    }
-
-    /// Previous with borrow.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto decrement ( word<B> & r, word<B> x ) noexcept -> word<B>
-    {
-        unsigned _BitInt(1) c = __builtin_sub_overflow(x.v,1,&r.v);
-        return { c };
-    }
-
-    /// Previous with borrow.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto decrement ( word<B> & r, word<B> x, word<B> b ) noexcept -> word<B>
-    {
-        unsigned _BitInt(1) c1 = __builtin_sub_overflow(x.v,1,&r.v);
-        unsigned _BitInt(1) c2 = __builtin_sub_overflow(r.v,b.v,&r.v);
-        return { c1 | c2 };
-    }
-
-    /// Difference with carry.
-
-    template <size_t B>
-    auto difference ( word<B> x, word<B> y ) noexcept -> array< word<B>, 2 >
-    {
-        unsigned _BitInt(B) r {};
-        unsigned _BitInt(1) c = __builtin_sub_overflow(x.v,y.v,&r);
-        return { r, c };
     }
 
     /// Difference with carry.
@@ -452,29 +223,6 @@ export namespace purple
         unsigned _BitInt(1) c1 = __builtin_sub_overflow(x.v,y.v,&r);
         unsigned _BitInt(1) c2 = __builtin_sub_overflow(r,b.v,&r);
         return { r, c1 | c2 };
-    }
-
-    /// Difference with carry.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto subtract ( word<B> & r, word<B> x, word<B> y ) noexcept -> word<B>
-    {
-        unsigned _BitInt(1) c = __builtin_sub_overflow(x.v,y.v,&r.v);
-        return { c };
-    }
-
-    /// Difference with carry.
-    ///
-    /// Permits aliasing r to x.
-
-    template <size_t B>
-    auto subtract ( word<B> & r, word<B> x, word<B> y, word<B> b ) noexcept -> word<B>
-    {
-        unsigned _BitInt(1) c1 = __builtin_sub_overflow(x.v,y.v,&r.v);
-        unsigned _BitInt(1) c2 = __builtin_sub_overflow(r.v,b.v,&r.v);
-        return { c1 | c2 };
     }
 
     /// Division with remainder.
@@ -516,19 +264,5 @@ export namespace purple
         unsigned _BitInt(B) q = x.v >> z;
         unsigned _BitInt(B) r = x.v % (one << z);
         return { { q }, { r } };
-    }
-
-    /// Half with remainder.
-    ///
-    /// Permits aliasing q to x.
-
-    template <size_t B>
-    auto halve ( word<B> & q, word<B> x, size_t z ) noexcept -> word<B>
-    {
-        constexpr unsigned _BitInt(B) one { 1 };
-        unsigned _BitInt(B) q_ = x.v >> z;
-        unsigned _BitInt(B) r = x.v % (one << z);
-        q.v = q_;
-        return { r };
     }
 }

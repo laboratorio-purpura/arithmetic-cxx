@@ -5,6 +5,7 @@ module;
 
 #include <algorithm>
 #include <span>
+#include <tuple>
 
 export module purple.arithmetic:decrement;
 
@@ -14,6 +15,7 @@ namespace purple
 {
     using std::size;
     using std::ranges::min;
+    using std::tie;
 
     /// Computes the predecessor of an integer.
     ///
@@ -37,11 +39,11 @@ namespace purple
         // decrement x[0],
         // propagating borrow
         if (z > 0)
-            borrow = decrement( predecessor[0], x[0], borrow );
+            tie( predecessor[0], borrow ) = previous( x[0], borrow );
 
         // propagate borrow
         for (auto i = 1uz; i != z; ++i)
-            borrow = subtract( predecessor[i], x[i], borrow );
+            tie( predecessor[i], borrow ) = difference( x[i], W{0}, borrow );
 
         return borrow;
     }

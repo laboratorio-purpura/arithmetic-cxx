@@ -40,10 +40,10 @@ export import :reciprocal;
 // operations.
 
 export import :add;
-export import :subtract;
 export import :multiply;
-export import :divide;
-
 export import :double_;
-export import :halve;
 export import :square;
+
+export import :subtract;
+export import :divide;
+export import :halve;

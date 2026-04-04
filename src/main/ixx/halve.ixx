@@ -51,8 +51,8 @@ namespace purple
     		// x[i] ÷ 2^y
             auto [ q, r ] = half( x[i-1], y );
             // store quotient, propagate remainder
-            tie( quotient[i-1], ignore ) = sum( q, remainder );
-            tie( remainder, ignore ) = twice( r, Bits - y );
+            tie( quotient[i-1], ignore ) = sum( q, remainder, W{0} );
+            tie( remainder, ignore ) = twice( r, Bits - y, W{0} );
         }
 
         return remainder;

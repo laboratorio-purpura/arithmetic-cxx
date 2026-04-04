@@ -5,6 +5,7 @@ module;
 
 #include <algorithm>
 #include <span>
+#include <tuple>
 
 export module purple.arithmetic:subtract;
 
@@ -14,6 +15,7 @@ namespace purple
 {
     using std::size;
     using std::ranges::min;
+    using std::tie;
 
     /// Computes the difference between two integers.
     ///
@@ -24,11 +26,15 @@ namespace purple
 
     export
     template <Word W>
-    auto subtract ( span<W> difference, span<W const> x, W y ) noexcept -> W
+    auto subtract ( span<W> difference, span<W const> x, W y ) noexcept -> W;
+
+    export
+    template <Word W>
+    auto subtract ( span<W> result, span<W const> x, W y ) noexcept -> W
     {
         auto borrow = W{0};
 
-        auto const sz = size(difference);
+        auto const sz = size(result);
         auto const xz = size(x);
 
         // count of result words to compute
@@ -37,11 +43,11 @@ namespace purple
         // subtract x[0] and y,
         // propagating borrow
         if (z > 0)
-            borrow = subtract( difference[0], x[0], y, W{0} );
+            tie( result[0], borrow ) = difference( x[0], y, W{0} );
 
         // propagate borrow through x
         for (auto i = 1uz; i != z; ++i)
-            borrow = subtract( difference[i], x[i], W{0}, borrow );
+            tie( result[i], borrow ) = difference( x[i], W{0}, borrow );
 
         return borrow;
     }
@@ -55,11 +61,14 @@ namespace purple
 
     export
     template <Word W>
-    auto subtract ( span<W> difference, span<W const> x, span<W const> y ) noexcept -> W
+    auto subtract ( span<W> difference, span<W const> x, span<W const> y ) noexcept -> W;
+
+    template <Word W>
+    auto subtract ( span<W> result, span<W const> x, span<W const> y ) noexcept -> W
     {
         auto borrow = W{0};
 
-        auto const dz = size(difference);
+        auto const dz = size(result);
         auto const xz = size(x);
         auto const yz = size(y);
 
@@ -70,15 +79,15 @@ namespace purple
         // from least to most significant,
         // propagating borrow
         for (auto i = 0uz; i != z; ++i)
-            borrow = subtract( difference[i], x[i], y[i], borrow );
+            tie( result[i], borrow ) = difference( x[i], y[i], borrow );
 
         // either propagate borrow through x
         for (auto i = z; i < xz; ++i)
-            borrow = subtract( difference[i], x[i], W{0}, borrow );
+            tie( result[i], borrow ) = difference( x[i], W{0}, borrow );
 
         // or propagate borrow through y
         for (auto i = z; i < yz; ++i)
-            borrow = subtract( difference[i], W{0}, y[i], borrow );
+            tie( result[i], borrow ) = difference( W{0}, y[i], borrow );
 
         return borrow;
     }

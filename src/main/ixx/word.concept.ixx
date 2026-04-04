@@ -64,49 +64,19 @@ namespace purple
         { is_greater(w,w) } noexcept -> convertible_to<bool>;
         { not_greater(w,w) } noexcept -> convertible_to<bool>;
 
-        /// Transform procedures.
-
-        { reciprocal(w) } noexcept -> same_as<W>;
-        { reciprocal_normalized(w) } noexcept -> same_as<W>;
-
         /// Expand procedures.
 
-        { next(w) } noexcept -> same_as< array<W,2> >;
         { next(w,w) } noexcept -> same_as< array<W,2> >;
-        { increment(r,w) } noexcept -> same_as<W>;
-        { increment(r,w,w) } noexcept -> same_as<W>;
-
-        { sum(w,w) } noexcept -> same_as< array<W,2> >;
         { sum(w,w,w) } noexcept -> same_as< array<W,2> >;
-        { add(r,w,w) } noexcept -> same_as<W>;
-        { add(r,w,w,w) } noexcept -> same_as<W>;
-
-        { product(w,w) } noexcept -> same_as< array<W,2> >;
         { product(w,w,w) } noexcept -> same_as< array<W,2> >;
-        { multiply(r,w,w) } noexcept -> same_as<W>;
-        { multiply(r,w,w,w) } noexcept -> same_as<W>;
-
-        { twice(w,z) } noexcept -> same_as< array<W,2> >;
         { twice(w,z,w) } noexcept -> same_as< array<W,2> >;
-        { double_(r,w,z) } noexcept -> same_as<W>;
-        { double_(r,w,z,w) } noexcept -> same_as<W>;
 
         /// Reduce procedures.
 
-        { previous(w) } noexcept -> same_as< array<W,2> >;
         { previous(w,w) } noexcept -> same_as< array<W,2> >;
-        { decrement(r,w) } noexcept -> same_as<W>;
-        { decrement(r,w,w) } noexcept -> same_as<W>;
-
-        { difference(w,w) } noexcept -> same_as< array<W,2> >;
         { difference(w,w,w) } noexcept -> same_as< array<W,2> >;
-        { subtract(r,w,w) } noexcept -> same_as<W>;
-        { subtract(r,w,w,w) } noexcept -> same_as<W>;
-
         { division(w,w) } noexcept -> same_as< tuple<W,W> >;
         { division(w2,w) } noexcept -> same_as< tuple<array<W,2>,W> >;
-
         { half(w,z) } noexcept -> same_as< tuple<W,W> >;
-        { halve(r,w,z) } noexcept -> same_as<W>;
     };
 }

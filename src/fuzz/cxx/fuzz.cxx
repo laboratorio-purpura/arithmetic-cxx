@@ -359,7 +359,7 @@ namespace
             // compute with purple
 
             auto iy = purple::reciprocal_normalized(y);
-            auto [q,r] = purple::division_normalized<word,2>(x,y,iy);
+            auto [q,r] = purple::divide_normal_strict<word,2>(x,y,iy);
 
             // compute with GMP
 
@@ -396,7 +396,7 @@ namespace
             // compute with purple
 
             auto q = vector<word>(degree+1);
-            auto r = purple::division_assign<word>(span(q),x,y);
+            auto r = purple::divide<word>(span(q),x,y);
 
             // compute with GMP
 

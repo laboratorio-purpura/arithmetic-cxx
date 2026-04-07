@@ -75,8 +75,7 @@ namespace purple
 
         { previous(w,w) } noexcept -> same_as< array<W,2> >;
         { difference(w,w,w) } noexcept -> same_as< array<W,2> >;
-        { division(w,w) } noexcept -> same_as< tuple<W,W> >;
-        { division(w2,w) } noexcept -> same_as< tuple<array<W,2>,W> >;
+        { division(w2,w) } noexcept -> same_as< tuple<W,W> >;
         { half(w,z) } noexcept -> same_as< tuple<W,W> >;
     };
 }

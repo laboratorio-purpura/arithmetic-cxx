@@ -26,7 +26,7 @@ export namespace purple
 
     template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto division_normalized ( span<W const,Bi> x, W y, W iy ) noexcept -> tuple< W, W >
+    auto divide_normal_strict ( span<W const,Bi> x, W y, W iy ) noexcept -> tuple< W, W >
     {
         assert( is_normalized( y ) );
         assert( is_smaller( x[1], y ) );
@@ -53,6 +53,18 @@ export namespace purple
         return { q, r };
     }
 
+    template <Word W, size_t Bi>
+    auto divide_normal ( span<W const,Bi> x, W y, W iy ) noexcept -> tuple< array<W,2>, W >
+    {
+        array<W,2> q {};
+        W r {};
+
+        tie( q[1], r ) = divide_normal_strict<W,Bi>( array<W,2>{ x[1], r }, y, iy );
+        tie( q[0], r ) = divide_normal_strict<W,Bi>( array<W,2>{ x[0], r }, y, iy );
+
+        return { q, r };
+    }
+
     /// Normalized division with remainder.
     ///
     /// Computes by the "improved division by invariant integers" method.
@@ -64,7 +76,7 @@ export namespace purple
 
     template <Word W, size_t Tri, size_t Bi>
     requires  ( Tri == 3uz ) && ( Bi == 2uz )
-    auto division_normalized ( span<W const,Tri> x, span<W const,Bi> y, W iy ) noexcept -> tuple< W, array<W,Bi> >
+    auto divide_normal_strict ( span<W const,Tri> x, span<W const,Bi> y, W iy ) noexcept -> tuple< W, array<W,Bi> >
     {
         // 1. <q1,q0> ← v.u2
         auto q = product( iy, x[2], W{0} );
@@ -112,7 +124,7 @@ export namespace purple
     /// @return remainder word.
 
     template <Word W>
-    auto division_assign ( span<W> q, span<W const> x, W y ) -> W
+    auto divide ( span<W> q, span<W const> x, W y ) -> W
     {
         auto const xz = size(x);
         assert( xz >= 1 );
@@ -146,9 +158,9 @@ export namespace purple
 
         auto iy = reciprocal_normalized( ny );
 
-        auto [ _, r ] = division_normalized<W,2uz>( array { nx[nxd-1], W(0) }, ny, iy );
+        auto [ _, r ] = divide_normal_strict<W,2uz>( array { nx[nxd-1], W(0) }, ny, iy );
         for (auto i = nxd-1; i != 0; --i) {
-            tie( q[i-1], r ) = division_normalized<W,2uz>( array { nx[i-1], r }, ny, iy );
+            tie( q[i-1], r ) = divide_normal_strict<W,2uz>( array { nx[i-1], r }, ny, iy );
         }
 
         // 4. denormalize remainder.
@@ -175,7 +187,7 @@ export namespace purple
     /// @return quotient word.
 
     template <Word W>
-    auto division_assign_step ( span<W> r, span<W const> x, span<W const> y ) -> W
+    auto divide_normal_strict ( span<W> r, span<W const> x, span<W const> y, W iy ) -> W
     {
         auto const yz = size(y);
         assert( yz >= 2 );
@@ -189,61 +201,50 @@ export namespace purple
         // guess the quotient by division of the highest words.
         // restricted operands guarantee strict bound on the error.
 
-        // compute tentative quotient q'
-        auto q_ = array<W,2>{};
-        auto r_ = W{};
-        {
-            // let x' = { x[yz-1}, x[yz] }
-            auto x_ = array { x[yz-1], x[yz] };
-            // let y' = y[yz-1]
-            auto y_ = y[yz-1];
-            // let q' = x' ÷ y'
-            // let r' = x' % y'
-            tie( q_, r_ ) = division( x_, y_ );
-        }
-        // invariant: q' - 2 ≤ q ≤ q'
+        // compute tentative q' and r'
+        auto [ q_, r_ ] = divide_normal<W,2>( array<W,2>{ x[yz-1], x[yz] }, y[yz-1], iy );
+        // invariant: q' - 2 ≤ q ≤ q' ≤ β+1
+        assert( not_greater( q_[1], W{2} ) );
 
         // reduce q'
-        {
+        while (
+            // q' >= B
+            not_zero( q_[1] ) ||
+            // q' × y[yz-2] > { x[yz-2], r' }
+            is_greater<W>( product( q_[0], y[yz-2], W{0} ), array { x[yz-2], r_ } )
+        ) {
+            // q_ ← q_ - 1
+            ignore = decrement<W>( q_, q_ );
+            // r_ ← r_ + y[yz-1]
             auto carry = W(0);
-            while (
-                // r_ < B
-                is_zero( carry ) && (
-                    // q' >= B
-                    not_zero( q_[1] ) ||
-                    // q' × y[yz-2] > { x[yz-2], r' }
-                    is_greater<W>( product( q_[0], y[yz-2], W{0} ), array { x[yz-2], r_ } )
-                )
-            ) {
-                // q_ ← q_ - 1
-                ignore = decrement<W>( q_, q_ );
-                // r_ ← r_ + y[yz-1]
-                tie( r_, carry ) = sum( r_, y[yz-1], W{0} );
-                // carry = 1 ⇒ r_ ≥ B
-            }
+            tie( r_, carry ) = sum( r_, y[yz-1], W{0} );
+            // carry = 1 ⇒ r_ ≥ B
+            if ( not_zero( carry ) ) break;
         }
-        // invariant: q' - 1 ≤ q ≤ q' ≤ B
+        // invariant: q' - 1 ≤ q ≤ q' ≤ β
+        assert( not_greater( q_[1], W{1} ) );
 
         // reduce q'
         // r ← x - q' × y
         auto borrow = W(0);
         {
             // let t = q' × y
-            W t_ [ yz + 1 ];
-            auto t = span<W>( t_, yz + 1 );
-            t[yz] = multiply<W>( t, y, q_[0] );
-            // r ← x - t
+            W t_ [ yz + 2 ];
+            auto t = span<W>( t_, yz + 2 );
+            multiply<W>( t, q_, y );
+            // r ← x - q' × y
             borrow = subtract<W>( r, x, t );
         }
         // borrow = 1 ⇒ r < 0
         // r < 0 ⇒ q' > q
         if ( not_zero( borrow ) ) {
-            // q ← q - 1
-            tie( q_[0], ignore ) = previous( q_[0], W{0} );
+            // q' ← q' - 1
+            ignore = decrement<W>( q_, q_ );
             // r ← r + y
             ignore = add<W>( r, r, y );
         }
-        // invariant: q' = q
+        // invariant: q' = q < β
+        assert( are_equal( q_[1], W{0} ) );
 
         // terminate
         return q_[0];
@@ -266,7 +267,7 @@ export namespace purple
     /// Stores rd ≤ size(x) + 1 words into counted range [ begin(r), rd ).
 
     template <Word W>
-    void division_assign ( span<W> q, span<W> r, span<W const> x, span<W const> y )
+    void divide ( span<W> q, span<W> r, span<W const> x, span<W const> y )
     {
         auto const yz = size(y);
         assert( yz >= 2 );
@@ -304,6 +305,8 @@ export namespace purple
 
         // 3. divide with normalized operands.
 
+        auto iy = reciprocal_normalized( ny[yz-1] );
+
         // compute each quotient word one by one,
         // computing each by division of N+1 word dividend by N word divisor.
         // normalization of operands is key.
@@ -318,7 +321,7 @@ export namespace purple
             // let x' = { x[j+n], x[j+n-1}, ..., x[j] }
             auto x_ = nx.subspan( j-1, N+1 );
 
-            q[j-1] = division_assign_step<W>( x_, x_, ny );
+            q[j-1] = divide_normal_strict<W>( x_, x_, ny, iy );
         }
 
         // 4. denormalize remainder.

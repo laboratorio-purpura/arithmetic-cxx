@@ -23,7 +23,7 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleRandomTest,division_normalized_2_1)
+TYPED_TEST(PurpleRandomTest,divide_normal_strict_2_1)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -66,7 +66,7 @@ TYPED_TEST(PurpleRandomTest,division_normalized_2_1)
 
         auto iy = reciprocal_normalized( y[0] );
 
-        auto [ q, r ] = division_normalized<word,2>( x, y[0], iy );
+        auto [ q, r ] = divide_normal_strict<word,2>( x, y[0], iy );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

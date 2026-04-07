@@ -228,30 +228,15 @@ export namespace purple
     /// Division with remainder.
 
     template <size_t B>
-    auto division ( word<B> x, word<B> y ) noexcept -> tuple< word<B>, word<B> >
-    {
-        auto q = x.v / y.v;
-        auto r = x.v % y.v;
-        return { { q }, { r } };
-    }
-
-    /// Division with remainder.
-
-    template <size_t B>
-    auto division ( array<word<B>,2> x, word<B> y ) noexcept -> tuple< array< word<B>, 2 >, word<B> >
+    auto division ( array<word<B>,2> x, word<B> y ) noexcept -> tuple< word<B>, word<B> >
     {
         using dword = unsigned _BitInt(2*B);
         auto x_ = x[0].v | ( dword { x[1].v } << B );
         auto q = x_ / y.v;
         auto r = x_ % y.v;
         return {
-            array<word<B>,2> {
-                static_cast< unsigned _BitInt(B) >( q ),
-                static_cast< unsigned _BitInt(B) >( q >> B ),
-            },
-            {
-                static_cast< unsigned _BitInt(B) >( r )
-            }
+            word<B>{ static_cast< unsigned _BitInt(B) >( q ) },
+            word<B>{ static_cast< unsigned _BitInt(B) >( r ) }
         };
     }
 

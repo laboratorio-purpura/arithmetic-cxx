@@ -34,7 +34,7 @@ namespace purple
 		// q, r ← <t1, t0> ÷ y
 		auto [ q, _ ] = division( array<W,2>{ t0, t1 }, y );
 
-		return q[0];
+		return q;
 	}
 
     /// Computes an approximation to the multiplicative inverse of a "normalised" two-word integer.

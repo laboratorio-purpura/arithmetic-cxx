@@ -654,7 +654,7 @@ namespace
 
         for (auto _ : state)
         {
-            auto r = purple::division_assign<word>(q,x,y);
+            auto r = purple::divide<word>(q,x,y);
 
             benchmark::DoNotOptimize(q);
             benchmark::DoNotOptimize(r);
@@ -704,7 +704,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::division_assign<word>(q,r,x,y);
+            purple::divide<word>(q,r,x,y);
 
             benchmark::DoNotOptimize(r);
         }

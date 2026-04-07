@@ -23,7 +23,7 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST_F(PurpleTest,division_assign_regression)
+TEST_F(PurpleTest,divide_regression)
 {
     {
         constexpr auto B = 32;
@@ -37,7 +37,7 @@ TEST_F(PurpleTest,division_assign_regression)
 
         auto q = array<word,5> {};
         auto r = array<word,5> {};
-        division_assign<word>( q, r, x, y );
+        divide<word>( q, r, x, y );
 
         SCOPED_TRACE("result: q = " + format(q) + ", r = " + format(r));
         ASSERT_GMP_EQ( to_mpz(qe), to_mpz(q) );
@@ -55,7 +55,7 @@ TEST_F(PurpleTest,division_assign_regression)
 
         auto q = array<word,5> {};
         auto r = array<word,5> {};
-        division_assign<word>( q, r, x, y );
+        divide<word>( q, r, x, y );
 
         SCOPED_TRACE("result: q = " + format(q) + ", r = " + format(r));
         ASSERT_GMP_EQ( to_mpz(qe), to_mpz(q) );
@@ -63,7 +63,7 @@ TEST_F(PurpleTest,division_assign_regression)
     }
 }
 
-TYPED_TEST(PurpleRandomTest,division_assign_64_1)
+TYPED_TEST(PurpleRandomTest,divide_64_1)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -103,7 +103,7 @@ TYPED_TEST(PurpleRandomTest,division_assign_64_1)
 
         auto q = array<word,64> {};
 
-        auto r = division_assign<word>( q, x, y[0] );
+        auto r = divide<word>( q, x, y[0] );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -121,7 +121,71 @@ TYPED_TEST(PurpleRandomTest,division_assign_64_1)
     }
 }
 
-TYPED_TEST(PurpleRandomTest,division_assign_step_33_32)
+TYPED_TEST(PurpleRandomTest,divide_normal_strict_N1_N)
+{
+    constexpr auto N = 4;
+    constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
+    using generator = std::tuple_element<1,TypeParam>::type;
+
+    using word = word<B>;
+
+    for (auto i = 0; i != 10000; ++i)
+    {
+        SCOPED_TRACE("i = " + format(i));
+
+        // compute with gmp
+
+        mpz_class gy {};
+        generator::generate(gy,N,B);
+        mpz_setbit(gy.get_mpz_t(),(N*B)-1);
+
+        mpz_class gx {};
+        generator::generate(gx,N+1,B);
+        if ((gx >> B) >= gy)
+            gx = gx - (gy << B);
+        assert( (gx >> B) < gy );
+
+        mpz_class gq = gx / gy;
+        mpz_class gr = gx % gy;
+
+        SCOPED_TRACE("gmp:\n"s +
+            "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
+            "q = " + format(gq) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+
+        // compute with purple
+
+        auto x = array<word,N+1> {};
+        assign(x,gx);
+
+        auto y = array<word,N> {};
+        assign(y,gy);
+
+        auto iy = reciprocal_normalized<word>( y[N-1] );
+
+        auto r = array<word,N+1> {};
+
+        auto q = divide_normal_strict<word>( r, x, y, iy );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "q = " + format(q) + "\n" +
+            "r = " + format(r) + "\n"
+        );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gy, to_mpz(y) );
+        ASSERT_GMP_EQ( gq, to_mpz(q) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
+    }
+}
+
+TYPED_TEST(PurpleRandomTest,divide_normal_strict_33_32)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -162,9 +226,11 @@ TYPED_TEST(PurpleRandomTest,division_assign_step_33_32)
         auto y = array<word,32> {};
         assign(y,gy);
 
+        auto iy = reciprocal_normalized<word>( y[31] );
+
         auto r = array<word,33> {};
 
-        auto q = division_assign_step<word>( r, x, y );
+        auto q = divide_normal_strict<word>( r, x, y, iy );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -182,7 +248,7 @@ TYPED_TEST(PurpleRandomTest,division_assign_step_33_32)
     }
 }
 
-TYPED_TEST(PurpleRandomTest,division_assign_64_32)
+TYPED_TEST(PurpleRandomTest,divide_64_32)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -227,7 +293,7 @@ TYPED_TEST(PurpleRandomTest,division_assign_64_32)
 
         auto r = array<word,65> {};
 
-        division_assign<word>( q, r, x, y );
+        divide<word>( q, r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

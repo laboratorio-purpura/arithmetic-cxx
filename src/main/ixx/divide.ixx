@@ -53,18 +53,6 @@ export namespace purple
         return { q, r };
     }
 
-    template <Word W, size_t Bi>
-    auto divide_normal ( span<W const,Bi> x, W y, W iy ) noexcept -> tuple< array<W,2>, W >
-    {
-        array<W,2> q {};
-        W r {};
-
-        tie( q[1], r ) = divide_normal_strict<W,Bi>( array<W,2>{ x[1], r }, y, iy );
-        tie( q[0], r ) = divide_normal_strict<W,Bi>( array<W,2>{ x[0], r }, y, iy );
-
-        return { q, r };
-    }
-
     /// Normalized division with remainder.
     ///
     /// Computes by the "improved division by invariant integers" method.
@@ -202,9 +190,11 @@ export namespace purple
         // restricted operands guarantee strict bound on the error.
 
         // compute tentative q' and r'
-        auto [ q_, r_ ] = divide_normal<W,2>( array<W,2>{ x[yz-1], x[yz] }, y[yz-1], iy );
-        // invariant: q' - 2 ≤ q ≤ q' ≤ β+1
-        assert( not_greater( q_[1], W{2} ) );
+        array<W,2> q_ {};
+        W r_ {};
+        tie( q_[1], r_ ) = divide_normal_strict<W,2>( array { x[yz], r_ }, y[yz-1], iy );
+        tie( q_[0], r_ ) = divide_normal_strict<W,2>( array { x[yz-1], r_ }, y[yz-1], iy );
+        // invariant: q' - 2 ≤ q ≤ q' ≤ β
 
         // reduce q'
         while (
@@ -218,20 +208,19 @@ export namespace purple
             // r_ ← r_ + y[yz-1]
             auto carry = W(0);
             tie( r_, carry ) = sum( r_, y[yz-1], W{0} );
-            // carry = 1 ⇒ r_ ≥ B
+            // if r_ < β, repeat
             if ( not_zero( carry ) ) break;
         }
-        // invariant: q' - 1 ≤ q ≤ q' ≤ β
-        assert( not_greater( q_[1], W{1} ) );
+        // invariant: q' - 1 ≤ q ≤ q' < β
 
         // reduce q'
         // r ← x - q' × y
         auto borrow = W(0);
         {
             // let t = q' × y
-            W t_ [ yz + 2 ];
-            auto t = span<W>( t_, yz + 2 );
-            multiply<W>( t, q_, y );
+            W t_ [ yz + 1 ];
+            auto t = span<W>( t_, yz + 1 );
+            t[yz] = multiply<W>( t, y, q_[0] );
             // r ← x - q' × y
             borrow = subtract<W>( r, x, t );
         }
@@ -239,12 +228,11 @@ export namespace purple
         // r < 0 ⇒ q' > q
         if ( not_zero( borrow ) ) {
             // q' ← q' - 1
-            ignore = decrement<W>( q_, q_ );
+            tie( q_[0], ignore ) = previous( q_[0], W{0} );
             // r ← r + y
             ignore = add<W>( r, r, y );
         }
-        // invariant: q' = q < β
-        assert( are_equal( q_[1], W{0} ) );
+        // invariant: q' = q
 
         // terminate
         return q_[0];

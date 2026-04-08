@@ -23,14 +23,14 @@ using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleRandomTest,twice_assign_64)
+TYPED_TEST(PurpleRandomTest,double_64)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
 
     using word = word<B>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != 100000; ++i)
     {
         SCOPED_TRACE("i = " + format(i));
 

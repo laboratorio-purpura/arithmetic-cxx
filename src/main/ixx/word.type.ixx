@@ -173,10 +173,10 @@ export namespace purple
     /// Product with excess.
 
     template <size_t B>
-    auto product ( word<B> x, word<B> y, word<B> excess ) noexcept -> array< word<B>, 2 >
+    auto product ( word<B> x, word<B> y ) noexcept -> array< word<B>, 2 >
     {
         unsigned _BitInt(2*B) x_ { x.v };
-        unsigned _BitInt(2*B) r = ( x_ * y.v ) + excess.v;
+        unsigned _BitInt(2*B) r = x_ * y.v;
         return {
             static_cast< unsigned _BitInt(B) >( r ),
             static_cast< unsigned _BitInt(B) >( r >> B )
@@ -189,10 +189,10 @@ export namespace purple
     /// z < B
 
     template <size_t B>
-    auto twice ( word<B> x, size_t z, word<B> excess ) noexcept -> array< word<B>, 2uz >
+    auto twice ( word<B> x, size_t z ) noexcept -> array< word<B>, 2uz >
     {
         unsigned _BitInt(2*B) x_ { x.v };
-        unsigned _BitInt(2*B) r = ( x_ << z ) + excess.v;
+        unsigned _BitInt(2*B) r = x_ << z;
         return {
             static_cast< unsigned _BitInt(B) >( r ),
             static_cast< unsigned _BitInt(B) >( r >> B )

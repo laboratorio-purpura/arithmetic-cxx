@@ -32,12 +32,12 @@ export namespace purple
         assert( is_smaller( x[1], y ) );
 
         // t = ( r[1] × iy ) + x
-        auto t = product( x[1], iy, W{0} );
+        auto t = product( x[1], iy );
         ignore = add<W>( t, t, x );
         // q = ( t[1] + 1 ) mod B
         auto [ q, _ ] = sum( t[1], W{1}, W{0} );
         // r = ( x - ( q × y ) ) mod B
-        auto qy = product( q, y, W{0} );
+        auto qy = product( q, y );
         auto [ r, _ ] = difference( x[0], qy[0], W{0} );
         // if r > t[0] : q = ( q - 1 ) mod B; r = ( r + y ) mod B
         if ( is_greater( r, t[0] ) ) {
@@ -67,15 +67,15 @@ export namespace purple
     auto divide_normal_strict ( span<W const,Tri> x, span<W const,Bi> y, W iy ) noexcept -> tuple< W, array<W,Bi> >
     {
         // 1. <q1,q0> ← v.u2
-        auto q = product( iy, x[2], W{0} );
+        auto q = product( iy, x[2] );
         // 2. <q1,q0> ← <q1,q0> + <u2,u1>
         auto x12 = array { x[1], x[2] };
         ignore = add<W>( q, q, x12 );
         // 3. r1 ← (u1 - q1.d1) % B
-        auto q1y1 = product( q[1], y[1], W{0} );
+        auto q1y1 = product( q[1], y[1] );
         auto [ r1, _ ] = difference( x[1], q1y1[0], W{0} );
         // 4. <t1,t0> ← d0.q1
-        auto t = product( y[0], q[1], W{0} );
+        auto t = product( y[0], q[1] );
         // 5. <r1,r0> ← (<r1,x0> - <t1,t0> - <d1,d0>) % B^2
         auto r = array { x[0], r1 };
         ignore = subtract<W>( r, r, t );
@@ -130,7 +130,7 @@ export namespace purple
         // 2. normalize dividend and divisor.
 
         // 2.1. normalize divisor.
-        auto [ ny, _ ] = twice( y, factor, W{0} );
+        auto [ ny, _ ] = twice( y, factor );
 
         // 2.2 normalize dividend.
         auto const nxd = xz + 1;
@@ -195,13 +195,14 @@ export namespace purple
         tie( q_[1], r_ ) = divide_normal_strict<W,2>( array { x[yz], r_ }, y[yz-1], iy );
         tie( q_[0], r_ ) = divide_normal_strict<W,2>( array { x[yz-1], r_ }, y[yz-1], iy );
         // invariant: q' - 2 ≤ q ≤ q' ≤ β
+        assert( not_greater( q_[1], W{1} ) );
 
         // reduce q'
         while (
             // q' >= B
             not_zero( q_[1] ) ||
             // q' × y[yz-2] > { x[yz-2], r' }
-            is_greater<W>( product( q_[0], y[yz-2], W{0} ), array { x[yz-2], r_ } )
+            is_greater<W>( product( q_[0], y[yz-2] ), array { x[yz-2], r_ } )
         ) {
             // q_ ← q_ - 1
             ignore = decrement<W>( q_, q_ );
@@ -212,6 +213,7 @@ export namespace purple
             if ( not_zero( carry ) ) break;
         }
         // invariant: q' - 1 ≤ q ≤ q' < β
+        assert( are_equal( q_[1], W{0} ) );
 
         // reduce q'
         // r ← x - q' × y

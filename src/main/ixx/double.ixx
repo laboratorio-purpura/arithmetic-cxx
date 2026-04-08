@@ -45,10 +45,17 @@ namespace purple
         // double word by word,
         // from least to most significant,
         // propagating excess
-        for (auto i = 0uz; i != z; ++i)
-            tie( product[i], excess ) = twice( x[i], y, excess );
+        for (auto i = 0uz; i != z; ++i) {
+            auto carry = W{0};
+            // x[i] × 2^y + excess
+            auto p = twice( x[i], y );
+            tie( p[0], carry ) = sum( p[0], excess, W{0} );
+            tie( p[1], ignore ) = sum( p[1], W{0}, carry );
+            // store low word, propagate high word
+            product[i] = p[0];
+            excess = p[1];
+        }
 
         return excess;
     }
-
 }

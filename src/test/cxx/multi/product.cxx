@@ -30,7 +30,7 @@ TYPED_TEST(PurpleRandomTest,product_assign_64_1)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 1000; ++i)
+    for (auto i = 0; i != 100000; ++i)
     {
         SCOPED_TRACE("i = " + format(i));
 
@@ -85,7 +85,7 @@ TYPED_TEST(PurpleRandomTest,product_accumulate_32_32)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 1000; ++i)
+    for (auto i = 0; i != 100000; ++i)
     {
         SCOPED_TRACE("i = " + format(i));
 

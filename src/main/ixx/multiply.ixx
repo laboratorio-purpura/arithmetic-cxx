@@ -44,7 +44,16 @@ namespace purple
         // multiply x and y word by word,
         // from least to most significant
         for (auto i = 0uz; i != xz; ++i)
-            tie( result[i], excess ) = product( x[i], y, excess );
+        {
+            auto carry = W{0};
+            // x[i] × y + excess
+            auto p = product( x[i], y );
+            tie( p[0], carry ) = sum( p[0], excess, W{0} );
+            tie( p[1], ignore ) = sum( p[1], W{0}, carry );
+            // store low word, propagate high word
+            result[i] = p[0];
+            excess = p[1];
+        }
 
         return excess;
     }
@@ -80,7 +89,9 @@ namespace purple
             {
                 auto carry = W{0};
                 // x[i] × y[j] + excess
-                auto p = product( x[i], y[j], excess );
+                auto p = product( x[i], y[j] );
+                tie( p[0], carry ) = sum( p[0], excess, W{0} );
+                tie( p[1], ignore ) = sum( p[1], W{0}, carry );
                 // store low word, propagate high word
                 tie( result[i+j], carry ) = sum( result[i+j], p[0], W{0} );
                 tie( excess, ignore ) = sum( p[1], W{0}, carry );

@@ -42,14 +42,14 @@ TEST_F(PurpleTest,half_assign_regression)
     }
 }
 
-TYPED_TEST(PurpleRandomTest,half_assign_64)
+TYPED_TEST(PurpleRandomTest,halve_64)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
 
     using word = word<B>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != 100000; ++i)
     {
         SCOPED_TRACE("i = " + format(i));
 

@@ -63,6 +63,67 @@ TEST_F(PurpleTest,divide_regression)
     }
 }
 
+TYPED_TEST(PurpleRandomTest,divide_normal_strict_2_1)
+{
+    constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
+    using generator = std::tuple_element<1,TypeParam>::type;
+
+    using word = word<B>;
+
+    for (auto i = 0; i != 100000; ++i)
+    {
+        SCOPED_TRACE("i = " + format(i));
+
+        // compute with gmp
+
+        mpz_class gy {};
+        generator::generate(gy,1,B);
+        mpz_setbit(gy.get_mpz_t(),B-1);
+
+        mpz_class gx {};
+        generator::generate(gx,2,B);
+        if ((gx >> B) >= gy)
+            gx = gx - (gy << B);
+        assert( (gx >> B) < gy );
+
+        mpz_class gq = gx / gy;
+        mpz_class gr = gx % gy;
+
+        SCOPED_TRACE("gmp:\n"s +
+            "x = " + format(gx) + "\n" +
+            "y = " + format(gy) + "\n" +
+            "q = " + format(gq) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+
+        // compute with purple
+
+        auto x = array<word,2> {};
+        assign(x,gx);
+
+        auto y = array<word,1> {};
+        assign(y,gy);
+
+        auto iy = reciprocal_normalized<word>( y[0] );
+
+        auto [ q, r ] = divide_normal_strict<word,2>( x, y[0], iy );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "y = " + format(y) + "\n" +
+            "q = " + format(q) + "\n" +
+            "r = " + format(r) + "\n"
+        );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gy, to_mpz(y) );
+        ASSERT_GMP_EQ( gq, to_mpz(q) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
+    }
+}
+
 TYPED_TEST(PurpleRandomTest,divide_64_1)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;

@@ -39,7 +39,7 @@ TYPED_TEST(PurpleRandomTest,reciprocal_normalised_2)
 
     using word = word<B>;
 
-    for (auto i = 0uz; i != 10000; ++i)
+    for (auto i = 0uz; i != 100000; ++i)
     {
         SCOPED_TRACE("i = " + format(i));
 

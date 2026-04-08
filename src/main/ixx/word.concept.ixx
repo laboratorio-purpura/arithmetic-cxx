@@ -68,8 +68,8 @@ namespace purple
 
         { next(w,w) } noexcept -> same_as< array<W,2> >;
         { sum(w,w,w) } noexcept -> same_as< array<W,2> >;
-        { product(w,w,w) } noexcept -> same_as< array<W,2> >;
-        { twice(w,z,w) } noexcept -> same_as< array<W,2> >;
+        { product(w,w) } noexcept -> same_as< array<W,2> >;
+        { twice(w,z) } noexcept -> same_as< array<W,2> >;
 
         /// Reduce procedures.
 

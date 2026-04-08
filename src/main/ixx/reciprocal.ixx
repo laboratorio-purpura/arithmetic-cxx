@@ -54,7 +54,7 @@ namespace purple
         auto v = reciprocal_normalized( y[1] );
         // We have β^2 − d1 ≤ (β + v).d1 < β^2
         // 2. p ← d1.v mod β
-        auto [ p, _ ] = product( y[1], v, W{0} );
+        auto [ p, _ ] = product( y[1], v );
 	    // 3. p ← (p + d0) mod β
         tie( p, ignore ) = sum( p, y[0], W{0} );
     	// 4. if p < d0
@@ -73,7 +73,7 @@ namespace purple
         }
         // We have β^2 − d1 ≤ (β + v) . d1 + d0 < β^2.
         // 10. <t1, t0> ← v.d0
-        auto t = product( v, y[0], W{0} );
+        auto t = product( v, y[0] );
 		// 11. p ← (p + t1) mod β
         tie( p, ignore ) = sum( p, t[1], W{0} );
 		// 12. if p < t1

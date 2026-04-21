@@ -58,17 +58,17 @@ struct gmp_rrandomb : gmp_random
     static auto name () -> string { return "gmp_rrandomb"; };
 
     template <size_t B>
-    static void generate (span<purple::word<B>> x) noexcept
+    static void generate (span<purple::arithmetics::word<B>> x) noexcept
     {
         init();
         auto const xz = x.size();
         mpz_class t {};
         mpz_rrandomb(t.get_mpz_t(),state,xz*B);
-        purple::assign(x,t);
+        purple::arithmetics::assign(x,t);
     }
 
     template <size_t B, size_t Z>
-    static void generate (array<purple::word<B>,Z> & x) noexcept
+    static void generate (array<purple::arithmetics::word<B>,Z> & x) noexcept
     {
         generate<B>( span(x) );
     }
@@ -85,17 +85,17 @@ struct gmp_urandomb : gmp_random
     static auto name () -> string { return "gmp_urandomb"; };
 
     template <size_t B>
-    static void generate (span<purple::word<B>> x) noexcept
+    static void generate (span<purple::arithmetics::word<B>> x) noexcept
     {
         init();
         auto const xz = x.size();
         mpz_class t {};
         mpz_urandomb(t.get_mpz_t(),state,xz*B);
-        purple::assign(x,t);
+        purple::arithmetics::assign(x,t);
     }
 
     template <size_t B, size_t Z>
-    static void generate (array<purple::word<B>,Z> & x) noexcept
+    static void generate (array<purple::arithmetics::word<B>,Z> & x) noexcept
     {
         generate<B>( span(x) );
     }

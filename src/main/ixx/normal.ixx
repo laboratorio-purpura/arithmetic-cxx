@@ -9,7 +9,7 @@ export module purple.arithmetics:normal;
 
 import :word_concept;
 
-export namespace purple
+export namespace purple::arithmetics
 {
     /// Tests if normalized.
     ///

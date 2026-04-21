@@ -9,7 +9,7 @@ export module purple.arithmetics:odd;
 
 import :word_concept;
 
-export namespace purple
+export namespace purple::arithmetics
 {
     /// Tests if *not* odd.
     ///

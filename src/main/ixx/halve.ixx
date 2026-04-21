@@ -12,7 +12,7 @@ export module purple.arithmetics:halve;
 
 import :word_concept;
 
-namespace purple
+namespace purple::arithmetics
 {
     using std::ignore;
     using std::size;

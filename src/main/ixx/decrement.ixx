@@ -11,7 +11,7 @@ export module purple.arithmetics:decrement;
 
 import :word_concept;
 
-namespace purple
+namespace purple::arithmetics
 {
     using std::size;
     using std::ranges::min;

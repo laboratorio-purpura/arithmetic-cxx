@@ -21,7 +21,7 @@ export module purple.arithmetics:word_concept;
 
 using namespace std;
 
-namespace purple
+namespace purple::arithmetics
 {
     export
     template <typename W>

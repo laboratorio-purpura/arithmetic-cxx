@@ -23,7 +23,7 @@ namespace
 {
     constexpr auto bits = sizeof(nullptr) * CHAR_BIT;
 
-    using word = purple::word<bits>;
+    using word = purple::arithmetics::word<bits>;
 
     std::random_device cxx_random_device {};
 
@@ -126,7 +126,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::increment<word>(r,x);
+            increment<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }
@@ -171,7 +171,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::add<word>(r,x,y);
+            add<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -216,7 +216,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::add<word>(r,x,y);
+            add<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -261,7 +261,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::add<word>(r,x,y);
+            add<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -306,7 +306,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::multiply<word>(r,x,y);
+            multiply<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -351,7 +351,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::multiply<word>(r,x,y);
+            multiply<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -391,7 +391,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::double_<word>(r,x,31uz);
+            double_<word>(r,x,31uz);
 
             benchmark::DoNotOptimize(r);
         }
@@ -433,7 +433,7 @@ namespace
         {
             for (auto& it : r) it = word{}; // TODO: clear(r)
 
-            purple::square_accumulate<word>(r,x);
+            square_accumulate<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }
@@ -473,7 +473,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::decrement<word>(r,x);
+            decrement<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }
@@ -518,7 +518,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::subtract<word>(r,x,y);
+            subtract<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -563,7 +563,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::subtract<word>(r,x,y);
+            subtract<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -608,7 +608,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::subtract<word>(r,x,y);
+            subtract<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -654,7 +654,7 @@ namespace
 
         for (auto _ : state)
         {
-            auto r = purple::divide<word>(q,x,y);
+            auto r = divide<word>(q,x,y);
 
             benchmark::DoNotOptimize(q);
             benchmark::DoNotOptimize(r);
@@ -704,7 +704,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::divide<word>(q,r,x,y);
+            divide<word>(q,r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -744,7 +744,7 @@ namespace
 
         for (auto _ : state)
         {
-            purple::halve<word>(r,x,31uz);
+            halve<word>(r,x,31uz);
 
             benchmark::DoNotOptimize(r);
         }

@@ -9,7 +9,7 @@ export module purple.arithmetics:zero;
 
 import :word_concept;
 
-namespace purple
+namespace purple::arithmetics
 {
     using std::size;
 

@@ -13,7 +13,7 @@ import :word_concept;
 
 import :multiply;
 
-export namespace purple
+export namespace purple::arithmetics
 {
     /// Normalized division with remainder.
     ///

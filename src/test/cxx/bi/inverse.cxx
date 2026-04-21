@@ -13,7 +13,7 @@ import purple.arithmetics;
 import purple.arithmetics.utility;
 import purple.test;
 
-using namespace purple;
+using namespace purple::arithmetics;
 using namespace purple::test;
 using namespace std::string_literals;
 

@@ -20,7 +20,7 @@ using std::span;
 using std::string;
 using std::vector;
 
-namespace purple
+namespace purple::arithmetics
 {
     export
     template <Word W, size_t Z>

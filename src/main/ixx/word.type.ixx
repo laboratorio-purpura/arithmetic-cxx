@@ -22,7 +22,7 @@ using std::array;
 using std::span;
 using std::tuple;
 
-export namespace purple
+export namespace purple::arithmetics
 {
     template <size_t B>
     union word

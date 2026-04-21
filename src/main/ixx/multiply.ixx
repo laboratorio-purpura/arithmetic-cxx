@@ -12,7 +12,7 @@ export module purple.arithmetics:multiply;
 
 import :word_concept;
 
-namespace purple
+namespace purple::arithmetics
 {
     using std::ignore;
     using std::size;

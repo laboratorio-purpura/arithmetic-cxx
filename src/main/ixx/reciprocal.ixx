@@ -10,7 +10,7 @@ export module purple.arithmetics:reciprocal;
 
 import :word_concept;
 
-namespace purple
+namespace purple::arithmetics
 {
 	/// Computes an approximation to the multiplicative inverse of a "normalised" integer.
 	///

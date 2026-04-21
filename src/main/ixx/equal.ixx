@@ -10,7 +10,7 @@ export module purple.arithmetics:equal;
 
 import :word_concept;
 
-namespace purple
+namespace purple::arithmetics
 {
     using std::size;
     using std::ranges::min;

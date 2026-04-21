@@ -15,7 +15,7 @@
 import purple.arithmetics;
 import purple.arithmetics.utility;
 
-using namespace purple;
+using namespace purple::arithmetics;
 
 using std::array;
 using std::function;
@@ -28,7 +28,7 @@ namespace
 {
     constexpr auto bits = sizeof(nullptr) * CHAR_BIT;
 
-    using word = purple::word<bits>;
+    using word = purple::arithmetics::word<bits>;
 
     std::random_device random_device {};
 
@@ -120,12 +120,12 @@ namespace
             auto y = vector<word>(degree);
             generate(y);
 
-            if ( purple::is_smaller<word>(x,y) ) x.swap(y);
+            if ( purple::arithmetics::is_smaller<word>(x,y) ) x.swap(y);
 
             // compute with purple
 
             auto r = vector<word>(degree);
-            auto b = purple::subtract<word>(r,x,y);
+            auto b = purple::arithmetics::subtract<word>(r,x,y);
 
             // compute with GMP
 
@@ -157,7 +157,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree);
-            purple::halve<word>(r,x,1);
+            purple::arithmetics::halve<word>(r,x,1);
 
             // compute with GMP
 
@@ -186,7 +186,7 @@ namespace
 
             // compute with purple
 
-            auto r = purple::reciprocal_normalized(y);
+            auto r = purple::arithmetics::reciprocal_normalized(y);
 
             // compute with GMP
 
@@ -219,7 +219,7 @@ namespace
 
             // compute with purple
 
-            auto r = purple::is_greater<word>(x,y);
+            auto r = purple::arithmetics::is_greater<word>(x,y);
 
             // compute with GMP
 
@@ -253,7 +253,7 @@ namespace
 
             // compute with purple
 
-            auto r = purple::is_smaller<word>(x,y);
+            auto r = purple::arithmetics::is_smaller<word>(x,y);
 
             // compute with GMP
 
@@ -288,7 +288,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree*2);
-            purple::multiply<word>(r,x,y);
+            purple::arithmetics::multiply<word>(r,x,y);
 
             // compute with GMP
 
@@ -322,7 +322,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree+1);
-            r[degree] = purple::multiply<word>(r,x,y);
+            r[degree] = purple::arithmetics::multiply<word>(r,x,y);
 
             // compute with GMP
 
@@ -353,13 +353,13 @@ namespace
 
             auto x = array<word,2>();
             generate(x);
-            if ( purple::not_smaller( x[1], y ) )
+            if ( purple::arithmetics::not_smaller( x[1], y ) )
                 tie( x[1], ignore ) = difference( x[1], y, word{0} );
 
             // compute with purple
 
-            auto iy = purple::reciprocal_normalized(y);
-            auto [q,r] = purple::divide_normal_strict<word,2>(x,y,iy);
+            auto iy = purple::arithmetics::reciprocal_normalized(y);
+            auto [q,r] = purple::arithmetics::divide_normal_strict<word,2>(x,y,iy);
 
             // compute with GMP
 
@@ -390,13 +390,13 @@ namespace
             generate(x);
 
             auto y = word{0u};
-            while ( purple::is_zero(y) )
+            while ( purple::arithmetics::is_zero(y) )
                 y = word { random_engine() };
 
             // compute with purple
 
             auto q = vector<word>(degree+1);
-            auto r = purple::divide<word>(span(q),x,y);
+            auto r = purple::arithmetics::divide<word>(span(q),x,y);
 
             // compute with GMP
 
@@ -429,7 +429,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree*2);
-            purple::square_accumulate<word>(r,x);
+            purple::arithmetics::square_accumulate<word>(r,x);
 
             // compute with GMP
 
@@ -462,7 +462,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree+1);
-            r[degree] = purple::add<word>(r,x,y);
+            r[degree] = purple::arithmetics::add<word>(r,x,y);
 
             // compute with GMP
 
@@ -494,7 +494,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree+1);
-            r[degree] = purple::double_<word>(r,x,1uz);
+            r[degree] = purple::arithmetics::double_<word>(r,x,1uz);
 
             // compute with GMP
 

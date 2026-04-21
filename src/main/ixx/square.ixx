@@ -11,7 +11,7 @@ export module purple.arithmetics:square;
 
 import :word_concept;
 
-export namespace purple
+export namespace purple::arithmetics
 {
     /// Square.
     ///

@@ -12,7 +12,7 @@ export module purple.arithmetics:double_;
 
 import :word_concept;
 
-namespace purple
+namespace purple::arithmetics
 {
     using std::size;
     using std::ranges::min;

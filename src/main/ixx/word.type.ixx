@@ -16,7 +16,7 @@ module;
 /// such as `_BitInt(B)` and `__builtin_clzg`,
 /// to satisfy the Word concept efficiently on a generic machine.
 
-export module purple.arithmetic:word_type;
+export module purple.arithmetics:word_type;
 
 using std::array;
 using std::span;

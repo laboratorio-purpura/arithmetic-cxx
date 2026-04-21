@@ -16,8 +16,8 @@ module;
 
 export module purple.test;
 
-import purple.arithmetic;
-import purple.arithmetic.utility;
+import purple.arithmetics;
+import purple.arithmetics.utility;
 
 using std::array;
 using std::span;

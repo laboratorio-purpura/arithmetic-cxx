@@ -12,8 +12,8 @@
 
 #include <gmpxx.h>
 
-import purple.arithmetic;
-import purple.arithmetic.utility;
+import purple.arithmetics;
+import purple.arithmetics.utility;
 
 using namespace purple;
 

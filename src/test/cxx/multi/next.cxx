@@ -9,8 +9,8 @@
 
 #include <gtest/gtest.h>
 
-import purple.arithmetic;
-import purple.arithmetic.utility;
+import purple.arithmetics;
+import purple.arithmetics.utility;
 import purple.test;
 
 using namespace purple;

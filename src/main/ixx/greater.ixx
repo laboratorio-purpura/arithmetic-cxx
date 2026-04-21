@@ -6,7 +6,7 @@ module;
 #include <algorithm>
 #include <span>
 
-export module purple.arithmetic:greater;
+export module purple.arithmetics:greater;
 
 import :word_concept;
 

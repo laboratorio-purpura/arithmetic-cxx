@@ -6,7 +6,7 @@ module;
 #include <span>
 #include <tuple>
 
-export module purple.arithmetic:reciprocal;
+export module purple.arithmetics:reciprocal;
 
 import :word_concept;
 

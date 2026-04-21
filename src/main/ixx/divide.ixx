@@ -7,7 +7,7 @@ module;
 #include <span>
 #include <tuple>
 
-export module purple.arithmetic:divide;
+export module purple.arithmetics:divide;
 
 import :word_concept;
 

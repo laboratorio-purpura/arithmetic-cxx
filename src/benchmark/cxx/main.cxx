@@ -12,7 +12,7 @@
 
 #include <benchmark/benchmark.h>
 
-import purple.arithmetic;
+import purple.arithmetics;
 
 using std::array;
 using std::ignore;

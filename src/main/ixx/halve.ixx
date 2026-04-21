@@ -8,7 +8,7 @@ module;
 #include <span>
 #include <tuple>
 
-export module purple.arithmetic:halve;
+export module purple.arithmetics:halve;
 
 import :word_concept;
 

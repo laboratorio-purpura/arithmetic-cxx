@@ -1,1 +1,1 @@
-module purple.arithmetic;
+module purple.arithmetics;

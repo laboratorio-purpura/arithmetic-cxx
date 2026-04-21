@@ -17,7 +17,7 @@ module;
 ///
 /// We purposefully avoid overloading C++ operators.
 
-export module purple.arithmetic:word_concept;
+export module purple.arithmetics:word_concept;
 
 using namespace std;
 

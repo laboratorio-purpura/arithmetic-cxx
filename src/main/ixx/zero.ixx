@@ -5,7 +5,7 @@ module;
 
 #include <span>
 
-export module purple.arithmetic:zero;
+export module purple.arithmetics:zero;
 
 import :word_concept;
 

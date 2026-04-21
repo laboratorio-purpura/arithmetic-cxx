@@ -11,9 +11,9 @@ module;
 
 #include <gmpxx.h>
 
-export module purple.arithmetic.utility;
+export module purple.arithmetics.utility;
 
-import purple.arithmetic;
+import purple.arithmetics;
 
 using std::array;
 using std::span;

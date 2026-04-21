@@ -6,7 +6,7 @@ module;
 #include <algorithm>
 #include <span>
 
-export module purple.arithmetic:equal;
+export module purple.arithmetics:equal;
 
 import :word_concept;
 

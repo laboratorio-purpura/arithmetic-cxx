@@ -7,7 +7,7 @@ module;
 #include <span>
 #include <tuple>
 
-export module purple.arithmetic:increment;
+export module purple.arithmetics:increment;
 
 import :word_concept;
 

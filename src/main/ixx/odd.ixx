@@ -5,7 +5,7 @@ module;
 
 #include <span>
 
-export module purple.arithmetic:odd;
+export module purple.arithmetics:odd;
 
 import :word_concept;
 

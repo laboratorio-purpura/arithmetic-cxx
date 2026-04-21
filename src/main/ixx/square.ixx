@@ -7,7 +7,7 @@ module;
 #include <span>
 #include <tuple>
 
-export module purple.arithmetic:square;
+export module purple.arithmetics:square;
 
 import :word_concept;
 

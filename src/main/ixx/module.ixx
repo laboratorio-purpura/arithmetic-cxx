@@ -12,7 +12,7 @@
 /// Requires, unless otherwise specified:
 /// size(operand) ≥ 1
 
-export module purple.arithmetic;
+export module purple.arithmetics;
 
 // words.
 

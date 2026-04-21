@@ -232,8 +232,8 @@ namespace
             fmt::println("i = {};",iteration);
             fmt::println("x = {}",format(x));
             fmt::println("y = {}",format(y));
-            fmt::println("expected = {}",format(gr));
-            fmt::println("actual = {}",format(r));
+            fmt::println("expected = {}",gr);
+            fmt::println("actual = {}",r);
 
             return r == gr;
         });
@@ -266,8 +266,8 @@ namespace
             fmt::println("i = {};",iteration);
             fmt::println("x = {}",format(x));
             fmt::println("y = {}",format(y));
-            fmt::println("expected = {}",format(gr));
-            fmt::println("actual = {}",format(r));
+            fmt::println("expected = {}",gr);
+            fmt::println("actual = {}",r);
 
             return r == gr;
         });

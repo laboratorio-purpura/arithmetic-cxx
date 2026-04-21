@@ -1,5 +1,5 @@
 = purple-arithmetics
-:author: Pedro Lamarão <pedro.lamarao@gmail.com>
+:author: Pedro Lamarão <pedro.lamarao@purpura.dev.br>
 :icons: font
 :lang: pt
 
@@ -23,6 +23,7 @@ Referências:
 Construir a biblioteca exige estas ferramentas.
 
 - clang 20+
+- libstdc++ 14+
 - ninja 1.11+
 - cmake 3.30+
 
@@ -34,20 +35,20 @@ cmake --preset default
 cmake --build --preset default
 ----
 
-Para testar a qualidade, execute o programa `purple-arithmetic-test`.
+Para testar a qualidade, execute o programa `purple-arithmetics-test`.
 
 [source,shell]
 ----
-cmake-build-default/purple-arithmetic-test
+cmake-build-default/test/purple-arithmetics-test
 ----
 
 Este é um programa padrão do Google Test, aceitando as opções de linha de comando convencionais.
 
-Para testar o desempenho, execute o programa `purple-arithmetic-bechmark`.
+Para testar o desempenho, execute o programa `purple-arithmetics-bechmark`.
 
 [source,shell]
 ----
-cmake-build-default/purple-arithmetic-benchmark
+cmake-build-default/benchmark/purple-arithmetics-benchmark
 ----
 
 Este é um programa padrão Google Benchmark, aceitando as opções de linha de comando convencionais.

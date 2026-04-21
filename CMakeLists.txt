@@ -5,6 +5,14 @@ project(purple-arithmetics VERSION 0.3.0 LANGUAGES C CXX)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(CMAKE_CXX_STANDARD 26)
 
+include(FetchContent)
+FetchContent_Declare(
+    hegel
+    GIT_REPOSITORY https://github.com/hegeldev/hegel-cpp.git
+    GIT_TAG v0.3.5
+)
+FetchContent_MakeAvailable(hegel)
+
 # main
 
 find_package(benchmark REQUIRED)
@@ -62,11 +70,14 @@ target_sources(purple-arithmetic-test
 target_link_libraries(purple-arithmetic-test
     PRIVATE
     fmt::fmt
+    hegel
     gmp::gmp
     GTest::gtest_main
     purple-arithmetic
     purple-arithmetic-utility
 )
+
+add_test(NAME purple-arithmetic-test COMMAND purple-arithmetic-test)
 
 # benchmark
 

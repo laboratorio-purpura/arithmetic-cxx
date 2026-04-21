@@ -1,0 +1,59 @@
+// SPDX-FileCopyrightText: 2025 Pedro Lamarão <pedro.lamarao@gmail.com>
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include <array>
+#include <random>
+#include <span>
+
+#include <gmpxx.h>
+#include <gtest/gtest.h>
+#include <hegel/hegel.h>
+
+import purple.arithmetics;
+import purple.arithmetics.utility;
+import purple.test;
+
+using std::ranges::max;
+using std::runtime_error;
+using std::span;
+using std::vector;
+
+namespace hg = hegel::generators;
+
+using namespace purple::arithmetics;
+using namespace purple::test;
+
+TYPED_TEST(PurpleHegelTest,divide_differential_gmp)
+{
+    constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
+
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+        auto y = tc.draw(hg::vectors<word>(words<Bits>({.min_value=1}), // TODO: lift min_value restriction
+            {.min_size=2,.max_size=63})); // TODO: lift min_size restriction
+        auto x = tc.draw(hg::vectors<word>(words<Bits>(),
+            {.min_size=size(y)+1,.max_size=64})); // TODO: lift min_size restriction
+
+        // compute with purple
+        auto z = size(x);
+        auto q = vector<word>(z);
+        auto r = vector<word>(z+1); // TODO: lift +1 requirement
+        divide<word>(q,r,x,y);
+
+        // compute with gmp
+        auto x_ = to_mpz(x);
+        auto y_ = to_mpz(y);
+        auto q_ = x_ / y_;
+        auto r_ = x_ % y_;
+
+        // compare
+        if ( ::cmp(q_, to_mpz(q)) != 0 )
+            throw runtime_error("GMP and purple differ on quotient");
+        if ( ::cmp(r_, to_mpz(r)) != 0 )
+            throw runtime_error("GMP and purple differ on remainder");
+    },
+    { .test_cases = 10000 });
+}

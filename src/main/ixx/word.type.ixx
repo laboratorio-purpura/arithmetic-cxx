@@ -27,7 +27,15 @@ export namespace purple::arithmetics
     template <size_t B>
     union word
     {
-        unsigned _BitInt(B) v;
+        using type = unsigned _BitInt(B);
+
+        type v;
+
+        constexpr
+        word () noexcept = default;
+
+        constexpr
+        word ( type x ) noexcept : v { x } {}
     };
 
     /// Query procedures.

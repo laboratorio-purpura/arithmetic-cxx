@@ -10,9 +10,11 @@ module;
 #include <string>
 #include <vector>
 
+#include <gmpxx.h>
+
 #include <gtest/gtest.h>
 
-#include <gmpxx.h>
+#include <hegel/hegel.h>
 
 export module purple.test;
 
@@ -25,11 +27,68 @@ using std::string;
 using std::tuple;
 using std::vector;
 
+using hegel::generators::Generator;
+using hegel::generators::IGenerator;
+
+template <size_t Bits> struct primitive;
+template<> struct primitive<8> { using type = uint8_t; };
+template<> struct primitive<16> { using type = uint16_t; };
+template<> struct primitive<32> { using type = uint32_t; };
+template<> struct primitive<64> { using type = uint64_t; };
+
+template <size_t Bits> using primitive_type = typename primitive<Bits>::type;
+
 export namespace purple::test
 {
+    template <size_t Bits>
+    struct WordsParams {
+        std::optional<primitive_type<Bits>>
+            min_value; ///< Minimum value (inclusive). Default: type minimum
+        std::optional<primitive_type<Bits>>
+            max_value; ///< Maximum value (inclusive). Default: type maximum
+    };
+
+    template <size_t Bits>
+    class WordGenerator : public IGenerator<arithmetics::word<Bits>> {
+    public:
+        explicit WordGenerator(WordsParams<Bits> params = {})
+            : params_(std::move(params)) {
+            primitive_type<Bits> min_val =
+                params_.min_value.value_or(std::numeric_limits<primitive_type<Bits>>::min());
+            primitive_type<Bits> max_val =
+                params_.max_value.value_or(std::numeric_limits<primitive_type<Bits>>::max());
+            if (min_val > max_val)
+                throw std::invalid_argument("Cannot have max_value < min_value");
+        }
+
+        std::optional<hegel::generators::BasicGenerator<arithmetics::word<Bits>>> as_basic() const override {
+            primitive_type<Bits> min_val =
+                params_.min_value.value_or(std::numeric_limits<primitive_type<Bits>>::min());
+            primitive_type<Bits> max_val =
+                params_.max_value.value_or(std::numeric_limits<primitive_type<Bits>>::max());
+            return hegel::generators::BasicGenerator<arithmetics::word<Bits>>{
+                {{"type", "integer"},
+                {"min_value", min_val},
+                {"max_value", max_val}},
+                &hegel::generators::default_parse_raw<primitive_type<Bits>>
+            };
+        }
+
+    private:
+        WordsParams<Bits> params_;
+    };
+
+    template <size_t Bits>
+    Generator<arithmetics::word<Bits>> words(WordsParams<Bits> params = {}) {
+        return Generator<arithmetics::word<Bits>>(new WordGenerator<Bits>(std::move(params)));
+    }
+
     struct PurpleTest : testing::Test { };
 
-    template <typename T>
+    template <typename>
+    struct PurpleHegelTest : testing::Test {};
+
+    template <typename>
     struct PurpleRandomTest : testing::Test {};
 }
 
@@ -110,7 +169,19 @@ struct gmp_urandomb : gmp_random
 template <size_t Z>
 struct bits : std::integral_constant<size_t,Z> {};
 
-using Types = ::testing::Types<
+using HegelTypes = ::testing::Types<
+    tuple< bits<8> >,
+    tuple< bits<16> >,
+    tuple< bits<32> >,
+    tuple< bits<64> >
+>;
+
+export namespace purple::test
+{
+    TYPED_TEST_SUITE(PurpleHegelTest,HegelTypes);
+}
+
+using RandomTypes = ::testing::Types<
     tuple< bits<8>,  gmp_rrandomb >,
     tuple< bits<8>,  gmp_urandomb >,
     tuple< bits<16>, gmp_rrandomb >,
@@ -123,5 +194,5 @@ using Types = ::testing::Types<
 
 export namespace purple::test
 {
-    TYPED_TEST_SUITE(PurpleRandomTest,Types);
+    TYPED_TEST_SUITE(PurpleRandomTest,RandomTypes);
 }

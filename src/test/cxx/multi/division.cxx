@@ -5,6 +5,8 @@
 #include <span>
 #include <tuple>
 
+#include <fmt/format.h>
+
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
@@ -72,7 +74,7 @@ TYPED_TEST(PurpleRandomTest,divide_normal_strict_2_1)
 
     for (auto i = 0; i != 100000; ++i)
     {
-        SCOPED_TRACE("i = " + format(i));
+        SCOPED_TRACE("i = " + fmt::format("{}",i));
 
         // compute with gmp
 
@@ -133,7 +135,7 @@ TYPED_TEST(PurpleRandomTest,divide_64_1)
 
     for (auto i = 0; i != 1000; ++i)
     {
-        SCOPED_TRACE("i = " + format(i));
+        SCOPED_TRACE("i = " + fmt::format("{}",i));
 
         // compute with gmp
 
@@ -192,7 +194,7 @@ TYPED_TEST(PurpleRandomTest,divide_normal_strict_N1_N)
 
     for (auto i = 0; i != 10000; ++i)
     {
-        SCOPED_TRACE("i = " + format(i));
+        SCOPED_TRACE("i = " + fmt::format("{}",i));
 
         // compute with gmp
 
@@ -255,7 +257,7 @@ TYPED_TEST(PurpleRandomTest,divide_normal_strict_33_32)
 
     for (auto i = 0; i != 10000; ++i)
     {
-        SCOPED_TRACE("i = " + format(i));
+        SCOPED_TRACE("i = " + fmt::format("{}",i));
 
         // compute with gmp
 
@@ -318,7 +320,7 @@ TYPED_TEST(PurpleRandomTest,divide_64_32)
 
     for (auto i = 0; i != 1000; ++i)
     {
-        SCOPED_TRACE("i = " + format(i));
+        SCOPED_TRACE("i = " + fmt::format("{}",i));
 
         // compute with gmp
 

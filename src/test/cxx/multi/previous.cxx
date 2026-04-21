@@ -5,6 +5,8 @@
 #include <span>
 #include <tuple>
 
+#include <fmt/format.h>
+
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
@@ -32,7 +34,7 @@ TYPED_TEST(PurpleRandomTest,previous_assign_32)
 
     for (auto i = 0; i != 10000; ++i)
     {
-        SCOPED_TRACE("i = " + format(i));
+        SCOPED_TRACE("i = " + fmt::format("{}",i));
 
         // compute with gmp
 

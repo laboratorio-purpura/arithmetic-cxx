@@ -5,6 +5,8 @@
 #include <span>
 #include <tuple>
 
+#include <fmt/format.h>
+
 #include <gmpxx.h>
 
 #include <gtest/gtest.h>
@@ -32,7 +34,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64)
 
     for (auto i = 0; i != 10000; ++i)
     {
-        SCOPED_TRACE("i = " + format(i));
+        SCOPED_TRACE("i = " + fmt::format("{}",i));
 
         // compute with gmp
 
@@ -43,7 +45,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64)
 
         SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
-            "r = " + format(gr) + "\n"
+            "r = " + fmt::format("{}",gr) + "\n"
         );
 
         // compute with purple
@@ -55,7 +57,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64)
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
-            "r = " + format(r) + "\n"
+            "r = " + fmt::format("{}",r) + "\n"
         );
 
         // compare
@@ -74,7 +76,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64_64)
 
     for (auto i = 0; i != 10000; ++i)
     {
-        SCOPED_TRACE("i = " + format(i));
+        SCOPED_TRACE("i = " + fmt::format("{}",i));
 
         // compute with gmp
 
@@ -89,7 +91,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64_64)
         SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
             "y = " + format(gy) + "\n" +
-            "r = " + format(gr) + "\n"
+            "r = " + fmt::format("{}",gr) + "\n"
         );
 
         // compute with purple
@@ -105,7 +107,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64_64)
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
             "y = " + format(y) + "\n" +
-            "r = " + format(r) + "\n"
+            "r = " + fmt::format("{}",r) + "\n"
         );
 
         // compare

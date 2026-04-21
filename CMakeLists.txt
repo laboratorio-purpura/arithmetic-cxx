@@ -20,12 +20,12 @@ find_package(fmt REQUIRED)
 find_package(gmp REQUIRED)
 find_package(GTest REQUIRED)
 
-add_library(purple-arithmetic)
+add_library(purple-arithmetics)
 
 FILE(GLOB main_cxx_sources src/main/cxx/*.cxx)
 FILE(GLOB main_ixx_sources src/main/ixx/*.ixx)
 
-target_sources(purple-arithmetic
+target_sources(purple-arithmetics
     PUBLIC FILE_SET CXX_MODULES FILES
     ${main_ixx_sources}
     PRIVATE
@@ -34,85 +34,85 @@ target_sources(purple-arithmetic
 
 # utility
 
-add_library(purple-arithmetic-utility)
+add_library(purple-arithmetics-utility)
 
 FILE(GLOB_RECURSE utility_cxx_sources src/utility/cxx/*.cxx)
 FILE(GLOB utility_ixx_sources src/utility/ixx/*.ixx)
 
-target_sources(purple-arithmetic-utility
+target_sources(purple-arithmetics-utility
         PUBLIC FILE_SET CXX_MODULES FILES
         ${utility_ixx_sources}
         PRIVATE
         ${utility_cxx_sources}
 )
 
-target_link_libraries(purple-arithmetic-utility
+target_link_libraries(purple-arithmetics-utility
         PRIVATE
         fmt::fmt
         gmp::gmp
-        purple-arithmetic
+        purple-arithmetics
 )
 
 # test
 
-add_executable(purple-arithmetic-test)
+add_executable(purple-arithmetics-test)
 
 FILE(GLOB_RECURSE test_cxx_sources src/test/cxx/*.cxx)
 FILE(GLOB test_ixx_sources src/test/ixx/*.ixx)
 
-target_sources(purple-arithmetic-test
+target_sources(purple-arithmetics-test
     PUBLIC FILE_SET CXX_MODULES FILES
     ${test_ixx_sources}
     PRIVATE
     ${test_cxx_sources}
 )
 
-target_link_libraries(purple-arithmetic-test
+target_link_libraries(purple-arithmetics-test
     PRIVATE
     fmt::fmt
     hegel
     gmp::gmp
     GTest::gtest_main
-    purple-arithmetic
-    purple-arithmetic-utility
+    purple-arithmetics
+    purple-arithmetics-utility
 )
 
-add_test(NAME purple-arithmetic-test COMMAND purple-arithmetic-test)
+add_test(NAME purple-arithmetics-test COMMAND purple-arithmetics-test)
 
 # benchmark
 
-add_executable(purple-arithmetic-benchmark)
+add_executable(purple-arithmetics-benchmark)
 
 FILE(GLOB benchmark_cxx_sources src/benchmark/cxx/*.cxx)
 
-target_sources(purple-arithmetic-benchmark
+target_sources(purple-arithmetics-benchmark
         PRIVATE
         ${benchmark_cxx_sources}
 )
 
-target_link_libraries(purple-arithmetic-benchmark
+target_link_libraries(purple-arithmetics-benchmark
         PRIVATE
         benchmark::benchmark
         fmt::fmt
         gmp::gmp
-        purple-arithmetic
+        purple-arithmetics
 )
 
 # fuzz
 
-add_executable(purple-arithmetic-fuzz)
+add_executable(purple-arithmetics-fuzz)
 
 FILE(GLOB fuzz_cxx_sources src/fuzz/cxx/*.cxx)
 
-target_sources(purple-arithmetic-fuzz
+target_sources(purple-arithmetics-fuzz
     PRIVATE
     ${fuzz_cxx_sources}
 )
 
-target_link_libraries(purple-arithmetic-fuzz
+target_link_libraries(purple-arithmetics-fuzz
     PRIVATE
     fmt::fmt
     gmp::gmp
-    purple-arithmetic
-    purple-arithmetic-utility
+    purple-arithmetics
+    purple-arithmetics-utility
 )

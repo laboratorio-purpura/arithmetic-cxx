@@ -1,15 +1,15 @@
-= purple-arithmetic
+= purple-arithmetics
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
 :icons: font
 :lang: en
 
 Para este texto em português, veja link:README.pt.adoc[].
 
-The `purple-arithmetic` library contains procedures for arithmetics with "long" nonnegative integers.
+The `purple-arithmetics` library contains procedures for arithmetics with "long" nonnegative integers.
 
 This is an educational project with the purpose of learning and sharing algorithmic mathematics.
 
-This library is defined as a C++26 module in link:src/main/ixx[].
+This library is defined as a C++26 module in link:main/ixx[].
 
 References:
 

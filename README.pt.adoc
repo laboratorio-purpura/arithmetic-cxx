@@ -1,15 +1,15 @@
-= purple-arithmetic
+= purple-arithmetics
 :author: Pedro Lamarão <pedro.lamarao@gmail.com>
 :icons: font
 :lang: pt
 
 For this text in english, see link:README.adoc[].
 
-A biblioteca `purple-arithmetic` contém rotinas para aritmética com inteiros não-negativos "longos".
+A biblioteca `purple-arithmetics` contém rotinas para aritmética com inteiros não-negativos "longos".
 
 Este é um projeto educacional com o propósito de aprendizado e compartilhamento de matemática algorítmica.
 
-Esta biblioteca está definida como um módulo C++26 em link:src/main/ixx[].
+Esta biblioteca está definida como um módulo C++26 em link:main/ixx[].
 
 Referências:
 

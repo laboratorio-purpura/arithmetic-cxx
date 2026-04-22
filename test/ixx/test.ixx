@@ -21,37 +21,22 @@ export module purple.test;
 import purple.arithmetics;
 import purple.arithmetics.utility;
 
-using std::array;
-using std::span;
-using std::string;
-using std::tuple;
-using std::vector;
-
-using hegel::generators::Generator;
-using hegel::generators::IGenerator;
+using namespace hegel::generators;
+using namespace std;
 
 template <size_t Bits> struct primitive;
 template<> struct primitive<8> { using type = uint8_t; };
 template<> struct primitive<16> { using type = uint16_t; };
 template<> struct primitive<32> { using type = uint32_t; };
 template<> struct primitive<64> { using type = uint64_t; };
-
 template <size_t Bits> using primitive_type = typename primitive<Bits>::type;
 
 export namespace purple::test
 {
     template <size_t Bits>
-    struct WordsParams {
-        std::optional<primitive_type<Bits>>
-            min_value; ///< Minimum value (inclusive). Default: type minimum
-        std::optional<primitive_type<Bits>>
-            max_value; ///< Maximum value (inclusive). Default: type maximum
-    };
-
-    template <size_t Bits>
     class WordGenerator : public IGenerator<arithmetics::word<Bits>> {
     public:
-        explicit WordGenerator(WordsParams<Bits> params = {})
+        explicit WordGenerator(IntegersParams<primitive_type<Bits>> params = {})
             : params_(std::move(params)) {
             primitive_type<Bits> min_val =
                 params_.min_value.value_or(std::numeric_limits<primitive_type<Bits>>::min());
@@ -61,7 +46,7 @@ export namespace purple::test
                 throw std::invalid_argument("Cannot have max_value < min_value");
         }
 
-        std::optional<hegel::generators::BasicGenerator<arithmetics::word<Bits>>> as_basic() const override {
+        std::optional<BasicGenerator<arithmetics::word<Bits>>> as_basic() const override {
             primitive_type<Bits> min_val =
                 params_.min_value.value_or(std::numeric_limits<primitive_type<Bits>>::min());
             primitive_type<Bits> max_val =
@@ -75,11 +60,11 @@ export namespace purple::test
         }
 
     private:
-        WordsParams<Bits> params_;
+        IntegersParams<primitive_type<Bits>> params_;
     };
 
     template <size_t Bits>
-    Generator<arithmetics::word<Bits>> words(WordsParams<Bits> params = {}) {
+    Generator<arithmetics::word<Bits>> words(IntegersParams<primitive_type<Bits>> params = {}) {
         return Generator<arithmetics::word<Bits>>(new WordGenerator<Bits>(std::move(params)));
     }
 

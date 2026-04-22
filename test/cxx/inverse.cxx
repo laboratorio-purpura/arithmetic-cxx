@@ -6,39 +6,54 @@
 #include <tuple>
 
 #include <fmt/format.h>
-
 #include <gmpxx.h>
-
 #include <gtest/gtest.h>
+#include <hegel/hegel.h>
 
 import purple.arithmetics;
 import purple.arithmetics.utility;
 import purple.test;
 
+using namespace hegel::generators;
 using namespace purple::arithmetics;
 using namespace purple::test;
+using namespace std;
 using namespace std::string_literals;
-
-using std::array;
-using std::ignore;
-using std::span;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TEST_F(PurpleTest,reciprocal_normalised_2_9C8739F05AA157B2)
+TYPED_TEST(PurpleHegelTest,reciprocal_normal_2_differential_gmp)
 {
-    using word = word<32>;
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using word = word<Bits>;
 
-    auto y = array<word,2> { 0x5AA157B2U, 0x9C8739F0U };
-    auto iy = reciprocal_normalized<word,2>( y );
-    ASSERT_EQ( format(iy), "A2AF5356" );
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+        // TODO: y must be "normal"; how can we improve this?
+        constexpr auto normal = typename word::type(1) << (Bits-1);
+        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=2,.max_size=2}));
+        y[1].v |= normal;
+
+        // compute with purple
+        auto iy = reciprocal_normalized<word,2>( span<word,2>(y) );
+
+        // compute with gmp
+        mpz_class y_ = to_mpz(y);
+        mpz_class base = mpz_class(1) << Bits;
+        mpz_class iy_ = ( ( base * base * base - 1u ) / y_ ) - base;
+
+        // compare
+        if ( ::cmp(iy_, to_mpz(iy)) != 0 )
+            throw runtime_error("GMP and purple differ");
+    },
+    { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleRandomTest,reciprocal_normalised_2)
+TYPED_TEST(PurpleRandomTest,reciprocal_normal_2_differential_gmp)
 {
-    constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
-    using generator = std::tuple_element<1,TypeParam>::type;
-
+    constexpr auto B = tuple_element<0,TypeParam>::type::value;
+    using generator = tuple_element<1,TypeParam>::type;
     using word = word<B>;
 
     for (auto i = 0uz; i != 100000; ++i)
@@ -47,13 +62,11 @@ TYPED_TEST(PurpleRandomTest,reciprocal_normalised_2)
 
         // compute with gmp
 
-        mpz_class gb { 1u };
-        gb = gb << B;
-
         mpz_class gy {};
         generator::generate(gy,2,B);
         mpz_setbit(gy.get_mpz_t(),(2*B)-1);
 
+        mpz_class gb = mpz_class(1) << B;
         mpz_class giy = ( ( gb * gb * gb - 1u ) / gy ) - gb;
 
         SCOPED_TRACE("gmp:\n"s +

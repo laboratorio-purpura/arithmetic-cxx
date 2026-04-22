@@ -44,7 +44,7 @@ TYPED_TEST(PurpleHegelTest,subtract_N_1_differential_gmp)
         auto z = size(x);
         auto r = vector<word>(z);
         auto b = subtract<word>(r,x,y);
-        assert(b == 0);
+        assert(b.v == 0);
 
         // compute with gmp
         auto x_ = to_mpz(x);

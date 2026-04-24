@@ -31,6 +31,20 @@ template<> struct primitive<32> { using type = uint32_t; };
 template<> struct primitive<64> { using type = uint64_t; };
 template <size_t Bits> using primitive_type = typename primitive<Bits>::type;
 
+export namespace purple::arithmetics
+{
+    template <size_t Bits>
+    constexpr
+    bool operator== (word<Bits> x, word<Bits> y) noexcept {
+        return x.v == y.v;
+    }
+    template <size_t Bits>
+    constexpr
+    bool operator!= (word<Bits> x, word<Bits> y) noexcept {
+        return x.v != y.v;
+    }
+}
+
 export namespace purple::test
 {
     template <size_t Bits>

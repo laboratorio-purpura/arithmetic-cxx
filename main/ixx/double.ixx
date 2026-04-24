@@ -42,9 +42,7 @@ namespace purple::arithmetics
         // count of result words to compute
         auto const z = min({ pz, xz });
 
-        // double word by word,
-        // from least to most significant,
-        // propagating excess
+        // double x, y times, word by word, propagating excess
         for (auto i = 0uz; i != z; ++i) {
             auto carry = W{0};
             // x[i] × 2^y + excess

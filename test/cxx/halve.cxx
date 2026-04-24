@@ -17,14 +17,19 @@ import purple.test;
 using namespace hegel::generators;
 using namespace purple::arithmetics;
 using namespace purple::test;
-using namespace std;
+using std::ignore;
+using std::runtime_error;
+using std::span;
+using std::tuple_element;
+using std::vector;
+using namespace std::ranges;
+using namespace std::literals;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
 TYPED_TEST(PurpleHegelTest,halve_differential_gmp)
 {
-    constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
-
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
 
     hegel::test([](hegel::TestCase& tc)
@@ -51,10 +56,9 @@ TYPED_TEST(PurpleHegelTest,halve_differential_gmp)
 
 TYPED_TEST(PurpleRandomTest,halve_64_differential_gmp)
 {
-    constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
-    using generator = std::tuple_element<1,TypeParam>::type;
-
-    using word = word<B>;
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using generator = tuple_element<1,TypeParam>::type;
+    using word = word<Bits>;
 
     for (auto i = 0; i != 100000; ++i)
     {
@@ -63,9 +67,9 @@ TYPED_TEST(PurpleRandomTest,halve_64_differential_gmp)
         // compute with gmp
 
         mpz_class gx {};
-        generator::generate(gx,64,B);
+        generator::generate(gx,64,Bits);
 
-        mpz_class gq = gx >> (B-1);
+        mpz_class gq = gx >> (Bits-1);
 
         SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
@@ -74,12 +78,12 @@ TYPED_TEST(PurpleRandomTest,halve_64_differential_gmp)
 
         // compute with purple
 
-        auto x = array<word,64> {};
-        assign(x,gx);
+        auto x = vector<word>(64);
+        assign<word>(x,gx);
 
-        auto q = array<word,64> {};
+        auto q = vector<word>(64);
 
-        ignore = halve<word>( q, x, (B-1) );
+        ignore = halve<word>( q, x, (Bits-1) );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -91,4 +95,39 @@ TYPED_TEST(PurpleRandomTest,halve_64_differential_gmp)
         ASSERT_GMP_EQ( gx, to_mpz(x) );
         ASSERT_GMP_EQ( gq, to_mpz(q) );
     }
+}
+
+TYPED_TEST(PurpleHegelTest,halve_size)
+{
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
+        auto y = tc.draw(integers<size_t>({.max_value=Bits-1}));
+        // full result size
+        auto fz = size(x);
+        // variable result size
+        auto vz = tc.draw(integers<size_t>({.max_value=128}));
+
+        // compute full-sized result
+
+        auto fr = vector<word>(fz);
+        auto _ = halve<word>(fr,x,y);
+
+        // compute variable-sized result
+
+        auto vr = vector<word>(vz);
+        auto _ = halve<word>(vr,x,y);
+
+        // compare
+
+        auto z = min(fz, vz);
+        if ( ! equal( span(fr).subspan(0,z), span(vr).subspan(0,z) ) )
+            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(fr),format(vr)));
+    },
+    { .test_cases = 10000 });
 }

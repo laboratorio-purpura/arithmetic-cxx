@@ -43,9 +43,14 @@ namespace purple::arithmetics
         // count of result words to compute
         auto const z = min({ pz, xz });
 
-        // halve word by word,
-        // from most to least significant,
-        // propagating remainder<
+        // halve x, y times, word by word, propagating remainder
+        if (xz > z)
+        {
+            // x[i] ÷ 2^y
+            auto [ _, r ] = half( x[z], y );
+            // propagate remainder
+            tie( remainder, ignore ) = twice( r, Bits - y );
+        }
         for (auto i = z; i > 0; --i)
         {
     		// x[i] ÷ 2^y

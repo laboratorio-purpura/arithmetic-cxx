@@ -40,13 +40,12 @@ namespace purple::arithmetics
         // count of result words to compute
         auto const z = min({ sz, xz });
 
-        // subtract x[0] and y,
-        // propagating borrow
-        if (z > 0)
+        // subtract x[0] and y, propagating borrow
+        if (0 < z)
             tie( result[0], borrow ) = difference( x[0], y, W{0} );
 
         // propagate borrow through x
-        for (auto i = 1uz; i != z; ++i)
+        for (auto i = 1uz; i < z; ++i)
             tie( result[i], borrow ) = difference( x[i], W{0}, borrow );
 
         return borrow;
@@ -64,30 +63,28 @@ namespace purple::arithmetics
     auto subtract ( span<W> difference, span<W const> x, span<W const> y ) noexcept -> W;
 
     template <Word W>
-    auto subtract ( span<W> result, span<W const> x, span<W const> y ) noexcept -> W
+    auto subtract ( span<W> r, span<W const> x, span<W const> y ) noexcept -> W
     {
         auto borrow = W{0};
 
-        auto const dz = size(result);
+        auto const rz = size(r);
         auto const xz = size(x);
         auto const yz = size(y);
 
         // count of result words to compute
-        auto const z = min({ dz, xz, yz });
+        auto const z = min({ rz, xz, yz });
 
-        // subtract x and y word by word,
-        // from least to most significant,
-        // propagating borrow
+        // subtract x and y, word by word, propagating borrow
         for (auto i = 0uz; i != z; ++i)
-            tie( result[i], borrow ) = difference( x[i], y[i], borrow );
+            tie( r[i], borrow ) = difference( x[i], y[i], borrow );
 
         // either propagate borrow through x
-        for (auto i = z; i < xz; ++i)
-            tie( result[i], borrow ) = difference( x[i], W{0}, borrow );
+        for (auto i = z, j = min(xz,rz); i < j; ++i)
+            tie( r[i], borrow ) = difference( x[i], W{0}, borrow );
 
         // or propagate borrow through y
-        for (auto i = z; i < yz; ++i)
-            tie( result[i], borrow ) = difference( W{0}, y[i], borrow );
+        for (auto i = z, j = min(yz,rz); i < j; ++i)
+            tie( r[i], borrow ) = difference( W{0}, y[i], borrow );
 
         return borrow;
     }

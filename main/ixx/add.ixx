@@ -40,13 +40,12 @@ namespace purple::arithmetics
         // count of result words to compute
         auto const z = min({ sz, xz });
 
-        // add x[0] and y,
-        // propagating carry
-        if (z > 0)
+        // add x[0] and y, propagating carry
+        if (0 < z)
             tie( result[0], carry ) = sum( x[0], y, W{0} );
 
         // propagate carry through x
-        for (auto i = 1uz; i != z; ++i)
+        for (auto i = 1uz; i < z; ++i)
             tie( result[i], carry ) = sum( x[i], W{0}, carry );
 
         return carry;
@@ -64,30 +63,28 @@ namespace purple::arithmetics
     auto add ( span<W> sum, span<W const> x, span<W const> y ) noexcept -> W;
 
     template <Word W>
-    auto add ( span<W> result, span<W const> x, span<W const> y ) noexcept -> W
+    auto add ( span<W> r, span<W const> x, span<W const> y ) noexcept -> W
     {
         auto carry = W{0};
 
-        auto const sz = size(result);
+        auto const rz = size(r);
         auto const xz = size(x);
         auto const yz = size(y);
 
         // count of result words to compute
-        auto const z = min({ sz, xz, yz });
+        auto const z = min({ rz, xz, yz });
 
-        // add x and y word by word,
-        // from least to most significant,
-        // propagating carry
+        // add x and y, word by word, propagating carry
         for (auto i = 0uz; i != z; ++i)
-            tie( result[i], carry ) = sum( x[i], y[i], carry );
+            tie( r[i], carry ) = sum( x[i], y[i], carry );
 
         // either propagate carry through x
-        for (auto i = z; i < xz; ++i)
-            tie( result[i], carry ) = sum( x[i], W{0}, carry );
+        for (auto i = z, j = min(rz, xz); i < j; ++i)
+            tie( r[i], carry ) = sum( x[i], W{0}, carry );
 
         // or propagate carry through y
-        for (auto i = z; i < yz; ++i)
-            tie( result[i], carry ) = sum( W{0}, y[i], carry );
+        for (auto i = z, j = min(rz, yz); i < j; ++i)
+            tie( r[i], carry ) = sum( W{0}, y[i], carry );
 
         return carry;
     }

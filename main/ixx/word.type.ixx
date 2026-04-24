@@ -38,6 +38,12 @@ export namespace purple::arithmetics
         word ( type x ) noexcept : v { x } {}
     };
 
+    template <size_t Bits>
+    auto format_as (word<Bits> x)
+    {
+        return x.v;
+    }
+
     /// Query procedures.
 
     template <size_t B>

@@ -5,6 +5,7 @@
 #include <random>
 #include <span>
 
+#include <fmt/format.h>
 #include <gmpxx.h>
 #include <gtest/gtest.h>
 #include <hegel/hegel.h>
@@ -13,17 +14,14 @@ import purple.arithmetics;
 import purple.arithmetics.utility;
 import purple.test;
 
-using std::ranges::max;
-using std::runtime_error;
-using std::span;
-using std::vector;
-
-namespace hg = hegel::generators;
-
+using namespace hegel::generators;
 using namespace purple::arithmetics;
 using namespace purple::test;
+using namespace std;
 
-TYPED_TEST(PurpleHegelTest,halve_differential_gmp)
+#define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
+
+TYPED_TEST(PurpleHegelTest,double_differential_gmp)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -32,8 +30,8 @@ TYPED_TEST(PurpleHegelTest,halve_differential_gmp)
     hegel::test([](hegel::TestCase& tc)
     {
         // generate with hegel
-        auto x = tc.draw(hg::vectors<word>(words<Bits>(),{.max_size=64}));
-        auto y = tc.draw(hg::integers<unsigned>({.max_value=Bits-1}));
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
+        auto y = tc.draw(integers<unsigned>({.max_value=Bits-1}));
         auto z = size(x);
 
         // compute with purple
@@ -49,4 +47,48 @@ TYPED_TEST(PurpleHegelTest,halve_differential_gmp)
             throw runtime_error("GMP and purple differ");
     },
     { .test_cases = 10000 });
+}
+
+TYPED_TEST(PurpleRandomTest,double_64_differential_gmp)
+{
+    constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
+    using generator = std::tuple_element<1,TypeParam>::type;
+
+    using word = word<B>;
+
+    for (auto i = 0; i != 100000; ++i)
+    {
+        SCOPED_TRACE("i = " + fmt::format("{}",i));
+
+        // compute with gmp
+
+        mpz_class gx {};
+        generator::generate(gx,64,B);
+
+        mpz_class gr = gx << (B-1);
+
+        SCOPED_TRACE("gmp:\n"s +
+            "x = " + format(gx) + "\n" +
+            "r = " + format(gr) + "\n"
+        );
+
+        // compute with purple
+
+        auto x = array<word,64> {};
+        assign(x,gx);
+
+        auto r = array<word,65> {};
+
+        r[64] = double_<word>( r, x, (B-1) );
+
+        SCOPED_TRACE("purple:\n"s +
+            "x = " + format(x) + "\n" +
+            "r = " + format(r) + "\n"
+        );
+
+        // compare
+
+        ASSERT_GMP_EQ( gx, to_mpz(x) );
+        ASSERT_GMP_EQ( gr, to_mpz(r) );
+    }
 }

@@ -6,82 +6,61 @@
 #include <tuple>
 
 #include <fmt/format.h>
-
 #include <gmpxx.h>
-
 #include <gtest/gtest.h>
+#include <hegel/hegel.h>
 
 import purple.arithmetics;
 import purple.arithmetics.utility;
 import purple.test;
 
+using namespace hegel::generators;
 using namespace purple::arithmetics;
 using namespace purple::test;
-using namespace std::string_literals;
-
-using std::array;
-using std::ignore;
-using std::span;
+using namespace std;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleRandomTest,divide_normal_strict_3_2)
+TYPED_TEST(PurpleRandomTest,square_32_differential_gmp)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
 
     using word = word<B>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != 1000; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
         // compute with gmp
 
-        mpz_class gy {};
-        generator::generate(gy,2,B);
-        mpz_setbit(gy.get_mpz_t(),(2*B)-1);
-
         mpz_class gx {};
-        generator::generate(gx,3,B);
-        if ((gx >> B) >= gy)
-            gx = gx - (gy << B);
-        assert( (gx >> B) < gy );
+        generator::generate(gx,32,B);
 
-        mpz_class gq = gx / gy;
-        mpz_class gr = gx % gy;
+        mpz_class gr = gx * gx;
 
         SCOPED_TRACE("gmp:\n"s +
             "x = " + format(gx) + "\n" +
-            "y = " + format(gy) + "\n" +
-            "q = " + format(gq) + "\n" +
             "r = " + format(gr) + "\n"
         );
 
         // compute with purple
 
-        auto x = array<word,3> {};
+        auto x = array<word,32> {};
         assign(x,gx);
 
-        auto y = array<word,2> {};
-        assign(y,gy);
+        auto r = array<word,64> {};
 
-        auto iy = reciprocal_normalized<word,2>( y );
-
-        auto [ q, r ] = divide_normal_strict<word,3,2>( x, y, iy );
+        square_accumulate<word>( r, x );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
-            "y = " + format(y) + "\n" +
-            "q = " + format(q) + "\n" +
             "r = " + format(r) + "\n"
         );
 
         // compare
 
         ASSERT_GMP_EQ( gx, to_mpz(x) );
-        ASSERT_GMP_EQ( gy, to_mpz(y) );
-        ASSERT_GMP_EQ( gq, to_mpz(q) );
         ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
 }

@@ -94,46 +94,6 @@ namespace
 
     BENCHMARK(purple_assign)->RangeMultiplier(2)->Range(8,64);
 
-    // next
-
-    void gmp_next (benchmark::State& state)
-    {
-        auto words = state.range(0);
-
-        mpz_class x = gmp_random.get_z_bits(words*bits);
-
-        mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),(words+1)*bits);
-
-        for (auto _ : state)
-        {
-            mpz_add_ui(r.get_mpz_t(),x.get_mpz_t(),1u);
-
-            benchmark::DoNotOptimize(r);
-        }
-    }
-
-    BENCHMARK(gmp_next)->RangeMultiplier(2)->Range(8,64);
-
-    void purple_next (benchmark::State& state)
-    {
-        auto words = state.range(0);
-
-        auto x = vector<word>(words);
-        generate(x);
-
-        auto r = vector<word>(words+1);
-
-        for (auto _ : state)
-        {
-            increment<word>(r,x);
-
-            benchmark::DoNotOptimize(r);
-        }
-    }
-
-    BENCHMARK(purple_next)->RangeMultiplier(2)->Range(8,64);
-
     // sum N x 1
 
     void gmp_sum_N_1 (benchmark::State& state)
@@ -171,7 +131,7 @@ namespace
 
         for (auto _ : state)
         {
-            add<word>(r,x,y);
+            r[words] = add<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -440,46 +400,6 @@ namespace
     }
 
     BENCHMARK(purple_square_N)->RangeMultiplier(2)->Range(8,64);
-
-    // previous
-
-    void gmp_previous (benchmark::State& state)
-    {
-        auto words = state.range(0);
-
-        mpz_class x = gmp_random.get_z_bits(words*bits);
-
-        mpz_class r {};
-        mpz_realloc2(r.get_mpz_t(),words*bits);
-
-        for (auto _ : state)
-        {
-            mpz_sub_ui(r.get_mpz_t(),x.get_mpz_t(),1u);
-
-            benchmark::DoNotOptimize(r);
-        }
-    }
-
-    BENCHMARK(gmp_previous)->RangeMultiplier(2)->Range(8,64);
-
-    void purple_previous (benchmark::State& state)
-    {
-        auto words = state.range(0);
-
-        auto x = vector<word>(words);
-        generate(x);
-
-        auto r = vector<word>(words);
-
-        for (auto _ : state)
-        {
-            decrement<word>(r,x);
-
-            benchmark::DoNotOptimize(r);
-        }
-    }
-
-    BENCHMARK(purple_previous)->RangeMultiplier(2)->Range(8,64);
 
     // difference N x 1
 

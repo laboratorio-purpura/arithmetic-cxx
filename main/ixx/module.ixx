@@ -33,8 +33,6 @@ export import :smaller;
 
 // transformations.
 
-export import :increment;
-export import :decrement;
 export import :reciprocal;
 
 // operations.

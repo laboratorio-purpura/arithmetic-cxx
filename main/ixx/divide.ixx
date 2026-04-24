@@ -205,7 +205,7 @@ export namespace purple::arithmetics
             is_greater<W>( product( q_[0], y[yz-2] ), array { x[yz-2], r_ } )
         ) {
             // q_ ← q_ - 1
-            ignore = decrement<W>( q_, q_ );
+            ignore = subtract<W>( q_, q_, W{1} );
             // r_ ← r_ + y[yz-1]
             auto carry = W(0);
             tie( r_, carry ) = sum( r_, y[yz-1], W{0} );

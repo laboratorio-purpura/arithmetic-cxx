@@ -131,8 +131,8 @@ TYPED_TEST(PurpleHegelTest,divide_N_1_differential_gmp)
         auto y = tc.draw(words<Bits>({.min_value=1}));
 
         // compute with purple
-        auto r = vector<word>(size(x));
-        auto q = divide<word>(r,x,y);
+        auto q = vector<word>(size(x));
+        auto r = divide<word>(q,x,y);
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -142,9 +142,9 @@ TYPED_TEST(PurpleHegelTest,divide_N_1_differential_gmp)
 
         // compare
         if ( ::cmp(q_, to_mpz(q)) != 0 )
-            throw runtime_error("GMP and purple differ on quotient");
+            throw runtime_error(fmt::format("q = {}, q_ = {}",format(q),format(q_)));
         if ( ::cmp(r_, to_mpz(r)) != 0 )
-            throw runtime_error("GMP and purple differ on remainder");
+            throw runtime_error(fmt::format("r = {}, r_ = {}",format(r),format(r_)));
     },
     { .test_cases = 10000 });
 }

@@ -122,29 +122,25 @@ export namespace purple::arithmetics
 
         W storage [ xz + 1 ];
 
-        // normalize operands, then divide with normalized algorithm.
+        // 1. normalize divisor.
 
-        // 1. find normalization factor.
+        // 1.1. normalization factor.
         auto factor = leading_zero_bits( y );
 
-        // 2. normalize dividend and divisor.
-
-        // 2.1. normalize divisor.
+        // 1.2. normalize divisor.
         auto [ ny, _ ] = twice( y, factor );
 
-        // 2.2 normalize dividend.
+        // 1.2. fix dividend, which becomes "strict".
         auto const nxd = xz + 1;
         auto nx = span( storage, nxd );
         nx[nxd-1] = double_<W>( nx, x, factor );
-        // invariant: { nx[-2], nx[-1] } < y
+        // invariant: nx[xz] < y
 
-        // 3. divide with normalized.
-
-        // compute each quotient word one by one,
-        // computing each by division of 2 dividend words by singular divisor.
-        // normalization of operands is key.
+        // 2. reciprocal approximation of normalized divisor.
 
         auto iy = reciprocal_normalized( ny );
+
+        // 3. divide by reciprocal multiplication.
 
         auto [ _, r ] = divide_normal_strict<W,2uz>( array { nx[nxd-1], W(0) }, ny, iy );
         for (auto i = nxd-1; i != 0; --i) {
@@ -152,6 +148,7 @@ export namespace purple::arithmetics
         }
 
         // 4. denormalize remainder.
+
         tie( r, ignore ) = half( r, factor );
 
         return r;

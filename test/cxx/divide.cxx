@@ -17,7 +17,14 @@ import purple.test;
 using namespace hegel::generators;
 using namespace purple::arithmetics;
 using namespace purple::test;
-using namespace std;
+using std::array;
+using std::ignore;
+using std::runtime_error;
+using std::span;
+using std::tuple_element;
+using std::vector;
+using namespace std::ranges;
+using namespace std::literals;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
@@ -156,7 +163,7 @@ TYPED_TEST(PurpleRandomTest,divide_64_1_differential_gmp)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 1000; ++i)
+    for (auto i = 0; i != 100000; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -205,6 +212,44 @@ TYPED_TEST(PurpleRandomTest,divide_64_1_differential_gmp)
         ASSERT_GMP_EQ( gq, to_mpz(q) );
         ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
+}
+
+TYPED_TEST(PurpleHegelTest,divide_N_1_size)
+{
+    constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
+
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto y = tc.draw(words<Bits>({.min_value=1}));
+        // full quotient size
+        auto fz = size(x);
+        // variable quotient size
+        auto vz = tc.draw(integers<size_t>({.max_value=128}));
+
+        // compute full-sized quotient
+
+        auto fq = vector<word>(fz);
+        auto fr = divide<word>(fq,x,y);
+
+        // compute variable-sized quotient
+
+        auto vq = vector<word>(vz);
+        auto vr = divide<word>(vq,x,y);
+
+        // compare
+
+        auto z = min(fz, vz);
+        if ( ! equal( span(fq).subspan(0,z), span(vq).subspan(0,z) ) )
+            throw runtime_error(fmt::format("fq = {}, vq = {}",format(fq),format(vq)));
+        if ( not_equal(fr,vr ) )
+            throw runtime_error(fmt::format("fr = {}, vr = {}",fr,vr));
+    },
+    { .test_cases = 10000 });
 }
 
 TYPED_TEST(PurpleHegelTest,divide_normal_strict_3_2_differential_gmp)

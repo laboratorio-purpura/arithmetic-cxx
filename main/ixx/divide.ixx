@@ -118,7 +118,6 @@ export namespace purple::arithmetics
         assert( xz >= 1 );
         assert( not_zero(y) );
         auto const qz = size(q);
-        assert( qz >= xz );
 
         W storage [ xz + 1 ];
 
@@ -142,8 +141,13 @@ export namespace purple::arithmetics
 
         // 3. divide by reciprocal multiplication.
 
-        auto [ _, r ] = divide_normal_strict<W,2uz>( array { nx[nxd-1], W(0) }, ny, iy );
-        for (auto i = nxd-1; i != 0; --i) {
+        auto r = nx[nxd-1];
+
+        for (auto i = xz; i > min(qz,xz); --i) {
+            tie( ignore, r ) = divide_normal_strict<W,2uz>( array { nx[i-1], r }, ny, iy );
+        }
+
+        for (auto i = min(qz,xz); i > 0; --i) {
             tie( q[i-1], r ) = divide_normal_strict<W,2uz>( array { nx[i-1], r }, ny, iy );
         }
 

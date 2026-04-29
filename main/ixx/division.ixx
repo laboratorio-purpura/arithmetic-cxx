@@ -54,53 +54,6 @@ namespace purple::arithmetics
         return { q, r };
     }
 
-    /// Normalized division with remainder.
-    ///
-    /// Computes by the "improved division by invariant integers" method.
-    ///
-    /// Requires:
-    /// x ÷ B < y
-    /// y is normalized
-    /// iy = reciprocal_normalized(y)
-
-    export
-    template <Word W, size_t Tri, size_t Bi>
-    requires  ( Tri == 3uz ) && ( Bi == 2uz )
-    auto division_normal_strict ( span<W const,Tri> x, span<W const,Bi> y, W iy ) noexcept -> tuple< W, array<W,Bi> >
-    {
-        // 1. <q1,q0> ← v.u2
-        auto q = product( iy, x[2] );
-        // 2. <q1,q0> ← <q1,q0> + <u2,u1>
-        auto x12 = array { x[1], x[2] };
-        ignore = sum<W>( q, q, x12 );
-        // 3. r1 ← (u1 - q1.d1) % B
-        auto q1y1 = product( q[1], y[1] );
-        auto [ r1, _ ] = difference( x[1], q1y1[0], W{0} );
-        // 4. <t1,t0> ← d0.q1
-        auto t = product( y[0], q[1] );
-        // 5. <r1,r0> ← (<r1,x0> - <t1,t0> - <d1,d0>) % B^2
-        auto r = array { x[0], r1 };
-        ignore = difference<W>( r, r, t );
-        ignore = difference<W>( r, r, y );
-        // 6. q1 ← (q1 + 1) % B
-        tie( q[1], ignore ) = sum( q[1], W{1}, W{0} );
-        // 7. if r1 ≥ q0
-        if ( not_smaller( r[1], q[0] ) ) {
-            // 8. q1 ← (q1 - 1) % B
-            tie( q[1], ignore ) = previous( q[1], W{0} );
-            // 9. <r1,r0> ← (<r1,r0> + <d1,d0>) % B^2
-            ignore = sum<W>( r, r, y );
-        }
-        // 10. if <r1,r0> ≥ <d1,d0>
-        if ( not_smaller<W>( r, y ) ) [[unlikely]] {
-            // 11. q1 ← q1 + 1
-            tie( q[1], ignore ) = next( q[1], W{0} );
-            // 12. <r1,r0> ← <r1,r0> - <d1,d0>
-            ignore = difference<W>( r, r, y );
-        }
-        return { q[1], r };
-    }
-
     /// Division with remainder.
     ///
     /// Computes by the classical or "school" method.
@@ -159,6 +112,53 @@ namespace purple::arithmetics
         tie( r, ignore ) = half( r, factor );
 
         return r;
+    }
+
+    /// Normalized division with remainder.
+    ///
+    /// Computes by the "improved division by invariant integers" method.
+    ///
+    /// Requires:
+    /// x ÷ B < y
+    /// y is normalized
+    /// iy = reciprocal_normalized(y)
+
+    export
+    template <Word W, size_t Tri, size_t Bi>
+    requires  ( Tri == 3uz ) && ( Bi == 2uz )
+    auto division_normal_strict ( span<W const,Tri> x, span<W const,Bi> y, W iy ) noexcept -> tuple< W, array<W,Bi> >
+    {
+        // 1. <q1,q0> ← v.u2
+        auto q = product( iy, x[2] );
+        // 2. <q1,q0> ← <q1,q0> + <u2,u1>
+        auto x12 = array { x[1], x[2] };
+        ignore = sum<W>( q, q, x12 );
+        // 3. r1 ← (u1 - q1.d1) % B
+        auto q1y1 = product( q[1], y[1] );
+        auto [ r1, _ ] = difference( x[1], q1y1[0], W{0} );
+        // 4. <t1,t0> ← d0.q1
+        auto t = product( y[0], q[1] );
+        // 5. <r1,r0> ← (<r1,x0> - <t1,t0> - <d1,d0>) % B^2
+        auto r = array { x[0], r1 };
+        ignore = difference<W>( r, r, t );
+        ignore = difference<W>( r, r, y );
+        // 6. q1 ← (q1 + 1) % B
+        tie( q[1], ignore ) = sum( q[1], W{1}, W{0} );
+        // 7. if r1 ≥ q0
+        if ( not_smaller( r[1], q[0] ) ) {
+            // 8. q1 ← (q1 - 1) % B
+            tie( q[1], ignore ) = previous( q[1], W{0} );
+            // 9. <r1,r0> ← (<r1,r0> + <d1,d0>) % B^2
+            ignore = sum<W>( r, r, y );
+        }
+        // 10. if <r1,r0> ≥ <d1,d0>
+        if ( not_smaller<W>( r, y ) ) [[unlikely]] {
+            // 11. q1 ← q1 + 1
+            tie( q[1], ignore ) = next( q[1], W{0} );
+            // 12. <r1,r0> ← <r1,r0> - <d1,d0>
+            ignore = difference<W>( r, r, y );
+        }
+        return { q[1], r };
     }
 
     /// Division with remainder step.

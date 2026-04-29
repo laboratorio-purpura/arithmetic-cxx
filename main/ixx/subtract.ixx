@@ -7,7 +7,7 @@ module;
 #include <span>
 #include <tuple>
 
-export module purple.arithmetics:subtract;
+export module purple.arithmetics:difference;
 
 import :word_concept;
 

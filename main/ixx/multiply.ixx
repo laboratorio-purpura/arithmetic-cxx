@@ -8,7 +8,7 @@ module;
 #include <span>
 #include <tuple>
 
-export module purple.arithmetics:multiply;
+export module purple.arithmetics:product;
 
 import :word_concept;
 

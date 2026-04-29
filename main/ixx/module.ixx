@@ -37,11 +37,11 @@ export import :reciprocal;
 
 // operations.
 
-export import :add;
-export import :multiply;
-export import :double_;
+export import :sum;
+export import :product;
+export import :twice;
 export import :square;
 
-export import :subtract;
-export import :divide;
-export import :halve;
+export import :difference;
+export import :division;
+export import :half;

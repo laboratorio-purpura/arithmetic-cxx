@@ -7,11 +7,11 @@ module;
 #include <span>
 #include <tuple>
 
-export module purple.arithmetics:divide;
+export module purple.arithmetics:division;
 
 import :word_concept;
 
-import :multiply;
+import :product;
 
 namespace purple::arithmetics
 {

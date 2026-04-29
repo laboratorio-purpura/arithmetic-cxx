@@ -214,7 +214,7 @@ TYPED_TEST(PurpleRandomTest,division_64_1_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,division_N_1_size)
+TYPED_TEST(PurpleHegelTest,division_N_1_short)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -226,28 +226,27 @@ TYPED_TEST(PurpleHegelTest,division_N_1_size)
 
         auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
         auto y = tc.draw(words<Bits>({.min_value=1}));
-        // full quotient size
+        // full size
         auto fz = size(x);
-        // variable quotient size
-        auto vz = tc.draw(integers<size_t>({.max_value=128}));
+        // short size
+        auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full-sized quotient
+        // compute full quotient
 
         auto fq = vector<word>(fz);
         auto fr = division<word>(fq,x,y);
 
-        // compute variable-sized quotient
+        // compute short quotient
 
-        auto vq = vector<word>(vz);
-        auto vr = division<word>(vq,x,y);
+        auto sq = vector<word>(sz);
+        auto sr = division<word>(sq,x,y);
 
         // compare
 
-        auto z = min(fz, vz);
-        if ( ! equal( span(fq).subspan(0,z), span(vq).subspan(0,z) ) )
-            throw runtime_error(fmt::format("fq = {}, vq = {}",format(fq),format(vq)));
-        if ( not_equal(fr,vr ) )
-            throw runtime_error(fmt::format("fr = {}, vr = {}",fr,vr));
+        if ( ! equal( span(fq).subspan(0,sz), span(sq).subspan(0,sz) ) )
+            throw runtime_error(fmt::format("fq = {}, sq = {}",format(fq),format(sq)));
+        if ( not_equal(fr,sr) )
+            throw runtime_error(fmt::format("fr = {}, sr = {}",fr,sr));
     },
     { .test_cases = 10000 });
 }

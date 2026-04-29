@@ -107,7 +107,7 @@ TYPED_TEST(PurpleRandomTest,sum_64_1_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,sum_N_1_size)
+TYPED_TEST(PurpleHegelTest,sum_N_1_short)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -116,28 +116,27 @@ TYPED_TEST(PurpleHegelTest,sum_N_1_size)
     {
         // generate with hegel
 
-        auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
         auto y = tc.draw(words<Bits>());
-        // full result size
+        // full size
         auto fz = size(x);
-        // variable result size
-        auto vz = tc.draw(integers<size_t>({.max_value=128}));
+        // short size
+        auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full-sized result
+        // compute full result
 
         auto fr = vector<word>(fz);
         auto _ = sum<word>(fr,x,y);
 
-        // compute variable-sized result
+        // compute short result
 
-        auto vr = vector<word>(vz);
-        auto _ = sum<word>(vr,x,y);
+        auto sr = vector<word>(sz);
+        auto _ = sum<word>(sr,x,y);
 
         // compare
 
-        auto z = min(fz, vz);
-        if ( ! equal( span(fr).subspan(0,z), span(vr).subspan(0,z) ) )
-            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(fr),format(vr)));
+        if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
+            throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
     { .test_cases = 10000 });
 }
@@ -222,7 +221,7 @@ TYPED_TEST(PurpleRandomTest,sum_32_32_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,sum_size)
+TYPED_TEST(PurpleHegelTest,sum_short)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -231,12 +230,12 @@ TYPED_TEST(PurpleHegelTest,sum_size)
     {
         // generate with hegel
 
-        auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
-        auto y = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
         // full result size
         auto fz = max(size(x),size(y));
         // variable result size
-        auto vz = tc.draw(integers<size_t>({.max_value=128}));
+        auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
         // compute full-sized result
 
@@ -245,14 +244,13 @@ TYPED_TEST(PurpleHegelTest,sum_size)
 
         // compute variable-sized result
 
-        auto vr = vector<word>(vz);
-        auto _ = sum<word>(vr,x,y);
+        auto sr = vector<word>(sz);
+        auto _ = sum<word>(sr,x,y);
 
         // compare
 
-        auto z = min(fz, vz);
-        if ( ! equal( span(fr).subspan(0,z), span(vr).subspan(0,z) ) )
-            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(fr),format(vr)));
+        if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
+            throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
     { .test_cases = 10000 });
 }

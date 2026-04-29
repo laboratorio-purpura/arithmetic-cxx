@@ -29,7 +29,7 @@ using namespace std::literals;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleRandomTest,square_32_differential_gmp)
+TYPED_TEST(PurpleRandomTest,square_school_32_differential_gmp)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -59,7 +59,7 @@ TYPED_TEST(PurpleRandomTest,square_32_differential_gmp)
 
         auto r = array<word,64> {};
 
-        square<word>( r, x );
+        square_school<word>( r, x );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -73,7 +73,7 @@ TYPED_TEST(PurpleRandomTest,square_32_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,square_differential_gmp)
+TYPED_TEST(PurpleHegelTest,square_school_differential_gmp)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -88,7 +88,7 @@ TYPED_TEST(PurpleHegelTest,square_differential_gmp)
 
         auto z = size(x) * 2;
         auto r = vector<word>(z);
-        square<word>(r,x);
+        square_school<word>(r,x);
 
         // compute with gmp
 
@@ -103,7 +103,7 @@ TYPED_TEST(PurpleHegelTest,square_differential_gmp)
     { .test_cases = hegel_cases });
 }
 
-TYPED_TEST(PurpleHegelTest,square_short)
+TYPED_TEST(PurpleHegelTest,square_school_short)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -121,12 +121,12 @@ TYPED_TEST(PurpleHegelTest,square_short)
         // compute full result
 
         auto fr = vector<word>(fz);
-        square<word>(fr,x);
+        square_school<word>(fr,x);
 
         // compute short result
 
         auto sr = vector<word>(sz);
-        square<word>(sr,x);
+        square_school<word>(sr,x);
 
         // compare
 

@@ -393,7 +393,7 @@ namespace
         {
             for (auto& it : r) it = word{}; // TODO: clear(r)
 
-            square_accumulate<word>(r,x);
+            square<word>(r,x);
 
             benchmark::DoNotOptimize(r);
         }

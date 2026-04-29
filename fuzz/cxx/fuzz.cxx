@@ -429,7 +429,7 @@ namespace
             // compute with purple
 
             auto r = vector<word>(degree*2);
-            purple::arithmetics::square_accumulate<word>(r,x);
+            purple::arithmetics::square<word>(r,x);
 
             // compute with GMP
 

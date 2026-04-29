@@ -61,7 +61,7 @@ TYPED_TEST(PurpleHegelTest,division_normal_strict_2_1_differential_gmp)
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error("GMP and purple differ on remainder");
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleRandomTest,division_normal_strict_2_1_differential_gmp)
@@ -71,7 +71,7 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_2_1_differential_gmp)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 100000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -134,7 +134,7 @@ TYPED_TEST(PurpleHegelTest,division_N_1_differential_gmp)
     hegel::test([](hegel::TestCase& tc)
     {
         // generate with hegel
-        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
         auto y = tc.draw(words<Bits>({.min_value=1}));
 
         // compute with purple
@@ -153,7 +153,7 @@ TYPED_TEST(PurpleHegelTest,division_N_1_differential_gmp)
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error(fmt::format("r = {}, r_ = {}",format(r),format(r_)));
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleRandomTest,division_64_1_differential_gmp)
@@ -163,7 +163,7 @@ TYPED_TEST(PurpleRandomTest,division_64_1_differential_gmp)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 100000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -248,7 +248,7 @@ TYPED_TEST(PurpleHegelTest,division_N_1_short)
         if ( not_equal(fr,sr) )
             throw runtime_error(fmt::format("fr = {}, sr = {}",fr,sr));
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleHegelTest,division_normal_strict_3_2_differential_gmp)
@@ -285,7 +285,7 @@ TYPED_TEST(PurpleHegelTest,division_normal_strict_3_2_differential_gmp)
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error("GMP and purple differ on remainder");
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleRandomTest,division_normal_strict_3_2_differential_gmp)
@@ -295,7 +295,7 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_3_2_differential_gmp)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -349,7 +349,7 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_3_2_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,division_normal_strict_M_N_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_normal_strict_N1_N_differential_gmp)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -384,7 +384,7 @@ TYPED_TEST(PurpleHegelTest,division_normal_strict_M_N_differential_gmp)
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error("GMP and purple differ on remainder");
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleRandomTest,division_normal_strict_33_32_differential_gmp)
@@ -394,7 +394,7 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_33_32_differential_gmp)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -450,41 +450,6 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_33_32_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,division_differential_gmp)
-{
-    constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
-
-    using word = word<Bits>;
-
-    hegel::test([](hegel::TestCase& tc)
-    {
-        // generate with hegel
-        auto y = tc.draw(vectors<word>(words<Bits>({.min_value=1}), // TODO: lift min_value restriction
-            {.min_size=2,.max_size=63})); // TODO: lift min_size restriction
-        auto x = tc.draw(vectors<word>(words<Bits>(),
-            {.min_size=size(y)+1,.max_size=64})); // TODO: lift min_size restriction
-
-        // compute with purple
-        auto z = size(x);
-        auto q = vector<word>(z);
-        auto r = vector<word>(z+1); // TODO: lift +1 requirement
-        division<word>(q,r,x,y);
-
-        // compute with gmp
-        auto x_ = to_mpz(x);
-        auto y_ = to_mpz(y);
-        auto q_ = x_ / y_;
-        auto r_ = x_ % y_;
-
-        // compare
-        if ( ::cmp(q_, to_mpz(q)) != 0 )
-            throw runtime_error("GMP and purple differ on quotient");
-        if ( ::cmp(r_, to_mpz(r)) != 0 )
-            throw runtime_error("GMP and purple differ on remainder");
-    },
-    { .test_cases = 10000 });
-}
-
 TYPED_TEST(PurpleRandomTest,division_64_32_differential_gmp)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
@@ -492,7 +457,7 @@ TYPED_TEST(PurpleRandomTest,division_64_32_differential_gmp)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 1000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -546,4 +511,119 @@ TYPED_TEST(PurpleRandomTest,division_64_32_differential_gmp)
         ASSERT_GMP_EQ( gq, to_mpz(q) );
         ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
+}
+
+TYPED_TEST(PurpleHegelTest,division_differential_gmp)
+{
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        tc.assume( not_zero<word>( y ) );
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
+
+        // compute with purple
+
+        auto z = size(x);
+        auto q = vector<word>(z);
+        auto r = vector<word>(z);
+        division<word>(q,r,x,y);
+
+        // compute with gmp
+
+        auto x_ = to_mpz(x);
+        auto y_ = to_mpz(y);
+        auto q_ = x_ / y_;
+        auto r_ = x_ % y_;
+
+        // compare
+
+        if ( ::cmp(q_, to_mpz(q)) != 0 )
+            throw runtime_error("GMP and purple differ on quotient");
+        if ( ::cmp(r_, to_mpz(r)) != 0 )
+            throw runtime_error("GMP and purple differ on remainder");
+    },
+    { .test_cases = hegel_cases });
+}
+
+TYPED_TEST(PurpleHegelTest,division_short_quotient)
+{
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        tc.assume( not_zero<word>( y ) );
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        // full size
+        auto fz = size(y);
+        // short size
+        auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
+
+        // compute full quotient
+
+        auto fq = vector<word>(fz);
+        auto r1 = vector<word>(size(x));
+        division<word>(fq,r1,x,y);
+
+        // compute short remainder
+
+        auto sq = vector<word>(fz);
+        auto r2 = vector<word>(size(x));
+        division<word>(sq,r2,x,y);
+
+        // compare
+
+        if ( ! equal( span(fq).subspan(0,sz), span(sq).subspan(0,sz) ) )
+            throw runtime_error(fmt::format("fq = {}, sr = {}",format(fq),format(sq)));
+        if ( ! equal( span(r1), span(r2) ) )
+            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(r1),format(r2)));
+    },
+    { .test_cases = hegel_cases });
+}
+
+TYPED_TEST(PurpleHegelTest,division_short_remainder)
+{
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        tc.assume( not_zero<word>( y ) );
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        // full size
+        auto fz = size(x);
+        // short size
+        auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
+
+        // compute full remainder
+
+        auto q1 = vector<word>(size(y));
+        auto fr = vector<word>(fz);
+        division<word>(q1,fr,x,y);
+
+        // compute short remainder
+
+        auto q2 = vector<word>(size(y));
+        auto sr = vector<word>(sz);
+        division<word>(q2,sr,x,y);
+
+        // compare
+
+        if ( ! equal( span(q1), span(q2) ) )
+            throw runtime_error(fmt::format("q1 = {}, q2 = {}",format(q1),format(q2)));
+        if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
+            throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
+    },
+    { .test_cases = hegel_cases });
 }

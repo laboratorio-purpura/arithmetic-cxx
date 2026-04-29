@@ -47,6 +47,10 @@ export namespace purple::arithmetics
 
 export namespace purple::test
 {
+    constexpr size_t hegel_cases = 1000;
+
+    constexpr size_t random_cases = 100000;
+
     template <size_t Bits>
     class WordGenerator : public IGenerator<arithmetics::word<Bits>> {
     public:

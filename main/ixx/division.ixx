@@ -11,6 +11,8 @@ export module purple.arithmetics:division;
 
 import :word_concept;
 
+import :assign;
+import :compact;
 import :product;
 
 namespace purple::arithmetics
@@ -70,13 +72,10 @@ namespace purple::arithmetics
     auto division ( span<W> q, span<W const> x, W y ) -> W
     {
         auto const xz = size(x);
-        assert( xz >= 1 );
         assert( not_zero(y) );
         auto const qz = size(q);
 
-        W storage [ xz + 1 ];
-
-        // 1. normalize divisor.
+        // 1. normalize.
 
         // 1.1. normalization factor.
         auto factor = leading_zero_bits( y );
@@ -85,18 +84,18 @@ namespace purple::arithmetics
         auto [ ny, _ ] = twice( y, factor );
 
         // 1.2. fix dividend, which becomes "strict".
-        auto const nxd = xz + 1;
-        auto nx = span( storage, nxd );
-        nx[nxd-1] = twice<W>( nx, x, factor );
-        // invariant: nx[xz] < y
+        W nx_ [ xz + 1 ];
+        auto nx = span<W>( nx_, xz + 1 );
+        nx[xz] = twice<W>( nx, x, factor );
+        // invariant: nx[-1] < y
 
         // 2. reciprocal approximation of normalized divisor.
 
         auto iy = reciprocal_normalized( ny );
 
-        // 3. divide by reciprocal multiplication.
+        // 3. compute quotient, word by word.
 
-        auto r = nx[nxd-1];
+        auto r = nx[xz];
 
         for (auto i = xz; i > min(qz,xz); --i) {
             tie( ignore, r ) = division_normal_strict<W,2uz>( array { nx[i-1], r }, ny, iy );
@@ -249,11 +248,7 @@ namespace purple::arithmetics
     /// Computes by the classical or "school" method.
     ///
     /// Requirements:
-    /// size(x) ≥ size(y)
-    /// size(y) ≥ 2
     /// y is nonzero
-    /// size(q) ≥ size(x)
-    /// size(r) ≥ size(x)
     ///
     /// Permits aliasing r to x.
     ///
@@ -264,62 +259,67 @@ namespace purple::arithmetics
     template <Word W>
     void division ( span<W> q, span<W> r, span<W const> x, span<W const> y )
     {
+        y = compact(y);
+
         auto const yz = size(y);
-        assert( yz >= 2 );
-        assert( not_zero( y[yz-1] ) ); // TODO
         assert( not_zero<W>( y ) );
         auto const xz = size(x);
-        assert( xz >= yz );
         auto const qz = size(q);
-        assert( qz >= xz );
         auto const rz = size(r);
-        assert( rz >= xz + 1 );
 
-        W storage [ yz ];
+        if ( yz == 1 ) {
+            auto r_ = division( q, x, y[0] );
+            if ( rz > 0 ) r[0] = r_;
+            return;
+        }
 
-        // normalize the operands, then divide with the normalized algorithm.
+        if ( xz < yz ) {
+            assign<W>( q, W{0} );
+            assign<W>( r, x );
+            return;
+        }
+        // invariant: size(x) >= size(y)
 
-        // let N = size(y)
-        auto const N = yz;
+        // 1. normalize.
 
-        // 1. find normalization factor.
-        auto factor = leading_zero_bits( y[N-1] );
+        // 1.1. normalization factor.
+        auto factor = leading_zero_bits( y[yz-1] );
 
-        // 2. normalize dividend and divisor.
-
-        // 2.1. normalize divisor.
-        auto ny = span<W>( storage, N );
+        // 1.2. normalize divisor.
+        W ny_ [ yz ];
+        auto ny = span<W>( ny_, yz );
         ignore = twice<W>( ny, y, factor );
-        // invariant: carry is zero
 
-        // 2.2. normalize dividend.
-        auto const nxd = xz + 1;
-        auto nx = r.subspan( 0, nxd );
-        nx[nxd-1] = twice<W>( nx, x, factor );
-        // invariant: { nx[-2], nx[-1] } < y
+        // 1.2. fix dividend, which becomes "strict".
+        W nx_ [ xz + 1 ];
+        auto nx = span<W>( nx_, xz + 1 );
+        nx[xz] = twice<W>( nx, x, factor );
+        // invariant: size(nx) > size(ny)
+        // invariant: nx[-1] < ny[-1]
 
-        // 3. divide with normalized operands.
+        // 2. reciprocal approximation of normalized divisor top word.
 
         auto iy = reciprocal_normalized( ny[yz-1] );
 
-        // compute each quotient word one by one,
-        // computing each by division of N+1 word dividend by N word divisor.
-        // normalization of operands is key.
+        // 3. compute quotient, word by word.
 
-        // let M <- size(nx) - size(ny)
-        auto M = nxd - yz;
-        // invariant: M ≥ 1
+        auto M = size(nx) - size(ny);
+        // invariant: M ≥ 0
 
-        // for j from m to 0 excluding:
-        for (auto j = M; j > 0; --j)
+        for (auto i = M; i > min(qz,M); --i)
         {
-            // let x' = { x[j+n], x[j+n-1}, ..., x[j] }
-            auto x_ = nx.subspan( j-1, N+1 );
+            auto x_ = nx.subspan( i-1, yz+1 );
+            ignore = division_normal_strict<W>( x_, x_, ny, iy );
+        }
 
-            q[j-1] = division_normal_strict<W>( x_, x_, ny, iy );
+        for (auto i = min(qz,M); i > 0; --i)
+        {
+            auto x_ = nx.subspan( i-1, yz+1 );
+            q[i-1] = division_normal_strict<W>( x_, x_, ny, iy );
         }
 
         // 4. denormalize remainder.
-        ignore = half<W>( nx, nx, factor );
+
+        ignore = half<W>( r, nx, factor );
     }
 }

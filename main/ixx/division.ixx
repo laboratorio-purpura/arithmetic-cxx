@@ -60,7 +60,6 @@ namespace purple::arithmetics
     ///
     /// Requirements:
     /// y is nonzero
-    /// size(q) ≥ size(x)
     ///
     /// Stores qd ≤ size(x) words into counted range [ begin(q), qd ).
     ///

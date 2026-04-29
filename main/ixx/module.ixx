@@ -37,6 +37,9 @@ export import :reciprocal;
 
 // operations.
 
+export import :assign;
+export import :compact;
+
 export import :sum;
 export import :product;
 export import :twice;

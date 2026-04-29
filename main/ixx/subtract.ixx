@@ -26,15 +26,11 @@ namespace purple::arithmetics
 
     export
     template <Word W>
-    auto subtract ( span<W> difference, span<W const> x, W y ) noexcept -> W;
-
-    export
-    template <Word W>
-    auto subtract ( span<W> result, span<W const> x, W y ) noexcept -> W
+    auto difference ( span<W> r, span<W const> x, W y ) noexcept -> W
     {
         auto borrow = W{0};
 
-        auto const sz = size(result);
+        auto const sz = size(r);
         auto const xz = size(x);
 
         // count of result words to compute
@@ -42,11 +38,11 @@ namespace purple::arithmetics
 
         // subtract x[0] and y, propagating borrow
         if (0 < z)
-            tie( result[0], borrow ) = difference( x[0], y, W{0} );
+            tie( r[0], borrow ) = difference( x[0], y, W{0} );
 
         // propagate borrow through x
         for (auto i = 1uz; i < z; ++i)
-            tie( result[i], borrow ) = difference( x[i], W{0}, borrow );
+            tie( r[i], borrow ) = difference( x[i], W{0}, borrow );
 
         return borrow;
     }
@@ -60,10 +56,7 @@ namespace purple::arithmetics
 
     export
     template <Word W>
-    auto subtract ( span<W> difference, span<W const> x, span<W const> y ) noexcept -> W;
-
-    template <Word W>
-    auto subtract ( span<W> r, span<W const> x, span<W const> y ) noexcept -> W
+    auto difference ( span<W> r, span<W const> x, span<W const> y ) noexcept -> W
     {
         auto borrow = W{0};
 

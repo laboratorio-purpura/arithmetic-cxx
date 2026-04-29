@@ -19,22 +19,18 @@ namespace purple::arithmetics
 
     /// Computes the sum of two integers.
     ///
-    /// Add stores into sum the size(sum) least significant words of the result.
-    /// It permits aliasing sum to x, in which case it becomes "add accumulate".
+    /// Add stores into r the size(r) least significant words of the result.
+    /// It permits aliasing r to x, in which case it becomes "add accumulate".
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
     export
     template <Word W>
-    auto add ( span<W> sum, span<W const> x, W y ) noexcept -> W;
-
-    export
-    template <Word W>
-    auto add ( span<W> result, span<W const> x, W y ) noexcept -> W
+    auto sum ( span<W> r, span<W const> x, W y ) noexcept -> W
     {
         auto carry = W{0};
 
-        auto const sz = size(result);
+        auto const sz = size(r);
         auto const xz = size(x);
 
         // count of result words to compute
@@ -42,28 +38,25 @@ namespace purple::arithmetics
 
         // add x[0] and y, propagating carry
         if (0 < z)
-            tie( result[0], carry ) = sum( x[0], y, W{0} );
+            tie( r[0], carry ) = sum( x[0], y, W{0} );
 
         // propagate carry through x
         for (auto i = 1uz; i < z; ++i)
-            tie( result[i], carry ) = sum( x[i], W{0}, carry );
+            tie( r[i], carry ) = sum( x[i], W{0}, carry );
 
         return carry;
     }
 
     /// Computes the sum of two integers.
     ///
-    /// Add stores into sum the size(sum) least significant words of the result.
-    /// It permits aliasing sum to x, in which case it becomes "add accumulate".
+    /// Add stores into sum the size(r) least significant words of the result.
+    /// It permits aliasing r to x, in which case it becomes "sum accumulate".
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
     export
     template <Word W>
-    auto add ( span<W> sum, span<W const> x, span<W const> y ) noexcept -> W;
-
-    template <Word W>
-    auto add ( span<W> r, span<W const> x, span<W const> y ) noexcept -> W
+    auto sum ( span<W> r, span<W const> x, span<W const> y ) noexcept -> W
     {
         auto carry = W{0};
 

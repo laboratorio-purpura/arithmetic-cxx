@@ -28,7 +28,7 @@ namespace purple::arithmetics
 
     export
     template <Word W>
-    auto halve ( span<W> quotient, span<W const> x, size_t y ) noexcept -> W
+    auto half ( span<W> quotient, span<W const> x, size_t y ) noexcept -> W
     {
         constexpr auto Bits = sizeof(W) * 8;
 

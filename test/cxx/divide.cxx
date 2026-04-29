@@ -28,7 +28,7 @@ using namespace std::literals;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleHegelTest,divide_normal_strict_2_1_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_normal_strict_2_1_differential_gmp)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
 
@@ -47,7 +47,7 @@ TYPED_TEST(PurpleHegelTest,divide_normal_strict_2_1_differential_gmp)
 
         // compute with purple
         auto iy = reciprocal_normalized(y);
-        auto [q,r] = divide_normal_strict<word,2>( span<word,2>(x), y, iy );
+        auto [q,r] = division_normal_strict<word,2>( span<word,2>(x), y, iy );
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -64,7 +64,7 @@ TYPED_TEST(PurpleHegelTest,divide_normal_strict_2_1_differential_gmp)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleRandomTest,divide_normal_strict_2_1_differential_gmp)
+TYPED_TEST(PurpleRandomTest,division_normal_strict_2_1_differential_gmp)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -107,7 +107,7 @@ TYPED_TEST(PurpleRandomTest,divide_normal_strict_2_1_differential_gmp)
 
         auto iy = reciprocal_normalized<word>( y[0] );
 
-        auto [ q, r ] = divide_normal_strict<word,2>( x, y[0], iy );
+        auto [ q, r ] = division_normal_strict<word,2>( x, y[0], iy );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -125,7 +125,7 @@ TYPED_TEST(PurpleRandomTest,divide_normal_strict_2_1_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,divide_N_1_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_N_1_differential_gmp)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -139,7 +139,7 @@ TYPED_TEST(PurpleHegelTest,divide_N_1_differential_gmp)
 
         // compute with purple
         auto q = vector<word>(size(x));
-        auto r = divide<word>(q,x,y);
+        auto r = division<word>(q,x,y);
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -156,7 +156,7 @@ TYPED_TEST(PurpleHegelTest,divide_N_1_differential_gmp)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleRandomTest,divide_64_1_differential_gmp)
+TYPED_TEST(PurpleRandomTest,division_64_1_differential_gmp)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -196,7 +196,7 @@ TYPED_TEST(PurpleRandomTest,divide_64_1_differential_gmp)
 
         auto q = array<word,64> {};
 
-        auto r = divide<word>( q, x, y[0] );
+        auto r = division<word>( q, x, y[0] );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -214,7 +214,7 @@ TYPED_TEST(PurpleRandomTest,divide_64_1_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,divide_N_1_size)
+TYPED_TEST(PurpleHegelTest,division_N_1_size)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -234,12 +234,12 @@ TYPED_TEST(PurpleHegelTest,divide_N_1_size)
         // compute full-sized quotient
 
         auto fq = vector<word>(fz);
-        auto fr = divide<word>(fq,x,y);
+        auto fr = division<word>(fq,x,y);
 
         // compute variable-sized quotient
 
         auto vq = vector<word>(vz);
-        auto vr = divide<word>(vq,x,y);
+        auto vr = division<word>(vq,x,y);
 
         // compare
 
@@ -252,7 +252,7 @@ TYPED_TEST(PurpleHegelTest,divide_N_1_size)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleHegelTest,divide_normal_strict_3_2_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_normal_strict_3_2_differential_gmp)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -268,11 +268,11 @@ TYPED_TEST(PurpleHegelTest,divide_normal_strict_3_2_differential_gmp)
         // TODO: x must be "strict"; how can we improve this?
         auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=3,.max_size=3}));
         if ( not_smaller<word>( span(x).subspan(1), y ) )
-            subtract<word>( span(x).subspan(1), span(x).subspan(1), y );
+            difference<word>( span(x).subspan(1), span(x).subspan(1), y );
 
         // compute with purple
         auto iy = reciprocal_normalized<word,2>( span<word,2>(y) );
-        auto [q,r] = divide_normal_strict<word,3,2>( span<word,3>(x), span<word,2>(y), iy );
+        auto [q,r] = division_normal_strict<word,3,2>( span<word,3>(x), span<word,2>(y), iy );
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -289,7 +289,7 @@ TYPED_TEST(PurpleHegelTest,divide_normal_strict_3_2_differential_gmp)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleRandomTest,divide_normal_strict_3_2_differential_gmp)
+TYPED_TEST(PurpleRandomTest,division_normal_strict_3_2_differential_gmp)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -332,7 +332,7 @@ TYPED_TEST(PurpleRandomTest,divide_normal_strict_3_2_differential_gmp)
 
         auto iy = reciprocal_normalized<word,2>( y );
 
-        auto [ q, r ] = divide_normal_strict<word,3,2>( x, y, iy );
+        auto [ q, r ] = division_normal_strict<word,3,2>( x, y, iy );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -350,7 +350,7 @@ TYPED_TEST(PurpleRandomTest,divide_normal_strict_3_2_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,divide_normal_strict_M_N_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_normal_strict_M_N_differential_gmp)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -366,12 +366,12 @@ TYPED_TEST(PurpleHegelTest,divide_normal_strict_M_N_differential_gmp)
         // TODO: x must be "strict"; how can we improve this?
         auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=size(y)+1,.max_size=size(y)+1}));
         if ( not_smaller<word>( span(x).subspan(1), y ) )
-            subtract<word>( span(x).subspan(1), span(x).subspan(1), y );
+            difference<word>( span(x).subspan(1), span(x).subspan(1), y );
 
         // compute with purple
         auto r = vector<word>(size(x));
         auto iy = reciprocal_normalized( y[size(y)-1] );
-        auto q = divide_normal_strict<word>( span(r), span(x), span(y), iy );
+        auto q = division_normal_strict<word>( span(r), span(x), span(y), iy );
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -388,7 +388,7 @@ TYPED_TEST(PurpleHegelTest,divide_normal_strict_M_N_differential_gmp)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleRandomTest,divide_normal_strict_33_32_differential_gmp)
+TYPED_TEST(PurpleRandomTest,division_normal_strict_33_32_differential_gmp)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -433,7 +433,7 @@ TYPED_TEST(PurpleRandomTest,divide_normal_strict_33_32_differential_gmp)
 
         auto r = array<word,33> {};
 
-        auto q = divide_normal_strict<word>( r, x, y, iy );
+        auto q = division_normal_strict<word>( r, x, y, iy );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -451,7 +451,7 @@ TYPED_TEST(PurpleRandomTest,divide_normal_strict_33_32_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,divide_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_differential_gmp)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -469,7 +469,7 @@ TYPED_TEST(PurpleHegelTest,divide_differential_gmp)
         auto z = size(x);
         auto q = vector<word>(z);
         auto r = vector<word>(z+1); // TODO: lift +1 requirement
-        divide<word>(q,r,x,y);
+        division<word>(q,r,x,y);
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -486,7 +486,7 @@ TYPED_TEST(PurpleHegelTest,divide_differential_gmp)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleRandomTest,divide_64_32_differential_gmp)
+TYPED_TEST(PurpleRandomTest,division_64_32_differential_gmp)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -531,7 +531,7 @@ TYPED_TEST(PurpleRandomTest,divide_64_32_differential_gmp)
 
         auto r = array<word,65> {};
 
-        divide<word>( q, r, x, y );
+        division<word>( q, r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +

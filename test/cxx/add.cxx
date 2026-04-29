@@ -27,7 +27,7 @@ using namespace std::literals;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleHegelTest,add_N_1_differential_gmp)
+TYPED_TEST(PurpleHegelTest,sum_N_1_differential_gmp)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -41,7 +41,7 @@ TYPED_TEST(PurpleHegelTest,add_N_1_differential_gmp)
         // compute with purple
         auto z = size(x);
         auto r = vector<word>(z+1);
-        r[z] = add<word>(r,x,y);
+        r[z] = sum<word>(r,x,y);
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -55,7 +55,7 @@ TYPED_TEST(PurpleHegelTest,add_N_1_differential_gmp)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleRandomTest,add_64_1_differential_gmp)
+TYPED_TEST(PurpleRandomTest,sum_64_1_differential_gmp)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using generator = tuple_element<1,TypeParam>::type;
@@ -91,7 +91,7 @@ TYPED_TEST(PurpleRandomTest,add_64_1_differential_gmp)
 
         auto r = vector<word>(65);
 
-        r[64] = add<word>( r, x, y[0] );
+        r[64] = sum<word>( r, x, y[0] );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -107,7 +107,7 @@ TYPED_TEST(PurpleRandomTest,add_64_1_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,add_N_1_size)
+TYPED_TEST(PurpleHegelTest,sum_N_1_size)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -126,12 +126,12 @@ TYPED_TEST(PurpleHegelTest,add_N_1_size)
         // compute full-sized result
 
         auto fr = vector<word>(fz);
-        auto _ = add<word>(fr,x,y);
+        auto _ = sum<word>(fr,x,y);
 
         // compute variable-sized result
 
         auto vr = vector<word>(vz);
-        auto _ = add<word>(vr,x,y);
+        auto _ = sum<word>(vr,x,y);
 
         // compare
 
@@ -142,7 +142,7 @@ TYPED_TEST(PurpleHegelTest,add_N_1_size)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleHegelTest,add_differential_gmp)
+TYPED_TEST(PurpleHegelTest,sum_differential_gmp)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -156,7 +156,7 @@ TYPED_TEST(PurpleHegelTest,add_differential_gmp)
         // compute with purple
         auto z = max(size(x),size(y));
         auto r = vector<word>(z+1);
-        r[z] = add<word>(r,x,y);
+        r[z] = sum<word>(r,x,y);
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -170,7 +170,7 @@ TYPED_TEST(PurpleHegelTest,add_differential_gmp)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleRandomTest,add_32_32_differential_gmp)
+TYPED_TEST(PurpleRandomTest,sum_32_32_differential_gmp)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using generator = tuple_element<1,TypeParam>::type;
@@ -206,7 +206,7 @@ TYPED_TEST(PurpleRandomTest,add_32_32_differential_gmp)
 
         auto r = vector<word>(33);
 
-        r[32] = add<word>( r, x, y );
+        r[32] = sum<word>( r, x, y );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -222,7 +222,7 @@ TYPED_TEST(PurpleRandomTest,add_32_32_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,add_size)
+TYPED_TEST(PurpleHegelTest,sum_size)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -241,12 +241,12 @@ TYPED_TEST(PurpleHegelTest,add_size)
         // compute full-sized result
 
         auto fr = vector<word>(fz);
-        auto _ = add<word>(fr,x,y);
+        auto _ = sum<word>(fr,x,y);
 
         // compute variable-sized result
 
         auto vr = vector<word>(vz);
-        auto _ = add<word>(vr,x,y);
+        auto _ = sum<word>(vr,x,y);
 
         // compare
 

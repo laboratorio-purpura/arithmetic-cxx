@@ -131,7 +131,7 @@ namespace
 
         for (auto _ : state)
         {
-            r[words] = add<word>(r,x,y);
+            r[words] = sum<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -176,7 +176,7 @@ namespace
 
         for (auto _ : state)
         {
-            add<word>(r,x,y);
+            sum<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -221,7 +221,7 @@ namespace
 
         for (auto _ : state)
         {
-            add<word>(r,x,y);
+            sum<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -266,7 +266,7 @@ namespace
 
         for (auto _ : state)
         {
-            multiply<word>(r,x,y);
+            product<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -311,7 +311,7 @@ namespace
 
         for (auto _ : state)
         {
-            multiply<word>(r,x,y);
+            product<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -351,7 +351,7 @@ namespace
 
         for (auto _ : state)
         {
-            double_<word>(r,x,31uz);
+            twice<word>(r,x,31uz);
 
             benchmark::DoNotOptimize(r);
         }
@@ -438,7 +438,7 @@ namespace
 
         for (auto _ : state)
         {
-            subtract<word>(r,x,y);
+            difference<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -483,7 +483,7 @@ namespace
 
         for (auto _ : state)
         {
-            subtract<word>(r,x,y);
+            difference<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -528,7 +528,7 @@ namespace
 
         for (auto _ : state)
         {
-            subtract<word>(r,x,y);
+            difference<word>(r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -574,7 +574,7 @@ namespace
 
         for (auto _ : state)
         {
-            auto r = divide<word>(q,x,y);
+            auto r = division<word>(q,x,y);
 
             benchmark::DoNotOptimize(q);
             benchmark::DoNotOptimize(r);
@@ -624,7 +624,7 @@ namespace
 
         for (auto _ : state)
         {
-            divide<word>(q,r,x,y);
+            division<word>(q,r,x,y);
 
             benchmark::DoNotOptimize(r);
         }
@@ -664,7 +664,7 @@ namespace
 
         for (auto _ : state)
         {
-            halve<word>(r,x,31uz);
+            half<word>(r,x,31uz);
 
             benchmark::DoNotOptimize(r);
         }

@@ -27,7 +27,7 @@ using namespace std::literals;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleHegelTest,halve_differential_gmp)
+TYPED_TEST(PurpleHegelTest,half_differential_gmp)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -41,7 +41,7 @@ TYPED_TEST(PurpleHegelTest,halve_differential_gmp)
 
         // compute with purple
         auto r = vector<word>(z);
-        halve<word>(r,x,y);
+        half<word>(r,x,y);
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -54,7 +54,7 @@ TYPED_TEST(PurpleHegelTest,halve_differential_gmp)
     { .test_cases = 10000 });
 }
 
-TYPED_TEST(PurpleRandomTest,halve_64_differential_gmp)
+TYPED_TEST(PurpleRandomTest,half_64_differential_gmp)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using generator = tuple_element<1,TypeParam>::type;
@@ -83,7 +83,7 @@ TYPED_TEST(PurpleRandomTest,halve_64_differential_gmp)
 
         auto q = vector<word>(64);
 
-        ignore = halve<word>( q, x, (Bits-1) );
+        ignore = half<word>( q, x, (Bits-1) );
 
         SCOPED_TRACE("purple:\n"s +
             "x = " + format(x) + "\n" +
@@ -97,7 +97,7 @@ TYPED_TEST(PurpleRandomTest,halve_64_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,halve_size)
+TYPED_TEST(PurpleHegelTest,half_size)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -116,12 +116,12 @@ TYPED_TEST(PurpleHegelTest,halve_size)
         // compute full-sized result
 
         auto fr = vector<word>(fz);
-        auto _ = halve<word>(fr,x,y);
+        auto _ = half<word>(fr,x,y);
 
         // compute variable-sized result
 
         auto vr = vector<word>(vz);
-        auto _ = halve<word>(vr,x,y);
+        auto _ = half<word>(vr,x,y);
 
         // compare
 

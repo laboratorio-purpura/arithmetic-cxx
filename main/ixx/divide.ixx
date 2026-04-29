@@ -13,7 +13,7 @@ import :word_concept;
 
 import :multiply;
 
-export namespace purple::arithmetics
+namespace purple::arithmetics
 {
     /// Normalized division with remainder.
     ///
@@ -24,16 +24,17 @@ export namespace purple::arithmetics
     /// x ÷ B < y
     /// iy = reciprocal_normalized(y)
 
+    export
     template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto divide_normal_strict ( span<W const,Bi> x, W y, W iy ) noexcept -> tuple< W, W >
+    auto division_normal_strict ( span<W const,Bi> x, W y, W iy ) noexcept -> tuple< W, W >
     {
         assert( is_normalized( y ) );
         assert( is_smaller( x[1], y ) );
 
         // t = ( r[1] × iy ) + x
         auto t = product( x[1], iy );
-        ignore = add<W>( t, t, x );
+        ignore = sum<W>( t, t, x );
         // q = ( t[1] + 1 ) mod B
         auto [ q, _ ] = sum( t[1], W{1}, W{0} );
         // r = ( x - ( q × y ) ) mod B
@@ -62,15 +63,16 @@ export namespace purple::arithmetics
     /// y is normalized
     /// iy = reciprocal_normalized(y)
 
+    export
     template <Word W, size_t Tri, size_t Bi>
     requires  ( Tri == 3uz ) && ( Bi == 2uz )
-    auto divide_normal_strict ( span<W const,Tri> x, span<W const,Bi> y, W iy ) noexcept -> tuple< W, array<W,Bi> >
+    auto division_normal_strict ( span<W const,Tri> x, span<W const,Bi> y, W iy ) noexcept -> tuple< W, array<W,Bi> >
     {
         // 1. <q1,q0> ← v.u2
         auto q = product( iy, x[2] );
         // 2. <q1,q0> ← <q1,q0> + <u2,u1>
         auto x12 = array { x[1], x[2] };
-        ignore = add<W>( q, q, x12 );
+        ignore = sum<W>( q, q, x12 );
         // 3. r1 ← (u1 - q1.d1) % B
         auto q1y1 = product( q[1], y[1] );
         auto [ r1, _ ] = difference( x[1], q1y1[0], W{0} );
@@ -78,8 +80,8 @@ export namespace purple::arithmetics
         auto t = product( y[0], q[1] );
         // 5. <r1,r0> ← (<r1,x0> - <t1,t0> - <d1,d0>) % B^2
         auto r = array { x[0], r1 };
-        ignore = subtract<W>( r, r, t );
-        ignore = subtract<W>( r, r, y );
+        ignore = difference<W>( r, r, t );
+        ignore = difference<W>( r, r, y );
         // 6. q1 ← (q1 + 1) % B
         tie( q[1], ignore ) = sum( q[1], W{1}, W{0} );
         // 7. if r1 ≥ q0
@@ -87,14 +89,14 @@ export namespace purple::arithmetics
             // 8. q1 ← (q1 - 1) % B
             tie( q[1], ignore ) = previous( q[1], W{0} );
             // 9. <r1,r0> ← (<r1,r0> + <d1,d0>) % B^2
-            ignore = add<W>( r, r, y );
+            ignore = sum<W>( r, r, y );
         }
         // 10. if <r1,r0> ≥ <d1,d0>
         if ( not_smaller<W>( r, y ) ) [[unlikely]] {
             // 11. q1 ← q1 + 1
             tie( q[1], ignore ) = next( q[1], W{0} );
             // 12. <r1,r0> ← <r1,r0> - <d1,d0>
-            ignore = subtract<W>( r, r, y );
+            ignore = difference<W>( r, r, y );
         }
         return { q[1], r };
     }
@@ -111,8 +113,9 @@ export namespace purple::arithmetics
     ///
     /// @return remainder word.
 
+    export
     template <Word W>
-    auto divide ( span<W> q, span<W const> x, W y ) -> W
+    auto division ( span<W> q, span<W const> x, W y ) -> W
     {
         auto const xz = size(x);
         assert( xz >= 1 );
@@ -132,7 +135,7 @@ export namespace purple::arithmetics
         // 1.2. fix dividend, which becomes "strict".
         auto const nxd = xz + 1;
         auto nx = span( storage, nxd );
-        nx[nxd-1] = double_<W>( nx, x, factor );
+        nx[nxd-1] = twice<W>( nx, x, factor );
         // invariant: nx[xz] < y
 
         // 2. reciprocal approximation of normalized divisor.
@@ -144,11 +147,11 @@ export namespace purple::arithmetics
         auto r = nx[nxd-1];
 
         for (auto i = xz; i > min(qz,xz); --i) {
-            tie( ignore, r ) = divide_normal_strict<W,2uz>( array { nx[i-1], r }, ny, iy );
+            tie( ignore, r ) = division_normal_strict<W,2uz>( array { nx[i-1], r }, ny, iy );
         }
 
         for (auto i = min(qz,xz); i > 0; --i) {
-            tie( q[i-1], r ) = divide_normal_strict<W,2uz>( array { nx[i-1], r }, ny, iy );
+            tie( q[i-1], r ) = division_normal_strict<W,2uz>( array { nx[i-1], r }, ny, iy );
         }
 
         // 4. denormalize remainder.
@@ -175,8 +178,9 @@ export namespace purple::arithmetics
     ///
     /// @return quotient word.
 
+    export
     template <Word W>
-    auto divide_normal_strict ( span<W> r, span<W const> x, span<W const> y, W iy ) -> W
+    auto division_normal_strict ( span<W> r, span<W const> x, span<W const> y, W iy ) -> W
     {
         auto const yz = size(y);
         assert( yz >= 2 );
@@ -193,8 +197,8 @@ export namespace purple::arithmetics
         // compute tentative q' and r'
         array<W,2> q_ {};
         W r_ {};
-        tie( q_[1], r_ ) = divide_normal_strict<W,2>( array { x[yz], r_ }, y[yz-1], iy );
-        tie( q_[0], r_ ) = divide_normal_strict<W,2>( array { x[yz-1], r_ }, y[yz-1], iy );
+        tie( q_[1], r_ ) = division_normal_strict<W,2>( array { x[yz], r_ }, y[yz-1], iy );
+        tie( q_[0], r_ ) = division_normal_strict<W,2>( array { x[yz-1], r_ }, y[yz-1], iy );
         // invariant: q' - 2 ≤ q ≤ q' ≤ β
         assert( not_greater( q_[1], W{1} ) );
 
@@ -206,7 +210,7 @@ export namespace purple::arithmetics
             is_greater<W>( product( q_[0], y[yz-2] ), array { x[yz-2], r_ } )
         ) {
             // q_ ← q_ - 1
-            ignore = subtract<W>( q_, q_, W{1} );
+            ignore = difference<W>( q_, q_, W{1} );
             // r_ ← r_ + y[yz-1]
             auto carry = W(0);
             tie( r_, carry ) = sum( r_, y[yz-1], W{0} );
@@ -223,9 +227,9 @@ export namespace purple::arithmetics
             // let t = q' × y
             W t_ [ yz + 1 ];
             auto t = span<W>( t_, yz + 1 );
-            t[yz] = multiply<W>( t, y, q_[0] );
+            t[yz] = product<W>( t, y, q_[0] );
             // r ← x - q' × y
-            borrow = subtract<W>( r, x, t );
+            borrow = difference<W>( r, x, t );
         }
         // borrow = 1 ⇒ r < 0
         // r < 0 ⇒ q' > q
@@ -233,7 +237,7 @@ export namespace purple::arithmetics
             // q' ← q' - 1
             tie( q_[0], ignore ) = previous( q_[0], W{0} );
             // r ← r + y
-            ignore = add<W>( r, r, y );
+            ignore = sum<W>( r, r, y );
         }
         // invariant: q' = q
 
@@ -257,8 +261,9 @@ export namespace purple::arithmetics
     /// Stores qd ≤ size(x) words into counted range [ begin(q), qd ).
     /// Stores rd ≤ size(x) + 1 words into counted range [ begin(r), rd ).
 
+    export
     template <Word W>
-    void divide ( span<W> q, span<W> r, span<W const> x, span<W const> y )
+    void division ( span<W> q, span<W> r, span<W const> x, span<W const> y )
     {
         auto const yz = size(y);
         assert( yz >= 2 );
@@ -285,13 +290,13 @@ export namespace purple::arithmetics
 
         // 2.1. normalize divisor.
         auto ny = span<W>( storage, N );
-        ignore = double_<W>( ny, y, factor );
+        ignore = twice<W>( ny, y, factor );
         // invariant: carry is zero
 
         // 2.2. normalize dividend.
         auto const nxd = xz + 1;
         auto nx = r.subspan( 0, nxd );
-        nx[nxd-1] = double_<W>( nx, x, factor );
+        nx[nxd-1] = twice<W>( nx, x, factor );
         // invariant: { nx[-2], nx[-1] } < y
 
         // 3. divide with normalized operands.
@@ -312,10 +317,10 @@ export namespace purple::arithmetics
             // let x' = { x[j+n], x[j+n-1}, ..., x[j] }
             auto x_ = nx.subspan( j-1, N+1 );
 
-            q[j-1] = divide_normal_strict<W>( x_, x_, ny, iy );
+            q[j-1] = division_normal_strict<W>( x_, x_, ny, iy );
         }
 
         // 4. denormalize remainder.
-        ignore = halve<W>( nx, nx, factor );
+        ignore = half<W>( nx, nx, factor );
     }
 }

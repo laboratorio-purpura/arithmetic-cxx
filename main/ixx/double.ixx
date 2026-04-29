@@ -27,7 +27,7 @@ namespace purple::arithmetics
 
     export
     template <Word W>
-    auto double_ ( span<W> product, span<W const> x, size_t y ) noexcept -> W
+    auto twice ( span<W> product, span<W const> x, size_t y ) noexcept -> W
     {
         constexpr auto Bits = sizeof(W) * 8;
 

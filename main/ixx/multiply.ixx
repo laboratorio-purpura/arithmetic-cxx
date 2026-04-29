@@ -29,10 +29,7 @@ namespace purple::arithmetics
 
     export
     template <Word W>
-    auto multiply ( span<W> product, span<W const> x, W y ) noexcept -> W;
-
-    template <Word W>
-    auto multiply ( span<W> r, span<W const> x, W y ) noexcept -> W
+    auto product ( span<W> r, span<W const> x, W y ) noexcept -> W
     {
         auto excess = W{0};
 
@@ -66,7 +63,7 @@ namespace purple::arithmetics
 
     export
     template <Word W>
-    void multiply ( span<W> r, span<W const> x, span<W const> y )
+    void product ( span<W> r, span<W const> x, span<W const> y )
     {
         auto const rz = size(r);
         auto const xz = size(x);
@@ -85,7 +82,7 @@ namespace purple::arithmetics
             {
                 // x[i] × y[k-i]
                 auto p = product( x[i], y[k-i] );
-                ignore = add<W>( sigma, sigma, p );
+                ignore = sum<W>( sigma, sigma, p );
             }
             // store low word, propagate high word
             r[k] = sigma[0];
@@ -101,7 +98,7 @@ namespace purple::arithmetics
 
     export
     template <Word W>
-    void multiply_school ( span<W> r, span<W const> x, span<W const> y ) noexcept
+    void product_school ( span<W> r, span<W const> x, span<W const> y ) noexcept
     {
         auto const rz = size(r);
         auto const xz = size(x);

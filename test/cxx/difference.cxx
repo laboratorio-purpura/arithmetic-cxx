@@ -57,7 +57,7 @@ TYPED_TEST(PurpleHegelTest,difference_N_1_differential_gmp)
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error("GMP and purple differ");
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleRandomTest,difference_64_1_differential_gmp)
@@ -66,7 +66,7 @@ TYPED_TEST(PurpleRandomTest,difference_64_1_differential_gmp)
     using generator = tuple_element<1,TypeParam>::type;
     using word = word<Bits>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -146,7 +146,7 @@ TYPED_TEST(PurpleHegelTest,difference_N_1_short)
         if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
             throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleHegelTest,difference_differential_gmp)
@@ -179,7 +179,7 @@ TYPED_TEST(PurpleHegelTest,difference_differential_gmp)
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error("GMP and purple differ");
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleRandomTest,difference_32_32_differential_gmp)
@@ -188,7 +188,7 @@ TYPED_TEST(PurpleRandomTest,difference_32_32_differential_gmp)
     using generator = tuple_element<1,TypeParam>::type;
     using word = word<Bits>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -268,5 +268,5 @@ TYPED_TEST(PurpleHegelTest,difference_short)
         if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
             throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }

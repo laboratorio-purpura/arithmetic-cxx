@@ -45,7 +45,7 @@ TYPED_TEST(PurpleHegelTest,are_equal_differential_gmp)
         if ( r_ != r )
             throw runtime_error("GMP and purple differ");
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleRandomTest,is_equal_64)
@@ -55,7 +55,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -97,7 +97,7 @@ TYPED_TEST(PurpleRandomTest,is_equal_64_64)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 

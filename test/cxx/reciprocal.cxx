@@ -47,7 +47,7 @@ TYPED_TEST(PurpleHegelTest,reciprocal_normal_2_differential_gmp)
         if ( ::cmp(iy_, to_mpz(iy)) != 0 )
             throw runtime_error("GMP and purple differ");
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleRandomTest,reciprocal_normal_2_differential_gmp)
@@ -56,7 +56,7 @@ TYPED_TEST(PurpleRandomTest,reciprocal_normal_2_differential_gmp)
     using generator = tuple_element<1,TypeParam>::type;
     using word = word<B>;
 
-    for (auto i = 0uz; i != 100000; ++i)
+    for (auto i = 0uz; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 

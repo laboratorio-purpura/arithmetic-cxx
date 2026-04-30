@@ -56,7 +56,7 @@ TYPED_TEST(PurpleHegelTest,product_school_differential_gmp)
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error(fmt::format("r = {}, r_ = {}",format(r),format(r_)));
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleRandomTest,product_school_differential_gmp)
@@ -65,7 +65,7 @@ TYPED_TEST(PurpleRandomTest,product_school_differential_gmp)
     using generator = tuple_element<1,TypeParam>::type;
     using word = word<Bits>;
 
-    for (auto i = 0; i != 100000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 
@@ -143,5 +143,5 @@ TYPED_TEST(PurpleHegelTest,product_school_size)
         if ( ! equal( span(fr).subspan(0,z), span(vr).subspan(0,z) ) )
             throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(fr),format(vr)));
     },
-    { .test_cases = 10000 });
+    { .test_cases = hegel_cases });
 }

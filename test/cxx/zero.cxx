@@ -28,7 +28,7 @@ TYPED_TEST(PurpleRandomTest,is_zero_64_differential_gmp)
 
     using word = word<B>;
 
-    for (auto i = 0; i != 10000; ++i)
+    for (auto i = 0; i != random_cases; ++i)
     {
         SCOPED_TRACE("i = " + fmt::format("{}",i));
 

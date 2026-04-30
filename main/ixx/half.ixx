@@ -11,20 +11,22 @@ module;
 export module purple.arithmetics:half;
 
 import :word_concept;
+import :sum;
 
 namespace purple::arithmetics
 {
     using std::ignore;
     using std::size;
+    using std::span;
     using std::ranges::min;
     using std::tie;
 
-    /// Computes half (to a power) of an integer.
+    /// Division of nonnegative integers `x` by 2, `y` times.
     ///
-    /// Halve stores into quotient the size(quotient) least significant words of the result.
-    /// It permits aliasing quotient to x, in which case it becomes "halve accumulate".
+    /// Stores into `q` the `size(q)` least significant words of the quotient.
+    /// Returns the remainder.
     ///
-    /// This implementation applies the "binary shift" method.
+    /// This implementation applies the "shift" method.
 
     export
     template <Word W>

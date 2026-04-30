@@ -13,7 +13,12 @@ import :word_concept;
 namespace purple::arithmetics
 {
     using std::size;
+    using std::span;
     using std::ranges::min;
+
+    /// Integer assignment.
+    ///
+    /// Stores into `r` the `size(r)` least significant words of integer `x`.
 
     export
     template <Word W>
@@ -27,6 +32,10 @@ namespace purple::arithmetics
         for (auto i = 1uz; i < rz; ++i)
             r[i] = W{0};
     }
+
+    /// Integer assignment.
+    ///
+    /// Stores into `r` the `size(r)` least significant words of integer `x`.
 
     export
     template <Word W>

@@ -12,6 +12,7 @@ import :word_concept;
 namespace purple::arithmetics
 {
     using std::size;
+    using std::span;
 
     export
     template <Word W>

@@ -14,13 +14,15 @@ import :word_concept;
 namespace purple::arithmetics
 {
     using std::size;
+    using std::span;
     using std::ranges::min;
     using std::tie;
 
-    /// Computes the difference between two integers.
+    /// Difference of nonnegative integers `x` and `y`.
     ///
-    /// Subtract stores into difference the size(difference) least significant words of the result.
-    /// It permits aliasing difference to x, in which case it becomes "subtract accumulate".
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
+    /// Returns the "borrow" of the top word of the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
@@ -47,10 +49,11 @@ namespace purple::arithmetics
         return borrow;
     }
 
-    /// Computes the difference between two integers.
+    /// Difference of nonnegative integers `x` and `y`.
     ///
-    /// Subtract stores into difference the size(difference) least significant words of the result.
-    /// It permits aliasing difference to x, in which case it becomes "subtract accumulate".
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
+    /// Returns the "borrow" of the top word of the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 

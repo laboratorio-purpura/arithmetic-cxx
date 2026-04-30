@@ -9,16 +9,20 @@ module;
 export module purple.arithmetics:reciprocal;
 
 import :word_concept;
+import :smaller;
 
 namespace purple::arithmetics
 {
-	/// Computes an approximation to the multiplicative inverse of a "normalised" integer.
+	using std::ignore;
+	using std::span;
+	using std::tie;
+
+	/// Reciprocal approximation of nonnegative normalized 1-word integer `y`.
 	///
 	/// Requires:
-	/// y is "normalised".
-	/// Otherwise, the result is undefined.
+	/// y is normalized.
 	///
-	/// This implementation applies the "Improved division by invariant integers" method.
+	/// This implementation applies the "improved division by invariant integers" method.
 
 	export
 	template <Word W>
@@ -37,13 +41,12 @@ namespace purple::arithmetics
 		return q;
 	}
 
-    /// Computes an approximation to the multiplicative inverse of a "normalised" two-word integer.
+	/// Reciprocal approximation of nonnegative normalized 2-word integer `y`.
     ///
-    /// Requires:
-    /// y is "normalised".
-    /// Otherwise, the result is undefined.
-    ///
-    /// This implementation applies the "Improved division by invariant integers" method.
+	/// Requires:
+	/// y is normalized.
+	///
+	/// This implementation applies the "improved division by invariant integers" method.
 
     export
     template <Word W, size_t Bi>

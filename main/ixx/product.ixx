@@ -4,16 +4,18 @@
 module;
 
 #include <algorithm>
-#include <cassert>
+#include <array>
 #include <span>
 #include <tuple>
 
 export module purple.arithmetics:product;
 
+import :sum;
 import :word_concept;
 
 namespace purple::arithmetics
 {
+    using std::array;
     using std::ignore;
     using std::ranges::max;
     using std::ranges::min;
@@ -21,9 +23,10 @@ namespace purple::arithmetics
     using std::size;
     using std::tie;
 
-    /// Computes the product of two integers.
+    /// Product of nonnegative integers `x` and `y`.
     ///
-    /// Multiply stores into product the size(product) least significant words of the result.
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
@@ -55,9 +58,10 @@ namespace purple::arithmetics
         return excess;
     }
 
-    /// Computes the product of two integers.
+    /// Product of nonnegative integers `x` and `y`.
     ///
-    /// Multiply stores into r the size(r) least significant words of the result.
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
     ///
     /// This implementation applies the "convolution" method.
 
@@ -90,9 +94,10 @@ namespace purple::arithmetics
         }
     }
 
-    /// Computes the product of two integers.
+    /// Product of nonnegative integers `x` and `y`.
     ///
-    /// Multiply stores into r the size(r) least significant words of the result.
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
@@ -129,6 +134,11 @@ namespace purple::arithmetics
             }
         }
     }
+
+    /// Product of nonnegative integers `x` and `y`.
+    ///
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
 
     export
     template <Word W>

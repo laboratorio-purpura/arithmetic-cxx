@@ -5,18 +5,16 @@ module;
 
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <span>
 #include <tuple>
 
 export module purple.arithmetics:square;
 
-import :word_concept;
-
 import :assign;
 import :product;
 import :sum;
 import :twice;
+import :word_concept;
 
 namespace purple::arithmetics
 {
@@ -28,12 +26,26 @@ namespace purple::arithmetics
     using std::size;
     using std::tie;
 
+    /// Square of nonnegative integer `x`.
+    ///
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
+    ///
+    /// This implementation applies the definition of square.
+
     export
     template <Word W>
     void square_definition ( span<W> r, span<W const> x ) noexcept
     {
         product( r, x, x );
     }
+
+    /// Square of nonnegative integer `x`.
+    ///
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
+    ///
+    /// This implementation applies the "school" method.
 
     export
     template <Word W>
@@ -79,6 +91,11 @@ namespace purple::arithmetics
             }
         }
     }
+
+    /// Square of nonnegative integer `x`.
+    ///
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
 
     export
     template <Word W>

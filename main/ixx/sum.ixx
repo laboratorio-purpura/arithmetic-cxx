@@ -14,13 +14,14 @@ import :word_concept;
 namespace purple::arithmetics
 {
     using std::size;
+    using std::span;
     using std::ranges::min;
     using std::tie;
 
-    /// Computes the sum of two integers.
+    /// Sum of nonnegative integers `x` and `y`.
     ///
-    /// Add stores into r the size(r) least significant words of the result.
-    /// It permits aliasing r to x, in which case it becomes "add accumulate".
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
@@ -47,10 +48,10 @@ namespace purple::arithmetics
         return carry;
     }
 
-    /// Computes the sum of two integers.
+    /// Sum of nonnegative integers `x` and `y`.
     ///
-    /// Add stores into sum the size(r) least significant words of the result.
-    /// It permits aliasing r to x, in which case it becomes "sum accumulate".
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 

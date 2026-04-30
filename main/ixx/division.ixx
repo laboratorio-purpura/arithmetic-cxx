@@ -3,28 +3,43 @@
 
 module;
 
+#include <array>
 #include <cassert>
 #include <span>
 #include <tuple>
 
 export module purple.arithmetics:division;
 
-import :word_concept;
-
 import :assign;
 import :compact;
+import :difference;
+import :half;
 import :product;
+import :reciprocal;
+import :smaller;
+import :sum;
+import :twice;
+import :word_concept;
 
 namespace purple::arithmetics
 {
-    /// Normalized division with remainder.
+    using std::array;
+    using std::ignore;
+    using std::size;
+    using std::span;
+    using std::tie;
+    using std::tuple;
+
+    /// Division of nonnegative 2-word integer `x` by 1-word normalized integer `y`.
     ///
-    /// Computes by the "improved division by invariant integers" method.
+    /// Returns the quotient and the remainder.
     ///
     /// Requires:
-    /// y is normalized
-    /// x ÷ B < y
-    /// iy = reciprocal_normalized(y)
+    /// y is normalized;
+    /// iy = reciprocal_normalized(y);
+    /// x ÷ β < y.
+    ///
+    /// This implementation applies the "improved division by invariant integers" method.
 
     export
     template <Word W, size_t Bi>
@@ -56,16 +71,16 @@ namespace purple::arithmetics
         return { q, r };
     }
 
-    /// Division with remainder.
+    /// Division of nonnegative integers `x` by `y`.
     ///
-    /// Computes by the classical or "school" method.
+    /// Stores into `q` the `size(q)` least significant words of the quotient.
+    /// Returns the remainder.
     ///
-    /// Requirements:
-    /// y is nonzero
+    /// Requires:
+    /// y is nonzero.
     ///
-    /// Stores qd ≤ size(x) words into counted range [ begin(q), qd ).
-    ///
-    /// @return remainder word.
+    /// This implementation applies the "school" method described in Knuth, section 4.3.1,
+    /// augmented by the "improved division by invariant integers" method.
 
     export
     template <Word W>
@@ -112,14 +127,16 @@ namespace purple::arithmetics
         return r;
     }
 
-    /// Normalized division with remainder.
+    /// Division of nonnegative 3-word integer `x` by 2-word normalized integer `y`.
     ///
-    /// Computes by the "improved division by invariant integers" method.
+    /// Returns the quotient and the remainder.
     ///
     /// Requires:
-    /// x ÷ B < y
     /// y is normalized
     /// iy = reciprocal_normalized(y)
+    /// x ÷ β < y
+    ///
+    /// This implementation applies the "improved division by invariant integers" method.
 
     export
     template <Word W, size_t Tri, size_t Bi>
@@ -159,22 +176,22 @@ namespace purple::arithmetics
         return { q[1], r };
     }
 
-    /// Division with remainder step.
+    /// Division of nonnegative (N+1)-word integer `x` by N-word normalized integer `y`.
     ///
-    /// Computes one step of the classical or "school" method.
+    /// Stores into `r` the `size(r)` least significant words of the remainder.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the remainder.
+    /// Returns the quotient.
     ///
-    /// Requirements:
+    /// Requires:
+    /// size(r) ≥ size(x)
     /// size(x) = size(y) + 1
     /// size(y) ≥ 2
     /// y is normalized
-    /// x ÷ B < y
-    /// size(r) ≥ size(x)
+    /// iy = reciprocal_normalized( top(y) )
+    /// x ÷ β < y
     ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores rd ≤ size(x) words into counted range [ begin(r), rd ).
-    ///
-    /// @return quotient word.
+    /// This implementation applies the "school" method described in Knuth, section 4.3.1,
+    /// augmented by the "improved division by invariant integers" method.
 
     export
     template <Word W>
@@ -243,17 +260,16 @@ namespace purple::arithmetics
         return q_[0];
     }
 
-    /// Division with remainder.
+    /// Division of nonnegative integers `x` by `y`.
     ///
-    /// Computes by the classical or "school" method.
+    /// Stores into `q` the `size(q)` least significant words of the quotient.
+    /// Stores into `r` the `size(r)` least significant words of the remainder.
     ///
-    /// Requirements:
+    /// Requires:
     /// y is nonzero
     ///
-    /// Permits aliasing r to x.
-    ///
-    /// Stores qd ≤ size(x) words into counted range [ begin(q), qd ).
-    /// Stores rd ≤ size(x) + 1 words into counted range [ begin(r), rd ).
+    /// This implementation applies the "school" method described in Knuth, section 4.3.1,
+    /// augmented by the "improved division by invariant integers" method.
 
     export
     template <Word W>

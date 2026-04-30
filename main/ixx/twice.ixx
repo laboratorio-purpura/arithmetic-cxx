@@ -11,19 +11,22 @@ module;
 export module purple.arithmetics:twice;
 
 import :word_concept;
+import :sum;
 
 namespace purple::arithmetics
 {
+    using std::ignore;
     using std::size;
+    using std::span;
     using std::ranges::min;
     using std::tie;
 
-    /// Computes twice (to a power) of an integer.
+    /// Product of nonnegative integers `x` and 2, `y` times.
     ///
-    /// Double adds into product the size(product) least significant words of the result.
-    /// It permits aliasing product to x, in which case it becomes "double accumulate".
+    /// Stores into `r` the `size(r)` least significant words of the result.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
     ///
-    /// This implementation applies the "binary shift" method.
+    /// This implementation applies the "shift" method.
 
     export
     template <Word W>

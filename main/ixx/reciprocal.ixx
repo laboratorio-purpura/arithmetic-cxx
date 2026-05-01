@@ -17,7 +17,7 @@ namespace purple::arithmetics
 	using std::span;
 	using std::tie;
 
-	/// Reciprocal approximation of nonnegative normalized 1-word integer `y`.
+	/// Reciprocal (multiplicative inverse) approximation of normalized 1-word integer `y`.
 	///
 	/// Requires:
 	/// y is normalized.
@@ -26,7 +26,7 @@ namespace purple::arithmetics
 
 	export
 	template <Word W>
-	auto reciprocal_normalized ( W y ) noexcept -> W
+	auto reciprocal ( W y ) noexcept -> W
 	{
 		// y' = ( ( ( β^2 - 1 ) ÷ y ) ÷ β ) - β
 		// y' = <β - 1 - y, β - 1> ÷ y
@@ -41,7 +41,7 @@ namespace purple::arithmetics
 		return q;
 	}
 
-	/// Reciprocal approximation of nonnegative normalized 2-word integer `y`.
+	/// Reciprocal (multiplicative inverse) approximation of normalized 2-word integer `y`.
     ///
 	/// Requires:
 	/// y is normalized.
@@ -51,10 +51,10 @@ namespace purple::arithmetics
     export
     template <Word W, size_t Bi>
     requires ( Bi == 2uz )
-    auto reciprocal_normalized ( span<W const,Bi> y ) noexcept -> W
+    auto reciprocal ( span<W const,Bi> y ) noexcept -> W
     {
         // 1. v ← RECIPROCAL_WORD(d1)
-        auto v = reciprocal_normalized( y[1] );
+        auto v = reciprocal( y[1] );
         // We have β^2 − d1 ≤ (β + v).d1 < β^2
         // 2. p ← d1.v mod β
         auto [ p, _ ] = product( y[1], v );

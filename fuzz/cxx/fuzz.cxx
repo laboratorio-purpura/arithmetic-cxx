@@ -186,7 +186,7 @@ namespace
 
             // compute with purple
 
-            auto r = purple::arithmetics::reciprocal_normalized(y);
+            auto r = purple::arithmetics::reciprocal(y);
 
             // compute with GMP
 
@@ -358,7 +358,7 @@ namespace
 
             // compute with purple
 
-            auto iy = reciprocal_normalized(y);
+            auto iy = reciprocal(y);
             auto [q,r] = division_normal_strict<word,2>(x,y,iy);
 
             // compute with GMP

@@ -22,7 +22,7 @@ using namespace std::string_literals;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleHegelTest,reciprocal_normal_2_differential_gmp)
+TYPED_TEST(PurpleHegelTest,reciprocal_2_differential)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -36,7 +36,7 @@ TYPED_TEST(PurpleHegelTest,reciprocal_normal_2_differential_gmp)
         y[1].v |= normal;
 
         // compute with purple
-        auto iy = reciprocal_normalized<word,2>( span<word,2>(y) );
+        auto iy = reciprocal<word,2>( span<word,2>(y) );
 
         // compute with gmp
         mpz_class y_ = to_mpz(y);
@@ -50,7 +50,7 @@ TYPED_TEST(PurpleHegelTest,reciprocal_normal_2_differential_gmp)
     { .test_cases = hegel_cases });
 }
 
-TYPED_TEST(PurpleRandomTest,reciprocal_normal_2_differential_gmp)
+TYPED_TEST(PurpleRandomTest,reciprocal_2_differential)
 {
     constexpr auto B = tuple_element<0,TypeParam>::type::value;
     using generator = tuple_element<1,TypeParam>::type;
@@ -79,7 +79,7 @@ TYPED_TEST(PurpleRandomTest,reciprocal_normal_2_differential_gmp)
         auto y = array<word,2> {};
         assign(y,gy);
 
-        auto iy = reciprocal_normalized<word,2>( y );
+        auto iy = reciprocal<word,2>( y );
 
         SCOPED_TRACE("purple:\n"s +
             "y = " + format(y) + "\n" +

@@ -46,7 +46,7 @@ TYPED_TEST(PurpleHegelTest,division_normal_strict_2_1_differential)
             tie( x[1], ignore ) = difference(x[1],y,word{0});
 
         // compute with purple
-        auto iy = reciprocal_normalized(y);
+        auto iy = reciprocal(y);
         auto [q,r] = division_normal_strict<word,2>( span<word,2>(x), y, iy );
 
         // compute with gmp
@@ -105,7 +105,7 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_2_1_differential)
         auto y = array<word,1> {};
         assign(y,gy);
 
-        auto iy = reciprocal_normalized<word>( y[0] );
+        auto iy = reciprocal<word>( y[0] );
 
         auto [ q, r ] = division_normal_strict<word,2>( x, y[0], iy );
 
@@ -303,7 +303,7 @@ TYPED_TEST(PurpleHegelTest,division_normal_strict_3_2_differential)
             difference<word>( span(x).subspan(1), span(x).subspan(1), y );
 
         // compute with purple
-        auto iy = reciprocal_normalized<word,2>( span<word,2>(y) );
+        auto iy = reciprocal<word,2>( span<word,2>(y) );
         auto [q,r] = division_normal_strict<word,3,2>( span<word,3>(x), span<word,2>(y), iy );
 
         // compute with gmp
@@ -362,7 +362,7 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_3_2_differential)
         auto y = array<word,2> {};
         assign(y,gy);
 
-        auto iy = reciprocal_normalized<word,2>( y );
+        auto iy = reciprocal<word,2>( y );
 
         auto [ q, r ] = division_normal_strict<word,3,2>( x, y, iy );
 
@@ -402,7 +402,7 @@ TYPED_TEST(PurpleHegelTest,division_normal_strict_N1_N_differential)
 
         // compute with purple
         auto r = vector<word>(size(x));
-        auto iy = reciprocal_normalized( y[size(y)-1] );
+        auto iy = reciprocal( y[size(y)-1] );
         auto q = division_normal_strict<word>( span(r), span(x), span(y), iy );
 
         // compute with gmp
@@ -461,7 +461,7 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_N1_N_differential)
         auto y = array<word,32> {};
         assign(y,gy);
 
-        auto iy = reciprocal_normalized<word>( y[31] );
+        auto iy = reciprocal<word>( y[31] );
 
         auto r = array<word,33> {};
 

@@ -106,7 +106,7 @@ namespace purple::arithmetics
 
         // 2. reciprocal approximation of normalized divisor.
 
-        auto iy = reciprocal_normalized( ny );
+        auto iy = reciprocal( ny );
 
         // 3. compute quotient, word by word.
 
@@ -317,7 +317,7 @@ namespace purple::arithmetics
 
         // 2. reciprocal approximation of normalized divisor top word.
 
-        auto iy = reciprocal_normalized( ny[yz-1] );
+        auto iy = reciprocal( ny[yz-1] );
 
         // 3. compute quotient, word by word.
 

@@ -27,7 +27,39 @@ using namespace std::literals;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleHegelTest,sum_N_1_differential_gmp)
+TYPED_TEST(PurpleHegelTest,sum_N_1_accumulate)
+{
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto y = tc.draw(words<Bits>());
+        auto z = size(x);
+
+        // result
+
+        auto r1 = vector<word>(z);
+        ignore = sum<word>(r1,x,y);
+
+        // accumulate result
+
+        auto r2 = vector<word>(z);
+        assign<word>(r2,x);
+        ignore = sum<word>(r2,r2,y);
+
+        // compare
+
+        if ( ! equal( r1, r2 ) )
+            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(r1),format(r2)));
+    },
+    { .test_cases = hegel_cases });
+}
+
+TYPED_TEST(PurpleHegelTest,sum_N_1_differential)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -55,7 +87,7 @@ TYPED_TEST(PurpleHegelTest,sum_N_1_differential_gmp)
     { .test_cases = hegel_cases });
 }
 
-TYPED_TEST(PurpleRandomTest,sum_64_1_differential_gmp)
+TYPED_TEST(PurpleRandomTest,sum_N_1_differential)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using generator = tuple_element<1,TypeParam>::type;
@@ -141,7 +173,39 @@ TYPED_TEST(PurpleHegelTest,sum_N_1_short)
     { .test_cases = hegel_cases });
 }
 
-TYPED_TEST(PurpleHegelTest,sum_differential_gmp)
+TYPED_TEST(PurpleHegelTest,sum_accumulate)
+{
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto z = max( size(x), size(y) );
+
+        // result
+
+        auto r1 = vector<word>(z);
+        ignore = sum<word>(r1,x,y);
+
+        // accumulate result
+
+        auto r2 = vector<word>(z);
+        assign<word>(r2,x);
+        ignore = sum<word>(r2,r2,y);
+
+        // compare
+
+        if ( ! equal( r1, r2 ) )
+            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(r1),format(r2)));
+    },
+    { .test_cases = hegel_cases });
+}
+
+TYPED_TEST(PurpleHegelTest,sum_differential)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -169,7 +233,7 @@ TYPED_TEST(PurpleHegelTest,sum_differential_gmp)
     { .test_cases = hegel_cases });
 }
 
-TYPED_TEST(PurpleRandomTest,sum_32_32_differential_gmp)
+TYPED_TEST(PurpleRandomTest,sum_differential)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using generator = tuple_element<1,TypeParam>::type;

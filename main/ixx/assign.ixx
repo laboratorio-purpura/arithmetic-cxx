@@ -46,7 +46,7 @@ namespace purple::arithmetics
 
         auto const z = min({ rz, xz });
 
-        for (auto i = 0uz; i != z; ++i)
+        for (auto i = 0uz; i < z; ++i)
             r[i] = x[i];
 
         for (auto i = z; i < rz; ++i)

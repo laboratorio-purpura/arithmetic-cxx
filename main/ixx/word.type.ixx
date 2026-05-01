@@ -158,6 +158,40 @@ export namespace purple::arithmetics
         return x.v <= y.v;
     }
 
+    /// Transform procedures.
+
+    /// Binary "not".
+
+    template <size_t B>
+    auto binary_not ( word<B> x ) noexcept -> word<B>
+    {
+        return word<B>{ ~ x.v };
+    }
+
+    /// Binary "and".
+
+    template <size_t B>
+    auto binary_and ( word<B> x, word<B> y ) noexcept -> word<B>
+    {
+        return word<B>{ x.v & y.v };
+    }
+
+    /// Binary "or".
+
+    template <size_t B>
+    auto binary_or ( word<B> x, word<B> y ) noexcept -> word<B>
+    {
+        return word<B>{ x.v | y.v };
+    }
+
+    /// Binary "xor".
+
+    template <size_t B>
+    auto binary_xor ( word<B> x, word<B> y ) noexcept -> word<B>
+    {
+        return word<B>{ x.v ^ y.v };
+    }
+
     /// Expand procedures.
     ///
     /// These procedures increase values, producing a "carry" or an "excess".

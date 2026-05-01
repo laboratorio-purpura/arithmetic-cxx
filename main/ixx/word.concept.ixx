@@ -64,6 +64,13 @@ namespace purple::arithmetics
         { is_greater(w,w) } noexcept -> convertible_to<bool>;
         { not_greater(w,w) } noexcept -> convertible_to<bool>;
 
+        /// Transform procedures.
+
+        { binary_not(w) } noexcept -> same_as<W>;
+        { binary_and(w,w) } noexcept -> same_as<W>;
+        { binary_or(w,w) } noexcept -> same_as<W>;
+        { binary_xor(w,w) } noexcept -> same_as<W>;
+
         /// Expand procedures.
 
         { next(w,w) } noexcept -> same_as< array<W,2> >;

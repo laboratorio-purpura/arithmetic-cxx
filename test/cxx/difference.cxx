@@ -173,7 +173,7 @@ TYPED_TEST(PurpleHegelTest,difference_N_1_short_result)
 
         // compare
 
-        if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
+        if ( ! equal( span(fr).subspan(0,sz), span(sr) ) )
             throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
     { .test_cases = hegel_cases });
@@ -325,7 +325,7 @@ TYPED_TEST(PurpleHegelTest,difference_short_result)
 
         // compare
 
-        if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
+        if ( ! equal( span(fr).subspan(0,sz), span(sr) ) )
             throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
     { .test_cases = hegel_cases });

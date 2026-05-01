@@ -31,17 +31,17 @@ namespace purple::arithmetics
 
     export
     template <Word W>
-    auto twice ( span<W> product, span<W const> x, size_t y ) noexcept -> W
+    auto twice ( span<W> r, span<W const> x, size_t y ) noexcept -> W
     {
+        auto e = W{0};
+
         constexpr auto Bits = sizeof(W) * 8;
 
-        auto excess = W{0};
-
-        auto const pz = size(product);
+        auto const pz = size(r);
         auto const xz = size(x);
 
         // TODO: document this restriction
-        y = min(y, 63uz);
+        y = min(y, Bits-1);
 
         // count of result words
         auto const z = min({ pz, xz });
@@ -50,15 +50,11 @@ namespace purple::arithmetics
         for (auto i = 0uz; i != z; ++i) {
             // x[i] × 2^y
             auto p = twice( x[i], y );
-			// pull lower excess
-            auto carry = W{0};
-            tie( p[0], carry ) = sum( p[0], excess, W{0} );
-            tie( p[1], ignore ) = sum( p[1], W{0}, carry );
-            // store low word, propagate high word
-            product[i] = p[0];
-            excess = p[1];
+            // store low word with excess, forward high word
+            r[i] = binary_or( p[0], e );
+            e = p[1];
         }
 
-        return excess;
+        return e;
     }
 }

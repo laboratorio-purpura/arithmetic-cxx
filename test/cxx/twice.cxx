@@ -127,7 +127,7 @@ TYPED_TEST(PurpleRandomTest,twice_differential)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,twice_short)
+TYPED_TEST(PurpleHegelTest,twice_short_result)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -143,19 +143,19 @@ TYPED_TEST(PurpleHegelTest,twice_short)
         // short size
         auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full result
+        // full result
 
         auto fr = vector<word>(fz);
         auto _ = twice<word>(fr,x,y);
 
-        // compute short result
+        // short result
 
         auto sr = vector<word>(sz);
         auto _ = twice<word>(sr,x,y);
 
         // compare
 
-        if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
+        if ( ! equal( span(fr).subspan(0,sz), span(sr) ) )
             throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
     { .test_cases = hegel_cases });

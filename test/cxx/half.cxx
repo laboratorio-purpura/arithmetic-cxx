@@ -67,19 +67,23 @@ TYPED_TEST(PurpleHegelTest,half_differential)
     hegel::test([](hegel::TestCase& tc)
     {
         // generate with hegel
+
         auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
         auto y = tc.draw(integers<unsigned>({.max_value=Bits-1}));
         auto z = size(x);
 
         // compute with purple
+
         auto r = vector<word>(z);
         half<word>(r,x,y);
 
         // compute with gmp
+
         auto x_ = to_mpz(x);
         auto r_ = x_ >> y;
 
         // compare
+
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error("GMP and purple differ");
     },
@@ -129,7 +133,7 @@ TYPED_TEST(PurpleRandomTest,half_differential)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,half_short)
+TYPED_TEST(PurpleHegelTest,half_short_result)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -157,7 +161,7 @@ TYPED_TEST(PurpleHegelTest,half_short)
 
         // compare
 
-        if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
+        if ( ! equal( span(fr).subspan(0,sz), span(sr) ) )
             throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
     { .test_cases = hegel_cases });

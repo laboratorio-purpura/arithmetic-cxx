@@ -30,38 +30,39 @@ namespace purple::arithmetics
 
     export
     template <Word W>
-    auto half ( span<W> quotient, span<W const> x, size_t y ) noexcept -> W
+    auto half ( span<W> q, span<W const> x, size_t y ) noexcept -> W
     {
+        auto r = W{0};
+
         constexpr auto Bits = sizeof(W) * 8;
 
-        auto remainder = W{0};
-
-        auto const pz = size(quotient);
+        auto const qz = size(q);
         auto const xz = size(x);
 
         // TODO: document this restriction
-        y = min(y, 63uz);
+        y = min(y, Bits-1);
 
         // count of result words
-        auto const z = min({ pz, xz });
+        auto const z = min({ qz, xz });
 
         // halve x, y times, word by word, propagating remainder
         if (xz > z)
         {
-            // x[i] ÷ 2^y
-            auto [ _, r ] = half( x[z], y );
-            // propagate remainder
-            tie( remainder, ignore ) = twice( r, Bits - y );
+            // x[z] ÷ 2^y
+            // forward remainder
+            tie( ignore, r ) = half( x[z], y );
         }
         for (auto i = z; i > 0; --i)
         {
     		// x[i] ÷ 2^y
-            auto [ q, r ] = half( x[i-1], y );
-            // store quotient, propagate remainder
-            tie( quotient[i-1], ignore ) = sum( q, remainder, W{0} );
-            tie( remainder, ignore ) = twice( r, Bits - y );
+            auto [ q_, r_ ] = half( x[i-1], y );
+            // store quotient with lower remainder
+            auto [ t, _ ] = twice( r, Bits - y );
+            q[i-1] = binary_or( q_, t );
+            // forward current remainder
+            r = r_;
         }
 
-        return remainder;
+        return r;
     }
 }

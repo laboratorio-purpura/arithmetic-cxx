@@ -295,7 +295,7 @@ export namespace purple::arithmetics
     {
         constexpr unsigned _BitInt(B) one { 1 };
         unsigned _BitInt(B) q = x.v >> z;
-        unsigned _BitInt(B) r = x.v % (one << z);
+        unsigned _BitInt(B) r = x.v & ((one << z) - one);
         return { { q }, { r } };
     }
 }

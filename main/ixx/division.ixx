@@ -286,7 +286,7 @@ namespace purple::arithmetics
 
         if ( yz == 1 ) {
             auto r_ = division( q, x, y[0] );
-            if ( rz > 0 ) r[0] = r_;
+            assign<W>( r, r_ );
             return;
         }
         // invariant: size(y) > 1

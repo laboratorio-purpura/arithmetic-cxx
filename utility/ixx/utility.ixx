@@ -8,6 +8,7 @@ module;
 #include <vector>
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <gmpxx.h>
 
@@ -19,6 +20,14 @@ using std::array;
 using std::span;
 using std::string;
 using std::vector;
+
+// GMP utilities
+
+export namespace fmt
+{
+    template <typename T, typename U>
+    struct formatter<::__gmp_expr<T,U>> : ostream_formatter {};
+}
 
 namespace purple::arithmetics
 {

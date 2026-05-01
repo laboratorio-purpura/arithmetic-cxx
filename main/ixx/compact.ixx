@@ -19,7 +19,7 @@ namespace purple::arithmetics
     auto compact ( span<const W> x ) -> span<const W>
     {
         auto i = size(x);
-        while ( i > 1 && are_equal( x[i-1], W{0} ) ) --i;
+        while ( i > 1 && is_zero( x[i-1] ) ) --i;
         return x.subspan(0,i);
     }
 }

@@ -71,20 +71,24 @@ TYPED_TEST(PurpleHegelTest,product_N_1_differential)
     hegel::test([](hegel::TestCase& tc)
     {
         // generate with hegel
+
         auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
         auto y = tc.draw(words<Bits>());
+        auto z = size(x);
 
         // compute with purple
-        auto z = size(x);
+
         auto r = vector<word>(z+1);
         r[z] = product<word>(r,x,y);
 
         // compute with gmp
+
         auto x_ = to_mpz(x);
         auto y_ = to_mpz(y);
         auto r_ = x_ * y_;
 
         // compare
+
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error("GMP and purple differ");
     },
@@ -145,7 +149,7 @@ TYPED_TEST(PurpleRandomTest,product_N_1_differential)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,product_N_1_short)
+TYPED_TEST(PurpleHegelTest,product_N_1_short_result)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -161,19 +165,19 @@ TYPED_TEST(PurpleHegelTest,product_N_1_short)
         // short size
         auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full result
+        // full result
 
         auto fr = vector<word>(fz);
-        auto _ = product<word>(fr,x,y);
+        ignore = product<word>(fr,x,y);
 
-        // compute short result
+        // short result
 
         auto sr = vector<word>(sz);
-        auto _ = product<word>(sr,x,y);
+        ignore = product<word>(sr,x,y);
 
         // compare
 
-        if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
+        if ( ! equal( span(fr).subspan(0,sz), span(sr) ) )
             throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
     { .test_cases = hegel_cases });
@@ -187,20 +191,24 @@ TYPED_TEST(PurpleHegelTest,product_convolve_differential)
     hegel::test([](hegel::TestCase& tc)
     {
         // generate with hegel
+
         auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
         auto y = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
+        auto z = size(x) + size(y);
 
         // compute with purple
-        auto z = size(x) + size(y);
+
         auto r = vector<word>(z);
         product_convolve<word>(r,x,y);
 
         // compute with gmp
+
         auto x_ = to_mpz(x);
         auto y_ = to_mpz(y);
         auto r_ = x_ * y_;
 
         // compare
+
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error(fmt::format("r = {}, r_ = {}",format(r),format(r_)));
     },
@@ -259,7 +267,7 @@ TYPED_TEST(PurpleRandomTest,product_convolve_differential)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,product_convolve_short)
+TYPED_TEST(PurpleHegelTest,product_convolve_short_result)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -275,19 +283,19 @@ TYPED_TEST(PurpleHegelTest,product_convolve_short)
         // short size
         auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full result
+        // full result
 
         auto fr = vector<word>(fz);
         product_convolve<word>(fr,x,y);
 
-        // compute short result
+        // short result
 
         auto sr = vector<word>(sz);
         product_convolve<word>(sr,x,y);
 
         // compare
 
-        if ( ! equal( span(fr).subspan(0,sz), span(sr).subspan(0,sz) ) )
+        if ( ! equal( span(fr).subspan(0,sz), span(sr) ) )
             throw runtime_error(fmt::format("fr = {}, sr = {}",format(fr),format(sr)));
     },
     { .test_cases = hegel_cases });
@@ -301,20 +309,24 @@ TYPED_TEST(PurpleHegelTest,product_school_differential)
     hegel::test([](hegel::TestCase& tc)
     {
         // generate with hegel
+
         auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
         auto y = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
+        auto z = size(x) + size(y);
 
         // compute with purple
-        auto z = size(x) + size(y);
+
         auto r = vector<word>(z);
         product_school<word>(r,x,y);
 
         // compute with gmp
+
         auto x_ = to_mpz(x);
         auto y_ = to_mpz(y);
         auto r_ = x_ * y_;
 
         // compare
+
         if ( ::cmp(r_, to_mpz(r)) != 0 )
             throw runtime_error(fmt::format("r = {}, r_ = {}",format(r),format(r_)));
     },
@@ -373,7 +385,7 @@ TYPED_TEST(PurpleRandomTest,product_school_differential)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,product_school_short)
+TYPED_TEST(PurpleHegelTest,product_school_short_result)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -382,28 +394,28 @@ TYPED_TEST(PurpleHegelTest,product_school_short)
     {
         // generate with hegel
 
-        auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
-        auto y = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
-        // full result size
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        // full size
         auto fz = size(x) + size(y);
-        // variable result size
-        auto vz = tc.draw(integers<size_t>({.max_value=128}));
+        // short size
+        auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full-sized result
+        // full result
 
         auto fr = vector<word>(fz);
         product_school<word>(fr,x,y);
 
-        // compute variable-sized result
+        // short result
 
-        auto vr = vector<word>(vz);
-        product_school<word>(vr,x,y);
+        auto sr = vector<word>(sz);
+        product_school<word>(sr,x,y);
 
         // compare
 
-        auto z = min(fz, vz);
-        if ( ! equal( span(fr).subspan(0,z), span(vr).subspan(0,z) ) )
-            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(fr),format(vr)));
+        auto z = min(fz, sz);
+        if ( ! equal( span(fr).subspan(0,z), span(sr) ) )
+            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(fr),format(sr)));
     },
     { .test_cases = hegel_cases });
 }

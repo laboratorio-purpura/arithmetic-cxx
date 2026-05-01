@@ -284,6 +284,8 @@ namespace purple::arithmetics
         auto const qz = size(q);
         auto const rz = size(r);
 
+        assert( yz > 0 );
+
         if ( yz == 1 ) {
             auto r_ = division( q, x, y[0] );
             assign<W>( r, r_ );
@@ -313,15 +315,15 @@ namespace purple::arithmetics
         auto nx = span<W>( nx_, xz + 1 );
         nx[xz] = twice<W>( nx, x, factor );
         // invariant: size(nx) > size(ny)
-        // invariant: nx[-1] < ny[-1]
+        // invariant: nx ÷ β < ny
 
-        // 2. reciprocal approximation of normalized divisor top word.
+        // 2. compute reciprocal approximation of normalized divisor top word.
 
         auto iy = reciprocal( ny[yz-1] );
 
         // 3. compute quotient, word by word.
 
-        auto M = size(nx) - size(ny);
+        auto M = xz + 1 - yz;
         // invariant: M ≥ 0
 
         for (auto i = M; i > min(qz,M); --i)

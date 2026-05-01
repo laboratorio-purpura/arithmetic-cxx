@@ -28,7 +28,7 @@ using namespace std::literals;
 
 #define ASSERT_GMP_EQ(x,y) ASSERT_EQ( ::cmp( x, y ), 0 )
 
-TYPED_TEST(PurpleHegelTest,division_normal_strict_2_1_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_normal_strict_2_1_differential)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
 
@@ -64,7 +64,7 @@ TYPED_TEST(PurpleHegelTest,division_normal_strict_2_1_differential_gmp)
     { .test_cases = hegel_cases });
 }
 
-TYPED_TEST(PurpleRandomTest,division_normal_strict_2_1_differential_gmp)
+TYPED_TEST(PurpleRandomTest,division_normal_strict_2_1_differential)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -125,7 +125,40 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_2_1_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,division_N_1_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_N_1_accumulate)
+{
+    constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
+
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto y = tc.draw(words<Bits>({.min_value=1}));
+
+        // result
+
+        auto q1 = vector<word>(size(x));
+        auto r1 = division<word>(q1,x,y);
+
+        // accumulate result
+
+        auto q2 = vector<word>(x);
+        auto r2 = division<word>(q2,q2,y);
+
+        // compare
+
+        if ( ! equal( q1, q2 ) )
+            throw runtime_error(fmt::format("q1 = {}, q2 = {}",format(q1),format(q2)));
+        if ( not_equal( r1, r2 ) )
+            throw runtime_error(fmt::format("r1 = {}, r2 = {}",r1,r2));
+    },
+    { .test_cases = hegel_cases });
+}
+
+TYPED_TEST(PurpleHegelTest,division_N_1_differential)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -156,7 +189,44 @@ TYPED_TEST(PurpleHegelTest,division_N_1_differential_gmp)
     { .test_cases = hegel_cases });
 }
 
-TYPED_TEST(PurpleRandomTest,division_64_1_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_N_1_short)
+{
+    constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
+
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto y = tc.draw(words<Bits>({.min_value=1}));
+        // full size
+        auto fz = size(x);
+        // short size
+        auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
+
+        // compute full quotient
+
+        auto fq = vector<word>(fz);
+        auto fr = division<word>(fq,x,y);
+
+        // compute short quotient
+
+        auto sq = vector<word>(sz);
+        auto sr = division<word>(sq,x,y);
+
+        // compare
+
+        if ( ! equal( span(fq).subspan(0,sz), span(sq).subspan(0,sz) ) )
+            throw runtime_error(fmt::format("fq = {}, sq = {}",format(fq),format(sq)));
+        if ( not_equal(fr,sr) )
+            throw runtime_error(fmt::format("fr = {}, sr = {}",fr,sr));
+    },
+    { .test_cases = hegel_cases });
+}
+
+TYPED_TEST(PurpleRandomTest,division_N_1_differential)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -214,44 +284,7 @@ TYPED_TEST(PurpleRandomTest,division_64_1_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,division_N_1_short)
-{
-    constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
-
-    using word = word<Bits>;
-
-    hegel::test([](hegel::TestCase& tc)
-    {
-        // generate with hegel
-
-        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
-        auto y = tc.draw(words<Bits>({.min_value=1}));
-        // full size
-        auto fz = size(x);
-        // short size
-        auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
-
-        // compute full quotient
-
-        auto fq = vector<word>(fz);
-        auto fr = division<word>(fq,x,y);
-
-        // compute short quotient
-
-        auto sq = vector<word>(sz);
-        auto sr = division<word>(sq,x,y);
-
-        // compare
-
-        if ( ! equal( span(fq).subspan(0,sz), span(sq).subspan(0,sz) ) )
-            throw runtime_error(fmt::format("fq = {}, sq = {}",format(fq),format(sq)));
-        if ( not_equal(fr,sr) )
-            throw runtime_error(fmt::format("fr = {}, sr = {}",fr,sr));
-    },
-    { .test_cases = hegel_cases });
-}
-
-TYPED_TEST(PurpleHegelTest,division_normal_strict_3_2_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_normal_strict_3_2_differential)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -288,7 +321,7 @@ TYPED_TEST(PurpleHegelTest,division_normal_strict_3_2_differential_gmp)
     { .test_cases = hegel_cases });
 }
 
-TYPED_TEST(PurpleRandomTest,division_normal_strict_3_2_differential_gmp)
+TYPED_TEST(PurpleRandomTest,division_normal_strict_3_2_differential)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -349,7 +382,7 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_3_2_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,division_normal_strict_N1_N_differential_gmp)
+TYPED_TEST(PurpleHegelTest,division_normal_strict_N1_N_differential)
 {
     constexpr auto Bits = std::tuple_element<0,TypeParam>::type::value;
 
@@ -387,7 +420,7 @@ TYPED_TEST(PurpleHegelTest,division_normal_strict_N1_N_differential_gmp)
     { .test_cases = hegel_cases });
 }
 
-TYPED_TEST(PurpleRandomTest,division_normal_strict_33_32_differential_gmp)
+TYPED_TEST(PurpleRandomTest,division_normal_strict_N1_N_differential)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -450,7 +483,111 @@ TYPED_TEST(PurpleRandomTest,division_normal_strict_33_32_differential_gmp)
     }
 }
 
-TYPED_TEST(PurpleRandomTest,division_64_32_differential_gmp)
+TEST(PurpleTest,division_accumulate_remainder)
+{
+    constexpr auto Bits = 8uz;
+    using word = word<Bits>;
+
+    {
+        // generate with hegel
+
+        auto x = vector<word>{ 0, 1 };
+        auto y = vector<word>{ 1 };
+
+        // result
+
+        auto q1 = vector<word>(size(x));
+        auto r1 = vector<word>(size(y));
+        division<word>(q1,r1,x,y);
+
+        // accumulate result
+
+        auto q2 = vector<word>(size(x));
+        auto r2 = vector<word>(x);
+        division<word>(q2,r2,r2,y);
+
+        // compare
+
+        if ( not_equal<word>( q1, q2 ) )
+            throw runtime_error(fmt::format("q1 = {}, q2 = {}",format(q1),format(q2)));
+        if ( not_equal<word>( r1, r2 ) )
+            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(r1),format(r2)));
+    }
+}
+
+TYPED_TEST(PurpleHegelTest,division_accumulate_remainder)
+{
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        tc.assume( not_zero<word>( y ) );
+
+        // result
+
+        auto q1 = vector<word>(size(x));
+        auto r1 = vector<word>(size(y));
+        division<word>(q1,r1,x,y);
+
+        // accumulate result
+
+        auto q2 = vector<word>(size(x));
+        auto r2 = vector<word>(x);
+        division<word>(q2,r2,r2,y);
+
+        // compare
+
+        if ( not_equal<word>( q1, q2 ) )
+            throw runtime_error(fmt::format("q1 = {}, q2 = {}",format(q1),format(q2)));
+        if ( not_equal<word>( r1, r2 ) )
+            throw runtime_error(fmt::format("r1 = {}, r2 = {}",format(r1),format(r2)));
+    },
+    { .test_cases = hegel_cases });
+}
+
+TYPED_TEST(PurpleHegelTest,division_differential)
+{
+    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
+    using word = word<Bits>;
+
+    hegel::test([](hegel::TestCase& tc)
+    {
+        // generate with hegel
+
+        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
+        tc.assume( not_zero<word>( y ) );
+        auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
+
+        // compute with purple
+
+        auto z = size(x);
+        auto q = vector<word>(z);
+        auto r = vector<word>(z);
+        division<word>(q,r,x,y);
+
+        // compute with gmp
+
+        auto x_ = to_mpz(x);
+        auto y_ = to_mpz(y);
+        auto q_ = x_ / y_;
+        auto r_ = x_ % y_;
+
+        // compare
+
+        if ( ::cmp(q_, to_mpz(q)) != 0 )
+            throw runtime_error("GMP and purple differ on quotient");
+        if ( ::cmp(r_, to_mpz(r)) != 0 )
+            throw runtime_error("GMP and purple differ on remainder");
+    },
+    { .test_cases = hegel_cases });
+}
+
+TYPED_TEST(PurpleRandomTest,division_differentia)
 {
     constexpr auto B = std::tuple_element<0,TypeParam>::type::value;
     using generator = std::tuple_element<1,TypeParam>::type;
@@ -511,43 +648,6 @@ TYPED_TEST(PurpleRandomTest,division_64_32_differential_gmp)
         ASSERT_GMP_EQ( gq, to_mpz(q) );
         ASSERT_GMP_EQ( gr, to_mpz(r) );
     }
-}
-
-TYPED_TEST(PurpleHegelTest,division_differential_gmp)
-{
-    constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
-    using word = word<Bits>;
-
-    hegel::test([](hegel::TestCase& tc)
-    {
-        // generate with hegel
-
-        auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
-        tc.assume( not_zero<word>( y ) );
-        auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
-
-        // compute with purple
-
-        auto z = size(x);
-        auto q = vector<word>(z);
-        auto r = vector<word>(z);
-        division<word>(q,r,x,y);
-
-        // compute with gmp
-
-        auto x_ = to_mpz(x);
-        auto y_ = to_mpz(y);
-        auto q_ = x_ / y_;
-        auto r_ = x_ % y_;
-
-        // compare
-
-        if ( ::cmp(q_, to_mpz(q)) != 0 )
-            throw runtime_error("GMP and purple differ on quotient");
-        if ( ::cmp(r_, to_mpz(r)) != 0 )
-            throw runtime_error("GMP and purple differ on remainder");
-    },
-    { .test_cases = hegel_cases });
 }
 
 TYPED_TEST(PurpleHegelTest,division_short_quotient)

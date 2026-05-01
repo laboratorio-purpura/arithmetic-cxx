@@ -27,6 +27,7 @@ namespace purple::arithmetics
     ///
     /// Stores into `r` the `size(r)` least significant words of the result.
     /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
+    /// Returns the "excess" of the top word of the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
@@ -39,18 +40,19 @@ namespace purple::arithmetics
         auto const rz = size(r);
         auto const xz = size(x);
 
-        // count of result words to compute
+        // count of result words
         auto const z = min( rz, xz );
 
         // multiply x and y, word by word, propagating excess
         for (auto i = 0uz; i < z; ++i)
         {
-            // x[i] × y + excess
+            // x[i] × y
             auto p = product( x[i], y );
+            // add lower excess
             auto carry = W{0};
             tie( p[0], carry ) = sum( p[0], excess, W{0} );
             tie( p[1], ignore ) = sum( p[1], W{0}, carry );
-            // store low word, propagate high word
+            // store low word, forward high word
             r[i] = p[0];
             excess = p[1];
         }
@@ -61,7 +63,6 @@ namespace purple::arithmetics
     /// Product of nonnegative integers `x` and `y`.
     ///
     /// Stores into `r` the `size(r)` least significant words of the result.
-    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
     ///
     /// This implementation applies the "convolution" method.
 
@@ -97,7 +98,6 @@ namespace purple::arithmetics
     /// Product of nonnegative integers `x` and `y`.
     ///
     /// Stores into `r` the `size(r)` least significant words of the result.
-    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
@@ -115,18 +115,18 @@ namespace purple::arithmetics
         for (auto j = 0uz, j_ = min(rz,yz); j < j_; ++j)
         {
             auto excess = W{0};
-            auto carry = W{0};
             // x × y[j]
             for (auto i = 0uz, i_ = min(rz,xz); i < i_ && i+j < rz; ++i)
             {
+                auto carry = W{0};
                 // x[i] × y[j]
                 auto p = product( x[i], y[j] );
-                // x[i] × y[j] + excess
-                tie( p[0], carry ) = sum( p[0], excess, W{0} );
-                tie( p[1], ignore ) = sum( p[1], W{0}, carry );
-                // store low word, carry high word
+                // add lower excess
+                tie( p[0], carry )  = sum( p[0], excess, W{0} );
+                tie( p[1], ignore ) = sum( p[1], W{0},   carry );
+                // store low word, forward high word
                 tie( r[i+j], carry ) = sum( r[i+j], p[0], W{0} );
-                tie( excess, ignore ) = sum( p[1], W{0}, carry );
+                tie( excess, ignore )   = sum( W{0},   p[1], carry );
             }
             // store excess
             if (xz+j < rz) {
@@ -138,7 +138,6 @@ namespace purple::arithmetics
     /// Product of nonnegative integers `x` and `y`.
     ///
     /// Stores into `r` the `size(r)` least significant words of the result.
-    /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
 
     export
     template <Word W>

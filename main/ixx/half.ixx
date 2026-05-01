@@ -21,7 +21,7 @@ namespace purple::arithmetics
     using std::ranges::min;
     using std::tie;
 
-    /// Division of nonnegative integers `x` by 2, `y` times.
+    /// Half of nonnegative integer `x`, `y` times.
     ///
     /// Stores into `q` the `size(q)` least significant words of the quotient.
     /// Returns the remainder.
@@ -42,7 +42,7 @@ namespace purple::arithmetics
         // TODO: lift this restriction
         assert(y < Bits);
 
-        // count of result words to compute
+        // count of result words
         auto const z = min({ pz, xz });
 
         // halve x, y times, word by word, propagating remainder

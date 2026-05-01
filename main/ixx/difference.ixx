@@ -35,7 +35,7 @@ namespace purple::arithmetics
         auto const sz = size(r);
         auto const xz = size(x);
 
-        // count of result words to compute
+        // count of result words
         auto const z = min({ sz, xz });
 
         // subtract x[0] and y, propagating borrow
@@ -67,7 +67,7 @@ namespace purple::arithmetics
         auto const xz = size(x);
         auto const yz = size(y);
 
-        // count of result words to compute
+        // count of result words
         auto const z = min({ rz, xz, yz });
 
         // subtract x and y, word by word, propagating borrow

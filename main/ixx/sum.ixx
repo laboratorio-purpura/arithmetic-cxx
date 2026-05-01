@@ -22,6 +22,7 @@ namespace purple::arithmetics
     ///
     /// Stores into `r` the `size(r)` least significant words of the result.
     /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
+    /// Returns the "carry" of the top word of the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
@@ -34,7 +35,7 @@ namespace purple::arithmetics
         auto const sz = size(r);
         auto const xz = size(x);
 
-        // count of result words to compute
+        // count of result words
         auto const z = min({ sz, xz });
 
         // add x[0] and y, propagating carry
@@ -52,6 +53,7 @@ namespace purple::arithmetics
     ///
     /// Stores into `r` the `size(r)` least significant words of the result.
     /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
+    /// Returns the carry of the top word of the result.
     ///
     /// This implementation applies the "school" method described in Knuth, section 4.3.1.
 
@@ -65,7 +67,7 @@ namespace purple::arithmetics
         auto const xz = size(x);
         auto const yz = size(y);
 
-        // count of result words to compute
+        // count of result words
         auto const z = min({ rz, xz, yz });
 
         // add x and y, word by word, propagating carry

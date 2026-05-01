@@ -264,6 +264,7 @@ namespace purple::arithmetics
     ///
     /// Stores into `q` the `size(q)` least significant words of the quotient.
     /// Stores into `r` the `size(r)` least significant words of the remainder.
+    /// Permits aliasing `r` to `x`, in which case it "accumulates" the remainder.
     ///
     /// Requires:
     /// y is nonzero
@@ -288,6 +289,7 @@ namespace purple::arithmetics
             if ( rz > 0 ) r[0] = r_;
             return;
         }
+        // invariant: size(y) > 1
 
         if ( xz < yz ) {
             assign<W>( q, W{0} );

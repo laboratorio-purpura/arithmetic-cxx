@@ -21,10 +21,11 @@ namespace purple::arithmetics
     using std::ranges::min;
     using std::tie;
 
-    /// Product of nonnegative integers `x` and 2, `y` times.
+    /// Twice of nonnegative integer `x`, `y` times.
     ///
     /// Stores into `r` the `size(r)` least significant words of the result.
     /// Permits aliasing `r` to `x`, in which case it "accumulates" the result.
+    /// Returns the "excess" of the top word of the result.
     ///
     /// This implementation applies the "shift" method.
 
@@ -39,17 +40,18 @@ namespace purple::arithmetics
         auto const pz = size(product);
         auto const xz = size(x);
 
-        // TODO: lift this restriction
-        assert(y < Bits);
+        // TODO: document this restriction
+        y = min(y, 63uz);
 
-        // count of result words to compute
+        // count of result words
         auto const z = min({ pz, xz });
 
         // double x, y times, word by word, propagating excess
         for (auto i = 0uz; i != z; ++i) {
-            auto carry = W{0};
-            // x[i] × 2^y + excess
+            // x[i] × 2^y
             auto p = twice( x[i], y );
+			// pull lower excess
+            auto carry = W{0};
             tie( p[0], carry ) = sum( p[0], excess, W{0} );
             tie( p[1], ignore ) = sum( p[1], W{0}, carry );
             // store low word, propagate high word

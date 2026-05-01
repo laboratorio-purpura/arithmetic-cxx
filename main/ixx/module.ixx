@@ -48,3 +48,5 @@ export import :square;
 export import :difference;
 export import :division;
 export import :half;
+
+export import :greatest_common_divisor;

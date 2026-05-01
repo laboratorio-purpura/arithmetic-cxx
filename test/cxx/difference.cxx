@@ -70,15 +70,13 @@ TYPED_TEST(PurpleHegelTest,difference_N_1_differential)
         auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
         auto y = tc.draw(words<Bits>());
 
-        // TODO: lift this restriction
-        if ( is_smaller<word>(x,vector{y}) )
-            std::swap(x[0],y); // TODO
-
         // compute with purple
         auto z = size(x);
         auto r = vector<word>(z);
         auto b = difference<word>(r,x,y);
-        assert(b.v == 0);
+
+        // TODO: lift this restriction
+        tc.assume( b == word{0} );
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -147,7 +145,7 @@ TYPED_TEST(PurpleRandomTest,difference_N_1_differential)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,difference_N_1_short)
+TYPED_TEST(PurpleHegelTest,difference_N_1_short_result)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -163,12 +161,12 @@ TYPED_TEST(PurpleHegelTest,difference_N_1_short)
         // short size
         auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full result
+        // full result
 
         auto fr = vector<word>(fz);
         auto _ = difference<word>(fr,x,y);
 
-        // compute short result
+        // short result
 
         auto sr = vector<word>(sz);
         auto _ = difference<word>(sr,x,y);
@@ -224,15 +222,13 @@ TYPED_TEST(PurpleHegelTest,difference_differential)
         auto x = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
         auto y = tc.draw(vectors<word>(words<Bits>(),{.max_size=64}));
 
-        // TODO: lift this restriction
-        if ( is_smaller<word>(x,y) )
-            std::swap(x,y);
-
         // compute with purple
         auto z = max(size(x),size(y));
         auto r = vector<word>(z);
         auto b = difference<word>(r,x,y);
-        assert(b.v == 0);
+
+        // TODO: lift this restriction
+        tc.assume( b == word{0} );
 
         // compute with gmp
         auto x_ = to_mpz(x);
@@ -301,7 +297,7 @@ TYPED_TEST(PurpleRandomTest,difference_differential)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,difference_short)
+TYPED_TEST(PurpleHegelTest,difference_short_result)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -317,12 +313,12 @@ TYPED_TEST(PurpleHegelTest,difference_short)
         // short size
         auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full result
+        // full result
 
         auto fr = vector<word>(fz);
         auto _ = difference<word>(fr,x,y);
 
-        // compute short result
+        // short result
 
         auto sr = vector<word>(sz);
         auto _ = difference<word>(sr,x,y);

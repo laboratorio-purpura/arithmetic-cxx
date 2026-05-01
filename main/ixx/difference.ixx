@@ -61,7 +61,7 @@ namespace purple::arithmetics
     template <Word W>
     auto difference ( span<W> r, span<W const> x, span<W const> y ) noexcept -> W
     {
-        auto borrow = W{0};
+        auto b = W{0};
 
         auto const rz = size(r);
         auto const xz = size(x);
@@ -71,17 +71,17 @@ namespace purple::arithmetics
         auto const z = min({ rz, xz, yz });
 
         // subtract x and y, word by word, propagating borrow
-        for (auto i = 0uz; i != z; ++i)
-            tie( r[i], borrow ) = difference( x[i], y[i], borrow );
+        for (auto i = 0uz; i < z; ++i)
+            tie( r[i], b ) = difference( x[i], y[i], b );
 
         // either propagate borrow through x
         for (auto i = z, j = min(xz,rz); i < j; ++i)
-            tie( r[i], borrow ) = difference( x[i], W{0}, borrow );
+            tie( r[i], b ) = difference( x[i], W{0}, b );
 
         // or propagate borrow through y
         for (auto i = z, j = min(yz,rz); i < j; ++i)
-            tie( r[i], borrow ) = difference( W{0}, y[i], borrow );
+            tie( r[i], b ) = difference( W{0}, y[i], b );
 
-        return borrow;
+        return b;
     }
 }

@@ -61,7 +61,7 @@ namespace purple::arithmetics
     template <Word W>
     auto sum ( span<W> r, span<W const> x, span<W const> y ) noexcept -> W
     {
-        auto carry = W{0};
+        auto c = W{0};
 
         auto const rz = size(r);
         auto const xz = size(x);
@@ -71,18 +71,18 @@ namespace purple::arithmetics
         auto const z = min({ rz, xz, yz });
 
         // add x and y, word by word, propagating carry
-        for (auto i = 0uz; i != z; ++i)
-            tie( r[i], carry ) = sum( x[i], y[i], carry );
+        for (auto i = 0uz; i < z; ++i)
+            tie( r[i], c ) = sum( x[i], y[i], c );
 
         // either propagate carry through x
         for (auto i = z, j = min(rz, xz); i < j; ++i)
-            tie( r[i], carry ) = sum( x[i], W{0}, carry );
+            tie( r[i], c ) = sum( x[i], W{0}, c );
 
         // or propagate carry through y
         for (auto i = z, j = min(rz, yz); i < j; ++i)
-            tie( r[i], carry ) = sum( W{0}, y[i], carry );
+            tie( r[i], c ) = sum( W{0}, y[i], c );
 
-        return carry;
+        return c;
     }
 }
 

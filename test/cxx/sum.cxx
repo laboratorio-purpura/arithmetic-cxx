@@ -139,7 +139,7 @@ TYPED_TEST(PurpleRandomTest,sum_N_1_differential)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,sum_N_1_short)
+TYPED_TEST(PurpleHegelTest,sum_N_1_short_result)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -155,12 +155,12 @@ TYPED_TEST(PurpleHegelTest,sum_N_1_short)
         // short size
         auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full result
+        // full result
 
         auto fr = vector<word>(fz);
         auto _ = sum<word>(fr,x,y);
 
-        // compute short result
+        // short result
 
         auto sr = vector<word>(sz);
         auto _ = sum<word>(sr,x,y);
@@ -285,7 +285,7 @@ TYPED_TEST(PurpleRandomTest,sum_differential)
     }
 }
 
-TYPED_TEST(PurpleHegelTest,sum_short)
+TYPED_TEST(PurpleHegelTest,sum_short_result)
 {
     constexpr auto Bits = tuple_element<0,TypeParam>::type::value;
     using word = word<Bits>;
@@ -296,20 +296,20 @@ TYPED_TEST(PurpleHegelTest,sum_short)
 
         auto x = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
         auto y = tc.draw(vectors<word>(words<Bits>(),{.min_size=1,.max_size=64}));
-        // full result size
+        // full size
         auto fz = max(size(x),size(y));
-        // variable result size
+        // short size
         auto sz = tc.draw(integers<size_t>({.max_value=fz-1}));
 
-        // compute full-sized result
+        // full result
 
         auto fr = vector<word>(fz);
-        auto _ = sum<word>(fr,x,y);
+        ignore = sum<word>(fr,x,y);
 
-        // compute variable-sized result
+        // short result
 
         auto sr = vector<word>(sz);
-        auto _ = sum<word>(sr,x,y);
+        ignore = sum<word>(sr,x,y);
 
         // compare
 

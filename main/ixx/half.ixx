@@ -39,8 +39,8 @@ namespace purple::arithmetics
         auto const pz = size(quotient);
         auto const xz = size(x);
 
-        // TODO: lift this restriction
-        assert(y < Bits);
+        // TODO: document this restriction
+        y = min(y, 63uz);
 
         // count of result words
         auto const z = min({ pz, xz });
